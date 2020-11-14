@@ -50,7 +50,7 @@ begin
    mem_read : process(mem, address_int, we_n)
    begin
       if we_n = '1' then
-         data_out <= mem(address_int);
+--         data_out <= mem(address_int);
       end if;
    end process;
    

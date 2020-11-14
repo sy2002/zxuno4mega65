@@ -72,8 +72,8 @@ signal vga_blue_int     : std_logic_vector(5 downto 0);
 begin
    
    -- outputs to Nexys board
-   SSEG_AN     <= (others => '0');
-   SSEG_CA     <= (others => '0');
+   SSEG_AN     <= (others => '1');
+   SSEG_CA     <= (others => '1');
    UART_CTS    <= '0';        -- always allow sending to the fpga: basically this means RTS/CTS is not supported
    SD_DAT      <= "000";        -- pull DAT1, DAT2 and DAT3 to GND (Nexys' pull-ups by default pull to VDD)
    LEDs        <= "000000000000000" & testled_int;
