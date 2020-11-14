@@ -24,7 +24,7 @@
 //    Any distributed copy of this file must keep this notice intact.
 
 module tld_zxuno_a100t (
-   input wire clk50mhz,
+   input wire clk100mhz,
 
    output wire [5:0] r,
    output wire [5:0] g,
@@ -79,7 +79,7 @@ module tld_zxuno_a100t (
    //clock_generator relojes_maestros
    relojes_mmcm relojes_maestros
    (// Clock in ports
-    .CLK_IN1            (clk50mhz),
+    .CLK_IN1            (clk100mhz),
     // Clock out ports
     .CLK_OUT1           (sysclk),
     .CLK_OUT2           (),
@@ -122,7 +122,7 @@ module tld_zxuno_a100t (
 
    zxuno #(.FPGA_MODEL(3'b111), .MASTERCLK(28000000)) la_maquina (
     .sysclk(sysclk),
-    .power_on_reset_n(1'b1),  // sólo para simulación. Para implementacion, dejar a 1
+    .power_on_reset_n(1'b1),  // sï¿½lo para simulaciï¿½n. Para implementacion, dejar a 1
     .r(ri),
     .g(gi),
     .b(bi),

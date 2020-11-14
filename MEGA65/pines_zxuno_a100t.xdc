@@ -1,7 +1,6 @@
-# Pines y estandares de niveles logicos
-#Clock
-set_property PACKAGE_PIN U22 [get_ports clk50mhz]
-set_property IOSTANDARD LVCMOS33 [get_ports clk50mhz]
+## External clock signal (100 MHz)
+set_property -dict {PACKAGE_PIN E3 IOSTANDARD LVCMOS33} [get_ports clk100mhz]
+create_clock -period 10.000 -name CLK [get_ports clk100mhz]
 
 #Leds y Botones
 set_property PACKAGE_PIN J19 [get_ports testled]

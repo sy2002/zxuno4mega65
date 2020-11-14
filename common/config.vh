@@ -23,12 +23,12 @@
 
 // Build options (comment out to disable a specific option)
 
-`define LOAD_ROM_FROM_FLASH_OPTION
+//`define LOAD_ROM_FROM_FLASH_OPTION
 // The following two defines are taken into account only if LOAD_ROM_FROM_FLASH_OPTION is not defined
 `define DEFAULT_SYSTEM_ROM "128en.hex"
 `define DEFAULT_DIVMMC_ROM "esxdos088.hex"
 `define MIDI_SYNTH_OPTION
-`define UART_ESP8266_OPTION
+//`define UART_ESP8266_OPTION
 `define PZX_PLAYER_OPTION
 `define VGA_OUTPUT_OPTION
 `define CPU_TURBO_OPTION
@@ -43,7 +43,7 @@
 `define RASTER_INTERRUPT_SUPPORT
 `define TURBOSUND_SUPPORT
 `define SPECDRUM_COVOX_SUPPORT
-`define MULTIBOOT_SUPPORT
+//`define MULTIBOOT_SUPPORT
 //`define PENTAGON_512K_SUPPORT
 
 // FPGA color clock generation needs AD724 control support enabled
@@ -84,7 +84,7 @@
 // ZXUNO registers for SPI devices (flash)
   localparam
       SPIPORT = 8'h02,     // registro de lectura/escritura SPI
-      CSPIN   = 8'h03;     // bit 0: estado/control de la señal FLASH_CS
+      CSPIN   = 8'h03;     // bit 0: estado/control de la seï¿½al FLASH_CS
 
 // ZXUNO registers for PS/2 keyboard handling
   localparam
