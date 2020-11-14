@@ -69,6 +69,8 @@ signal vga_red_int      : std_logic_vector(5 downto 0);
 signal vga_green_int    : std_logic_vector(5 downto 0);
 signal vga_blue_int     : std_logic_vector(5 downto 0);
 
+signal clk28mhz         : std_logic;
+
 begin
    
    -- outputs to Nexys board
@@ -91,11 +93,18 @@ begin
    joy_data_int <= '0';
    flash_miso_int <= '0';
    
+   clk_generator : entity work.clk
+   port map
+   (
+      sys_clk_i            => CLK,
+      clk28mhz_o           => clk28mhz
+   );
+   
    zxuno_wrapper : entity work.tld_zxuno_a100t
    port map
    (
       -- assumes 100 MHz system clock and transforms it to 28 MHz
-      clk100mhz            => CLK,
+      clk28mhz             => clk28mhz,
 
       -- VGA: Nexys only supports 4 bit per color channel
       r                    => vga_red_int,
@@ -154,6 +163,7 @@ begin
    )
    port map
    (
+      clk         => clk28mhz,
       address     => psram_address(16 downto 0),
       data        => psram_data,
       we_n        => psram_we_n

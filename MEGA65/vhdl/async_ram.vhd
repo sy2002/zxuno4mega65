@@ -18,6 +18,7 @@ generic (
    DATA_WIDTH  : integer := 8
 );
 port (
+   clk         : in std_logic;
    address     : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
    data        : inout std_logic_vector(DATA_WIDTH - 1 downto 0);
    we_n        : in std_logic
@@ -35,22 +36,24 @@ signal   address_int : integer;
   
 begin
 
-   data <= data_out when we_n = '1' else (others => 'Z');
+   data <= data_out;
    address_int <= to_integer(unsigned(address));
 
-   mem_write : process(address_int, data, we_n)
+   mem_write : process(clk)
    begin
---      if rising_edge(clk) then
+      if falling_edge(clk) then
          if we_n = '0' then
---            mem(address_int) <= data;
+            mem(address_int) <= data;
          end if;
---      end if;
+      end if;
    end process;
 
    mem_read : process(mem, address_int, we_n)
    begin
       if we_n = '1' then
---         data_out <= mem(address_int);
+         data_out <= mem(address_int);
+      else
+         data_out <= (others => 'Z');
       end if;
    end process;
    

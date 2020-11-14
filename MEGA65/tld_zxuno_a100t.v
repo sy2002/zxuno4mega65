@@ -24,7 +24,7 @@
 //    Any distributed copy of this file must keep this notice intact.
 
 module tld_zxuno_a100t (
-   input wire clk100mhz,
+   input wire clk28mhz,
 
    output wire [5:0] r,
    output wire [5:0] g,
@@ -74,19 +74,7 @@ module tld_zxuno_a100t (
    output wire testled
    );
 
-   wire sysclk, flash_clk;
-   
-   //clock_generator relojes_maestros
-   relojes_mmcm relojes_maestros
-   (// Clock in ports
-    .CLK_IN1            (clk100mhz),
-    // Clock out ports
-    .CLK_OUT1           (sysclk),
-    .CLK_OUT2           (),
-    
-    .reset(1'b0),
-    .locked()
-    );
+   wire flash_clk;
 
    wire [2:0] ri, gi, bi, ro, go, bo;
    wire hsync_pal, vsync_pal, csync_pal;
@@ -97,7 +85,7 @@ module tld_zxuno_a100t (
    wire joy2up, joy2down, joy2left, joy2right, joy2fire1, joy2fire2;
 
    joydecoder decodificador_joysticks (
-    .clk(sysclk),
+    .clk(clk28mhz),
     .joy_data(joy_data),
     .joy_latch_megadrive(hsync),
     .joy_clk(joy_clk),
@@ -121,7 +109,7 @@ module tld_zxuno_a100t (
    );   
 
    zxuno #(.FPGA_MODEL(3'b111), .MASTERCLK(28000000)) la_maquina (
-    .sysclk(sysclk),
+    .sysclk(clk28mhz),
     .power_on_reset_n(1'b1),  // s�lo para simulaci�n. Para implementacion, dejar a 1
     .r(ri),
     .g(gi),
@@ -185,7 +173,7 @@ module tld_zxuno_a100t (
     );
 
 	vga_scandoubler #(.CLKVIDEO(14000)) salida_vga (
-    .clk(sysclk),
+    .clk(clk28mhz),
     .clk14en(clk14en_tovga),
     .enable_scandoubling(vga_enable),
     .disable_scaneffect(~scanlines_enable),
