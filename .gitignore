@@ -6,3 +6,4 @@ MEGA65/.Xil
 MEGA65/vivado*.jou
 MEGA65/vivado*.log
 MEGA65/vivado_pid*
+MEGA65/*ip_user_files

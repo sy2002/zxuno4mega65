@@ -6,16 +6,18 @@ use unisim.vcomponents.all;
 
 entity clk is
    port (
-      sys_clk_i  : in  std_logic;
-      clk28mhz_o : out std_logic
+      sys_clk_i      : in  std_logic;
+      clk28mhz_o     : out std_logic;
+      clk112mhz_o    : out std_logic
    );
 end clk;
 
 architecture rtl of clk is
 
-   signal clkfb      : std_logic;
-   signal clkfb_mmcm : std_logic;
-   signal clk28_mmcm : std_logic;
+   signal clkfb         : std_logic;
+   signal clkfb_mmcm    : std_logic;
+   signal clk28_mmcm    : std_logic;
+   signal clk112_mmcm   : std_logic;
 
 begin
 
@@ -28,22 +30,22 @@ begin
          CLKIN1_PERIOD        => 10.0,       -- INPUT @ 100 MHz
          REF_JITTER1          => 0.010,
          DIVCLK_DIVIDE        => 1,
-         CLKFBOUT_MULT_F      => 7.000,
+         CLKFBOUT_MULT_F      => 8.960,
          CLKFBOUT_PHASE       => 0.000,
          CLKFBOUT_USE_FINE_PS => FALSE,
-         CLKOUT0_DIVIDE_F     => 25.0,       -- 700 MHz / 25 = 28 MHz 
+         CLKOUT0_DIVIDE_F     => 32.0,       -- 896 MHz / 32 = 28 MHz 
          CLKOUT0_PHASE        => 0.000,
-         CLKOUT0_USE_FINE_PS  => FALSE
---         CLKOUT1_DIVIDE       => 16,
---         CLKOUT1_PHASE        => 0.000,
---         CLKOUT1_DUTY_CYCLE   => 0.500,
---         CLKOUT1_USE_FINE_PS  => FALSE
+         CLKOUT0_USE_FINE_PS  => FALSE,
+         CLKOUT1_DIVIDE       => 8,          -- 896 MHz / 8 = 112 MHz = 4 * 28 MHz
+         CLKOUT1_PHASE        => 0.000,
+         CLKOUT1_DUTY_CYCLE   => 0.500,
+         CLKOUT1_USE_FINE_PS  => FALSE
       )
       port map (
          -- Output clocks
          CLKFBOUT            => clkfb_mmcm,
          CLKOUT0             => clk28_mmcm,
---         CLKOUT1             => clk50_mmcm,
+         CLKOUT1             => clk112_mmcm,
          -- Input clock control
          CLKFBIN             => clkfb,
          CLKIN1              => sys_clk_i,
@@ -85,8 +87,15 @@ begin
    clk28_bufg : BUFG
    port map (
       I => clk28_mmcm,
-      O => clk28MHz_o
+      O => clk28mhz_o
    );
+   
+   clk224_bufg : BUFG
+   port map (
+      I => clk112_mmcm,
+      O => clk112mhz_o
+   );
+   
 
 end architecture rtl;
 

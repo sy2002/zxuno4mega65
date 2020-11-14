@@ -50,7 +50,7 @@ port (
 ); 
 end top_nexys;
 
-architecture Behavioral of top_nexys is
+architecture beh of top_nexys is
 
 signal psram_address    : std_logic_vector(20 downto 0);
 signal psram_data       : std_logic_vector(7 downto 0);
@@ -70,6 +70,7 @@ signal vga_green_int    : std_logic_vector(5 downto 0);
 signal vga_blue_int     : std_logic_vector(5 downto 0);
 
 signal clk28mhz         : std_logic;
+signal clk112mhz        : std_logic;
 
 begin
    
@@ -97,7 +98,8 @@ begin
    port map
    (
       sys_clk_i            => CLK,
-      clk28mhz_o           => clk28mhz
+      clk28mhz_o           => clk28mhz,
+      clk112mhz_o          => clk112mhz
    );
    
    zxuno_wrapper : entity work.tld_zxuno_a100t
@@ -155,18 +157,18 @@ begin
       testled              => testled_int
    );
   
-   pseudo_sram : entity work.async_ram
+   pseudo_sram : entity work.bram
    generic map
    (
-      ADDR_WIDTH  => 17,
+      ADDR_WIDTH  => 18,
       DATA_WIDTH  => 8
    )
    port map
    (
-      clk         => clk28mhz,
-      address     => psram_address(16 downto 0),
+      clk         => clk112mhz,
+      address     => psram_address(17 downto 0),
       data        => psram_data,
       we_n        => psram_we_n
    );
 
-end Behavioral;
+end beh;
