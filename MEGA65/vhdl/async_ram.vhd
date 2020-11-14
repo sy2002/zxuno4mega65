@@ -38,17 +38,17 @@ begin
    data <= data_out when we_n = '1' else (others => 'Z');
    address_int <= to_integer(unsigned(address));
 
-   mem_write : process(address, data, we_n)
+   mem_write : process(address_int, data, we_n)
    begin
       if we_n = '0' then
-         mem(to_integer(unsigned(address))) <= data;
+--         mem(address_int) <= data;
       end if;
    end process;
 
-   mem_read : process(address, we_n)
+   mem_read : process(mem, address_int, we_n)
    begin
       if we_n = '1' then
-         data_out <= mem(address_int);
+--         data_out <= mem(address_int);
       end if;
    end process;
    

@@ -4,7 +4,7 @@
 -- Top Module for synthesizing the whole machine
 --
 -- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
--- Nexys and MEGA65 port in 2020 by sy2002
+-- Nexys and MEGA65 port done by sy2002 in 2020
 ----------------------------------------------------------------------------------
 
 
@@ -56,18 +56,41 @@ signal psram_address    : std_logic_vector(20 downto 0);
 signal psram_data       : std_logic_vector(7 downto 0);
 signal psram_we_n       : std_logic;
 
+signal ear_int          : std_logic;
 signal ps2_clk_int      : std_logic;
 signal ps2_dat_int      : std_logic;
 signal mouse_clk_int    : std_logic;
 signal mouse_dat_int    : std_logic;
+signal joy_data_int     : std_logic;
+signal flash_miso_int   : std_logic;
+signal testled_int      : std_logic;
+
+signal vga_red_int      : std_logic_vector(5 downto 0);
+signal vga_green_int    : std_logic_vector(5 downto 0);
+signal vga_blue_int     : std_logic_vector(5 downto 0);
 
 begin
    
-   -- fixed outputs
-   UART_CTS <= '0';        -- always allow sending to the fpga: basically this means RTS/CTS is not supported
-   SD_DAT <= "000";        -- pull DAT1, DAT2 and DAT3 to GND (Nexys' pull-ups by default pull to VDD)
-   LEDs(15 downto 1) <= (others => '0');
-
+   -- outputs to Nexys board
+   SSEG_AN     <= (others => '0');
+   SSEG_CA     <= (others => '0');
+   UART_CTS    <= '0';        -- always allow sending to the fpga: basically this means RTS/CTS is not supported
+   SD_DAT      <= "000";        -- pull DAT1, DAT2 and DAT3 to GND (Nexys' pull-ups by default pull to VDD)
+   LEDs        <= "000000000000000" & testled_int;
+   
+   VGA_RED     <= vga_red_int(5 downto 2);
+   VGA_GREEN   <= vga_green_int(5 downto 2);
+   VGA_BLUE    <= vga_blue_int(5 downto 2);
+      
+   -- fixed inputs to the ZX Uno
+   ear_int <= '0';
+   ps2_clk_int <= '0';
+   ps2_dat_int <= '0';
+   mouse_clk_int <= '0';
+   mouse_dat_int <= '0';
+   joy_data_int <= '0';
+   flash_miso_int <= '0';
+   
    zxuno_wrapper : entity work.tld_zxuno_a100t
    port map
    (
@@ -75,24 +98,23 @@ begin
       clk100mhz            => CLK,
 
       -- VGA: Nexys only supports 4 bit per color channel
-      r(5 downto 2)        => VGA_RED,
-      g(5 downto 2)        => VGA_GREEN,
-      b(5 downto 2)        => VGA_BLUE,
+      r                    => vga_red_int,
+      g                    => vga_green_int,
+      b                    => vga_blue_int,
       hsync                => VGA_HS,
       vsync                => VGA_VS,
       
       -- audio
-      ear                  => '0',           -- unknown, has something todo with "PZX_PLAYER", what is "PZX_PLAYER"?
+      ear                  => ear_int,  -- unknown, has something todo with "PZX_PLAYER", what is "PZX_PLAYER"?
       audio_out_left       => open,
       audio_out_right      => open,
       
       -- keyboard and mouse
       
-clkps2               => ps2_clk_int,
+      clkps2               => ps2_clk_int,
       dataps2              => ps2_dat_int,
-      mouseclk             => mouse_clk_int,
-      
-mousedata            => mouse_dat_int,
+      mouseclk             => mouse_clk_int,      
+      mousedata            => mouse_dat_int,
 
       -- UART
       uart_rx              => UART_RXD,
@@ -112,16 +134,16 @@ mousedata            => mouse_dat_int,
       sd_miso              => SD_MISO,
       
       -- joystick
-      joy_data             => '0',
+      joy_data             => joy_data_int,
       joy_clk              => open,
       joy_load_n           => open,
       
       -- flash
       flash_cs_n           => open,
       flash_mosi           => open, 
-      flash_miso           => '0',
+      flash_miso           => flash_miso_int,
          
-      testled              => LEDs(0)
+      testled              => testled_int
    );
   
    pseudo_sram : entity work.async_ram
