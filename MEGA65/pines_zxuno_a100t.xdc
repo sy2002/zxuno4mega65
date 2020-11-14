@@ -13,7 +13,7 @@ set_property -dict {PACKAGE_PIN T10 IOSTANDARD LVCMOS33} [get_ports {SSEG_CA[0]}
 set_property -dict {PACKAGE_PIN R10 IOSTANDARD LVCMOS33} [get_ports {SSEG_CA[1]}]
 set_property -dict {PACKAGE_PIN K16 IOSTANDARD LVCMOS33} [get_ports {SSEG_CA[2]}]
 set_property -dict {PACKAGE_PIN K13 IOSTANDARD LVCMOS33} [get_ports {SSEG_CA[3]}]
-et_property -dict {PACKAGE_PIN P15 IOSTANDARD LVCMOS33} [get_ports {SSEG_CA[4]}]
+set_property -dict {PACKAGE_PIN P15 IOSTANDARD LVCMOS33} [get_ports {SSEG_CA[4]}]
 set_property -dict {PACKAGE_PIN T11 IOSTANDARD LVCMOS33} [get_ports {SSEG_CA[5]}]
 set_property -dict {PACKAGE_PIN L18 IOSTANDARD LVCMOS33} [get_ports {SSEG_CA[6]}]
 set_property -dict {PACKAGE_PIN H15 IOSTANDARD LVCMOS33} [get_ports {SSEG_CA[7]}]

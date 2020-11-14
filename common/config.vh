@@ -27,22 +27,22 @@
 // The following two defines are taken into account only if LOAD_ROM_FROM_FLASH_OPTION is not defined
 `define DEFAULT_SYSTEM_ROM "128en.hex"
 `define DEFAULT_DIVMMC_ROM "esxdos088.hex"
-`define MIDI_SYNTH_OPTION
+//`define MIDI_SYNTH_OPTION
 //`define UART_ESP8266_OPTION
 //`define PZX_PLAYER_OPTION
 `define VGA_OUTPUT_OPTION
-`define CPU_TURBO_OPTION
-`define DIVMMC_SUPPORT
-`define ZXUNO_DMA_SUPPORT
-`define ULA_TIMEX_SUPPORT
+//`define CPU_TURBO_OPTION
+//`define DIVMMC_SUPPORT
+//`define ZXUNO_DMA_SUPPORT
+//`define ULA_TIMEX_SUPPORT
 
 // Radastan mode needs ULAplus support enabled
-`define ULAPLUS_SUPPORT
-`define ULA_RADASTAN_SUPPORT
-`define ULA_SNOW_SUPPORT
-`define RASTER_INTERRUPT_SUPPORT
+//`define ULAPLUS_SUPPORT
+//`define ULA_RADASTAN_SUPPORT
+//`define ULA_SNOW_SUPPORT
+//`define RASTER_INTERRUPT_SUPPORT
 `define TURBOSUND_SUPPORT
-`define SPECDRUM_COVOX_SUPPORT
+//`define SPECDRUM_COVOX_SUPPORT
 //`define MULTIBOOT_SUPPORT
 //`define PENTAGON_512K_SUPPORT
 

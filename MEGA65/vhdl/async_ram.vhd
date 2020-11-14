@@ -40,15 +40,17 @@ begin
 
    mem_write : process(address_int, data, we_n)
    begin
-      if we_n = '0' then
---         mem(address_int) <= data;
-      end if;
+--      if rising_edge(clk) then
+         if we_n = '0' then
+--            mem(address_int) <= data;
+         end if;
+--      end if;
    end process;
 
    mem_read : process(mem, address_int, we_n)
    begin
       if we_n = '1' then
---         data_out <= mem(address_int);
+         data_out <= mem(address_int);
       end if;
    end process;
    
