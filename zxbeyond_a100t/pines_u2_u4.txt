@@ -1,0 +1,70 @@
+U4 (al lado de conector VGA)
+----------------------------
+GND                         GND
+3.3V                        3.3V
+GND                         GND
+D26 B5                      E26 UB
+D25 B4                      E25 G5
+G26 B3                      H26 G4
+E23 B2                      F23 G3
+F22 B1                      G22 G2
+J26 B0                      J25 G1
+G21 R5                      G20 G0
+H22 R3                      H21 R4
+J21 R1                      K21 R2
+K26 R0                      K25 VSYNC
+K23 HSYNC                   K22 AUDIO_LEFT
+M26 AUDIO_RIGHT             N26 A0
+L23 D4                      L22 A1
+P26 A2                      R26 A14
+M25 A12                     M24 A3
+N22 D0                      N21 A4
+P24 D2                      P23 A10
+P25 A5                      R25 D3
+T25 A8                      T24 WE_N
+V21 A9                      U21 D1
+W23 A7                      V23 A11
+Y23 A6                      Y22 A13
+AA25 D5                     Y25 D6
+Y21 D7                      W21 A18
+AC24 A17                    AB24 A16
+Y26 JOY_DATA                W25 A15
+AC26 JOY_LOAD_N             AB26 JOY_CLK
+GND                         GND
+5V                          5V
+
+
+U2 (al lado de los conectores de joystick)
+------------------------------------------
+GND                         GND
+3.3V                        3.3V
+GND                         GND
+A5 EAR                      B5
+A4                          B4
+A2                          A3 A20
+C2                          B2_VREF RXD (TXD en el módulo)
+D4                          C4
+D5                          E5
+B1                          C1
+D1                          E1 TXD (RXD en el módulo)
+E2                          F2
+F4                          G4
+G1                          G2
+H4 (capacidad XADC)         J4 A19
+H1                          H2
+G9_VREF                     H9 RTS
+L2                          M2
+N3 D12                      N2 MIDIOUT
+K5 D11                      L5 D13
+L4                          M4
+P3 D14                      R3
+J1 D10                      K1 D9
+M5_VREF D8                  M6 D15
+T3 SDCLK                    T4 SDMISO
+P5_VREF SDCS                P6 SDMOSI
+M1                          N1 MCLK
+P1                          R1 MDATA
+R2 KDATA                    T2 KCLK
+U1                          U2
+GND                         GND
+5V                          5V

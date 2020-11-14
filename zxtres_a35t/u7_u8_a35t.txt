@@ -1,0 +1,167 @@
+U7.   54 de 54
+----
+GND           GND
+3.3V          3.3V
+GND           GND
+M16_B5        N13
+N14_B4        N16_G5
+P15_B3        P16_G4
+R15_B2        R16_G3
+T14_B1        T15_G2
+M12_B0        P14_G1
+T13_R5        R13_G0
+T12_R3        R12_R4
+N12_R1        P13_R2
+K12_R0        K13_VSYNC
+P10_CSYNC     P11_ILEFT
+N9_IRIGHT     P9_A0
+T10_D4        R11_A1
+T9_A2         R10_A14
+T8_A12        R8_A3
+T7_D0         R7_A4
+T5_D2         R6_A10
+M6_A5         R5_D3
+N6_A8         P6_WE
+L5_A9         P5_D1
+T4_A7         T3_A11
+R3_A6         T2_A13
+R2_D5         R1_D6
+M5_D7         N4_A18
+P4_A17        P3_A16
+N1_DATA       P1_A15
+M2_LOAD       M1_SCK
+GND           GND
+5V            5V
+
+U8.   8 de 54
+----
+GND           GND
+3.3V          3.3V
+GND           GND
+B7            A7
+B6            B5
+E6            K5
+J5            J4
+G5            G4
+C7            C6
+D6            D5
+A5            A4
+B4            A3
+D4            C4
+C3            C2
+B2            A2
+C1            B1
+E2            D1
+E3            D3
+F5            E5
+F2            E1
+F4            F3
+G2            G1
+H2            H1
+K1            J1
+L3            L2
+H5            H4
+J3_SDCLK      H3_SDMISO
+K3_SDCS       K2_SDMOSI
+L4_MCLK       M4_MDAT
+N3_KDAT       N2_KCLK
+GND           GND
+5V            5V
+
+
+#
+# System signal
+#
+set_property PACKAGE_PIN C8 [get_ports led_1]
+set_property IOSTANDARD LVCMOS33 [get_ports led_1]
+set_property PACKAGE_PIN N11 [get_ports CLK_50M_IN]
+set_property IOSTANDARD LVCMOS33 [get_ports CLK_50M_IN]
+set_property PACKAGE_PIN A8 [get_ports sys_rst_n]
+set_property IOSTANDARD LVCMOS33 [get_ports sys_rst_n]
+
+#
+# SDRAM signals
+#
+set_property PACKAGE_PIN B14 [get_ports SDCLK0]
+set_property IOSTANDARD LVCMOS33 [get_ports SDCLK0]
+set_property PACKAGE_PIN A14 [get_ports SDCKE0]
+set_property IOSTANDARD LVCMOS33 [get_ports SDCKE0]
+
+set_property PACKAGE_PIN B16 [get_ports DQM[1]]
+set_property IOSTANDARD LVCMOS33 [get_ports DQM[1]]
+set_property PACKAGE_PIN F12 [get_ports DQM[0]]
+set_property IOSTANDARD LVCMOS33 [get_ports DQM[0]]
+
+set_property PACKAGE_PIN F13 [get_ports CAS]
+set_property IOSTANDARD LVCMOS33 [get_ports CAS]
+set_property PACKAGE_PIN E13 [get_ports RAS]
+set_property IOSTANDARD LVCMOS33 [get_ports RAS]
+set_property PACKAGE_PIN F14 [get_ports SDWE]
+set_property IOSTANDARD LVCMOS33 [get_ports SDWE]
+set_property PACKAGE_PIN D14 [get_ports SDCS0]
+set_property IOSTANDARD LVCMOS33 [get_ports SDCS0]
+
+set_property PACKAGE_PIN C14 [get_ports Bank[1]]
+set_property IOSTANDARD LVCMOS33 [get_ports Bank[1]]
+set_property PACKAGE_PIN D13 [get_ports Bank[0]]
+set_property IOSTANDARD LVCMOS33 [get_ports Bank[0]]
+
+set_property PACKAGE_PIN A13 [get_ports Address[12]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[12]]
+set_property PACKAGE_PIN B12 [get_ports Address[11]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[11]]
+set_property PACKAGE_PIN B15 [get_ports Address[10]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[10]]
+set_property PACKAGE_PIN A12 [get_ports Address[9]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[9]]
+set_property PACKAGE_PIN B11 [get_ports Address[8]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[8]]
+set_property PACKAGE_PIN B10 [get_ports Address[7]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[7]]
+set_property PACKAGE_PIN A10 [get_ports Address[6]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[6]]
+set_property PACKAGE_PIN B9 [get_ports Address[5]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[5]]
+set_property PACKAGE_PIN A9 [get_ports Address[4]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[4]]
+set_property PACKAGE_PIN C11 [get_ports Address[3]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[3]]
+set_property PACKAGE_PIN C12 [get_ports Address[2]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[2]]
+set_property PACKAGE_PIN A15 [get_ports Address[1]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[1]]
+set_property PACKAGE_PIN C13 [get_ports Address[0]]
+set_property IOSTANDARD LVCMOS33 [get_ports Address[0]]
+
+set_property PACKAGE_PIN H12 [get_ports Data[0]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[0]]
+set_property PACKAGE_PIN H13 [get_ports Data[1]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[1]]
+set_property PACKAGE_PIN J15 [get_ports Data[2]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[2]]
+set_property PACKAGE_PIN H14 [get_ports Data[3]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[3]]
+set_property PACKAGE_PIN J16 [get_ports Data[4]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[4]]
+set_property PACKAGE_PIN H16 [get_ports Data[5]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[5]]
+set_property PACKAGE_PIN G14 [get_ports Data[6]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[6]]
+set_property PACKAGE_PIN G12 [get_ports Data[7]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[7]]
+set_property PACKAGE_PIN C16 [get_ports Data[8]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[8]]
+set_property PACKAGE_PIN D15 [get_ports Data[9]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[9]]
+set_property PACKAGE_PIN D16 [get_ports Data[10]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[10]]
+set_property PACKAGE_PIN E15 [get_ports Data[11]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[11]]
+set_property PACKAGE_PIN E16 [get_ports Data[12]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[12]]
+set_property PACKAGE_PIN F15 [get_ports Data[13]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[13]]
+set_property PACKAGE_PIN G15 [get_ports Data[14]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[14]]
+set_property PACKAGE_PIN G16 [get_ports Data[15]]
+set_property IOSTANDARD LVCMOS33 [get_ports Data[15]]
