@@ -157,16 +157,18 @@ begin
       testled              => testled_int
    );
   
+   -- emulate the SRAM that ZX-Uno needs via 512kB of BRAM
+   -- the BRAM is clocked 4x the system bus for being closer to a non-clocked SRAM chip as the ZX-Uno hardware uses it
    pseudo_sram : entity work.bram
    generic map
    (
-      ADDR_WIDTH  => 18,
-      DATA_WIDTH  => 8
+      ADDR_WIDTH  => 19, -- 2^19 bytes = 512kB
+      DATA_WIDTH  => 8   -- 8 bits
    )
    port map
    (
       clk         => clk112mhz,
-      address     => psram_address(17 downto 0),
+      address     => psram_address(18 downto 0),
       data        => psram_data,
       we_n        => psram_we_n
    );

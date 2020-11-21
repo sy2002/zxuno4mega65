@@ -30,7 +30,7 @@ begin
          CLKIN1_PERIOD        => 10.0,       -- INPUT @ 100 MHz
          REF_JITTER1          => 0.010,
          DIVCLK_DIVIDE        => 1,
-         CLKFBOUT_MULT_F      => 8.960,
+         CLKFBOUT_MULT_F      => 8.960,      -- scale to 896 MHz because it can be devided to produce 28 MHz as well as 112 MHz
          CLKFBOUT_PHASE       => 0.000,
          CLKFBOUT_USE_FINE_PS => FALSE,
          CLKOUT0_DIVIDE_F     => 32.0,       -- 896 MHz / 32 = 28 MHz 
