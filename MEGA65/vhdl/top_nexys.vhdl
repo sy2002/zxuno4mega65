@@ -31,8 +31,8 @@ port (
    LEDs        : out std_logic_vector(15 downto 0); -- 16 LEDs
    
    -- PS/2 keyboard
-   PS2_CLK     : in std_logic;
-   PS2_DAT     : in std_logic;
+   PS2_CLK     : inout std_logic;
+   PS2_DAT     : inout std_logic;
 
    -- VGA
    VGA_RED     : out std_logic_vector(3 downto 0);
@@ -84,11 +84,9 @@ begin
    VGA_RED     <= vga_red_int(5 downto 2);
    VGA_GREEN   <= vga_green_int(5 downto 2);
    VGA_BLUE    <= vga_blue_int(5 downto 2);
-      
+         
    -- fixed inputs to the ZX Uno
    ear_int <= '0';
-   ps2_clk_int <= '0';
-   ps2_dat_int <= '0';
    mouse_clk_int <= '0';
    mouse_dat_int <= '0';
    joy_data_int <= '0';
@@ -99,7 +97,7 @@ begin
    (
       sys_clk_i            => CLK,
       clk28mhz_o           => clk28mhz,
-      clk112mhz_o          => clk112mhz
+      clk112mhz_o          => open
    );
       
    zxuno_wrapper : entity work.tld_zxuno_a100t
@@ -123,8 +121,8 @@ begin
       
       -- keyboard and mouse
       
-      clkps2               => ps2_clk_int,
-      dataps2              => ps2_dat_int,
+      clkps2               => PS2_CLK,
+      dataps2              => PS2_DAT,
       mouseclk             => mouse_clk_int,      
       mousedata            => mouse_dat_int,
 
@@ -168,7 +166,7 @@ begin
    )
    port map
    (
-      clk         => clk112mhz,
+      clk         => clk28mhz,
       address     => psram_address(18 downto 0),
       data        => psram_data,
       we_n        => psram_we_n

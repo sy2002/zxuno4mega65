@@ -56,8 +56,8 @@ set_property -dict {PACKAGE_PIN U11 IOSTANDARD LVCMOS33} [get_ports {SWITCHES[14
 set_property -dict {PACKAGE_PIN V10 IOSTANDARD LVCMOS33} [get_ports {SWITCHES[15]}] 
 
 ## PS/2 keyboard
-set_property -dict {PACKAGE_PIN F4  IOSTANDARD LVCMOS33} [get_ports PS2_CLK]
-set_property -dict {PACKAGE_PIN B2  IOSTANDARD LVCMOS33} [get_ports PS2_DAT]
+set_property -dict {PACKAGE_PIN F4  IOSTANDARD LVCMOS33 PULLUP true} [get_ports PS2_CLK]
+set_property -dict {PACKAGE_PIN B2  IOSTANDARD LVCMOS33 PULLUP true} [get_ports PS2_DAT]
 
 ## LEDs
 set_property -dict {PACKAGE_PIN H17 IOSTANDARD LVCMOS33} [get_ports {LEDs[0]}]
