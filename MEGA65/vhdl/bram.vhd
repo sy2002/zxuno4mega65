@@ -1,11 +1,13 @@
 ----------------------------------------------------------------------------------
+-- ZX-Uno port for MEGA65
+--
 -- BRAM 
 --
 -- ZX-Uno needs SRAM. We don't have that on the MEGA65, so we emulate it by
 -- using a BRAM that is clocked 4x faster than the system clock
 --
 -- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
--- MEGA65 port in 2020 by sy2002
+-- MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
 ----------------------------------------------------------------------------------
 
 

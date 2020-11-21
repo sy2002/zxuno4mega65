@@ -1,3 +1,15 @@
+----------------------------------------------------------------------------------
+-- ZX-Uno port for MEGA65
+--
+-- Clock Generator 
+--
+-- Converts the 100 MHz clock of the MEGA65 to the 28 MHz system clock of
+-- the ZX-Uno and also outputs a 4x 28 MHz = 112 MHz clock for the simulated SRAM
+--
+-- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
+-- MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
+----------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 

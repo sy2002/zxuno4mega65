@@ -1,5 +1,9 @@
-## Nexys4 DDR mapping for ZX-Uno
-## done by sy2002 in May 2020
+## ZX-Uno port for MEGA65
+##
+## Nexys 4 DDR development testbed: Signal mapping
+##
+## The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
+## Nexys and MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
 
 ## External clock signal (100 MHz)
 set_property -dict {PACKAGE_PIN E3 IOSTANDARD LVCMOS33} [get_ports CLK]

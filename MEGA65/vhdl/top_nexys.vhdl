@@ -1,10 +1,10 @@
 ----------------------------------------------------------------------------------
--- ZX-Uno on a Nexys4 DDR board
+-- ZX-Uno port for MEGA65
 --
--- Top Module for synthesizing the whole machine
+-- Nexys 4 DDR development testbed: Top Module for synthesizing the whole machine
 --
 -- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
--- Nexys and MEGA65 port done by sy2002 in 2020
+-- Nexys and MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
 ----------------------------------------------------------------------------------
 
 
@@ -72,12 +72,15 @@ signal vga_blue_int     : std_logic_vector(5 downto 0);
 signal clk28mhz         : std_logic;
 signal clk112mhz        : std_logic;
 
+signal sd_cs_n_int      : std_logic;
+
 begin
    
    -- outputs to Nexys board
    SSEG_AN     <= (others => '1');
    SSEG_CA     <= (others => '1');
-   UART_CTS    <= '0';        -- always allow sending to the fpga: basically this means RTS/CTS is not supported
+   UART_CTS    <= '0';          -- always allow sending to the fpga: basically this means RTS/CTS is not supported
+   SD_RESET    <= not sd_cs_n_int;
    SD_DAT      <= "000";        -- pull DAT1, DAT2 and DAT3 to GND (Nexys' pull-ups by default pull to VDD)
    LEDs        <= "000000000000000" & testled_int;
    
@@ -101,7 +104,7 @@ begin
       clk28mhz_o           => clk28mhz,
       clk112mhz_o          => clk112mhz
    );
-   
+      
    zxuno_wrapper : entity work.tld_zxuno_a100t
    port map
    (
@@ -140,7 +143,7 @@ begin
       sram_ub              => open,
 
       -- SD Card
-      sd_cs_n              => SD_RESET,
+      sd_cs_n              => sd_cs_n_int,
       sd_clk               => SD_CLK,
       sd_mosi              => SD_MOSI,
       sd_miso              => SD_MISO,
