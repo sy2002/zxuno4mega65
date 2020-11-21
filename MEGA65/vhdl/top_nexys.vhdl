@@ -72,15 +72,12 @@ signal vga_blue_int     : std_logic_vector(5 downto 0);
 signal clk28mhz         : std_logic;
 signal clk112mhz        : std_logic;
 
-signal sd_cs_n_int      : std_logic;
-
 begin
    
    -- outputs to Nexys board
    SSEG_AN     <= (others => '1');
    SSEG_CA     <= (others => '1');
    UART_CTS    <= '0';          -- always allow sending to the fpga: basically this means RTS/CTS is not supported
-   SD_RESET    <= not sd_cs_n_int;
    SD_DAT      <= "000";        -- pull DAT1, DAT2 and DAT3 to GND (Nexys' pull-ups by default pull to VDD)
    LEDs        <= "000000000000000" & testled_int;
    
@@ -143,7 +140,7 @@ begin
       sram_ub              => open,
 
       -- SD Card
-      sd_cs_n              => sd_cs_n_int,
+      sd_cs_n              => SD_RESET,
       sd_clk               => SD_CLK,
       sd_mosi              => SD_MOSI,
       sd_miso              => SD_MISO,
