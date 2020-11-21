@@ -107,6 +107,7 @@ begin
    (
       -- assumes 100 MHz system clock and transforms it to 28 MHz
       clk28mhz             => clk28mhz,
+      reset_n              => RESET_N,
 
       -- VGA: Nexys only supports 4 bit per color channel
       r                    => vga_red_int,

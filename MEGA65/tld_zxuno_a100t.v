@@ -25,6 +25,7 @@
 
 module tld_zxuno_a100t (
    input wire clk28mhz,
+   input wire reset_n,
 
    output wire [5:0] r,
    output wire [5:0] g,
@@ -110,7 +111,7 @@ module tld_zxuno_a100t (
 
    zxuno #(.FPGA_MODEL(3'b111), .MASTERCLK(28000000)) la_maquina (
     .sysclk(clk28mhz),
-    .power_on_reset_n(1'b1),  // s�lo para simulaci�n. Para implementacion, dejar a 1
+    .power_on_reset_n(reset_n),  // s�lo para simulaci�n. Para implementacion, dejar a 1
     .r(ri),
     .g(gi),
     .b(bi),
