@@ -31,8 +31,8 @@ port (
    LEDs        : out std_logic_vector(15 downto 0); -- 16 LEDs
    
    -- PS/2 keyboard
-   PS2_CLK     : inout std_logic;
-   PS2_DAT     : inout std_logic;
+   PS2_CLK     : in std_logic;
+   PS2_DAT     : in std_logic;
 
    -- VGA
    VGA_RED     : out std_logic_vector(3 downto 0);

@@ -455,8 +455,8 @@ int main()
     MAP(MD_SHIFT|PC_SEMICOL,SP_COLON);
 
     // End of mapping. Save .HEX file for Verilog
-    //SAVEMAP1HEX("keyb1_us_hex.txt");
-    //SAVEMAP2HEX("keyb2_us_hex.txt");
+    SAVEMAP1HEX("keyb1_us_hex.txt");
+    SAVEMAP2HEX("keyb2_us_hex.txt");
     // And map file for loading from ESXDOS
     SAVEMAPBIN("US");
 	

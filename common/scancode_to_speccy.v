@@ -62,10 +62,10 @@ module scancode_to_speccy (
     reg [7:0] keymap1[0:2047];  // 2K x 8 bits
     reg [7:0] keymap2[0:2047];  // 2K x 8 bits
     reg [10:0] addr = 11'h0000;
-    reg [11:0] cpuaddr = 12'h0000;  // Dirección E/S desde la CPU. Se autoincrementa en cada acceso
+    reg [11:0] cpuaddr = 12'h0000;  // Direcciï¿½n E/S desde la CPU. Se autoincrementa en cada acceso
     initial begin
-        $readmemh ("../keymaps/keyb1_es_hex.txt", keymap1);
-        $readmemh ("../keymaps/keyb2_es_hex.txt", keymap2);
+        $readmemh ("../keymaps/keyb1_us_hex.txt", keymap1);
+        $readmemh ("../keymaps/keyb2_us_hex.txt", keymap2);
     end
     
     reg [2:0] keyrow1 = 3'h0;
@@ -107,7 +107,7 @@ module scancode_to_speccy (
           state <= CLEANMATRIX;
       else begin
           case (state)
-              CLEANMATRIX: begin  //TODO: para evitar tener que usar el limpiador de teclado, hay que modificar esta FSM para que cuando se suelte una tecla, no solo actualice la matriz para esa combinación de tecla+modificadores, sino también para las otras 7 combinaciones.
+              CLEANMATRIX: begin  //TODO: para evitar tener que usar el limpiador de teclado, hay que modificar esta FSM para que cuando se suelte una tecla, no solo actualice la matriz para esa combinaciï¿½n de tecla+modificadores, sino tambiï¿½n para las otras 7 combinaciones.
                   row[0] <= 5'b11111;
                   row[1] <= 5'b11111;
                   row[2] <= 5'b11111;

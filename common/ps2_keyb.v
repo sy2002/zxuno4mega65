@@ -63,7 +63,7 @@ module ps2_keyb(
 
     wire [7:0] kbcode;
     wire ps2busy;
-    wire kberror;
+    wire kberror = 1'b0;
     wire nueva_tecla;
     wire no_hay_teclas_pulsadas;
     wire extended;
@@ -90,7 +90,8 @@ module ps2_keyb(
 
     ps2_port lectura_de_teclado (
         .clk(clk),
-        .enable_rcv(~ps2busy),
+//        .enable_rcv(~ps2busy),
+        .enable_rcv(1'b1),
         .kb_or_mouse(1'b0),
         .ps2clk_ext(clkps2),
         .ps2data_ext(dataps2),
@@ -152,13 +153,13 @@ module ps2_keyb(
         .rewind(regaddr_changed == 1'b1 && zxuno_addr == KEYMAP)
         );
 
-    ps2_host_to_kb escritura_a_teclado (
-        .clk(clk),
-        .ps2clk_ext(clkps2),
-        .ps2data_ext(dataps2),
-        .data(din),
-        .dataload(zxuno_addr == SCANCODE && zxuno_regwr== 1'b1),
-        .ps2busy(ps2busy),
-        .ps2error(kberror)
-    );
+//    ps2_host_to_kb escritura_a_teclado (
+//        .clk(clk),
+//        .ps2clk_ext(clkps2),
+//        .ps2data_ext(dataps2),
+//        .data(din),
+//        .dataload(zxuno_addr == SCANCODE && zxuno_regwr== 1'b1),
+//        .ps2busy(ps2busy),
+//        .ps2error(kberror)
+//    );
 endmodule
