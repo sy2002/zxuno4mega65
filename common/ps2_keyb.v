@@ -61,13 +61,18 @@ module ps2_keyb(
     assign oe_scancode = (zxuno_addr == SCANCODE && zxuno_regrd == 1'b1);
     assign oe_kbstatus = (zxuno_addr == KBSTATUS && zxuno_regrd == 1'b1);
 
-    wire [7:0] kbcode;
-    wire ps2busy;
+    wire ps2busy = 1'b0;
     wire kberror = 1'b0;
-    wire nueva_tecla;
-    wire no_hay_teclas_pulsadas;
-    wire extended;
-    wire released;
+
+    (* mark_debug = "true" *) wire [7:0] kbcode;
+    (* mark_debug = "true" *) wire nueva_tecla;
+    (* mark_debug = "true" *) wire no_hay_teclas_pulsadas;
+    (* mark_debug = "true" *) wire extended;
+    (* mark_debug = "true" *) wire released;
+    
+    (* mark_debug = "true" *) wire [7:0] keymap_dout_int;
+    assign keymap_dout = keymap_dout_int;
+    
     wire shift_pressed, ctrl_pressed, alt_pressed;
     assign scancode_dout = kbcode;    
     
@@ -90,8 +95,7 @@ module ps2_keyb(
 
     ps2_port lectura_de_teclado (
         .clk(clk),
-//        .enable_rcv(~ps2busy),
-        .enable_rcv(1'b1),
+        .enable_rcv(~ps2busy),
         .kb_or_mouse(1'b0),
         .ps2clk_ext(clkps2),
         .ps2data_ext(dataps2),
@@ -147,7 +151,7 @@ module ps2_keyb(
         .sp_row(rows),
         .sp_col(cols),
         .din(din),
-        .dout(keymap_dout),
+        .dout(keymap_dout_int),
         .cpuwrite(zxuno_addr == KEYMAP && zxuno_regwr == 1'b1),
         .cpuread(zxuno_addr == KEYMAP && zxuno_regrd == 1'b1),
         .rewind(regaddr_changed == 1'b1 && zxuno_addr == KEYMAP)

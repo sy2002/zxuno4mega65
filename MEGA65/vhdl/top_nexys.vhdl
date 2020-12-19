@@ -62,6 +62,8 @@ signal ps2_dat_int      : std_logic;
 signal mouse_clk_int    : std_logic;
 signal mouse_dat_int    : std_logic;
 signal joy_data_int     : std_logic;
+signal joy_clk_int      : std_logic;
+signal joy_load_n_int   : std_logic;
 signal flash_miso_int   : std_logic;
 signal testled_int      : std_logic;
 
@@ -87,9 +89,11 @@ begin
          
    -- fixed inputs to the ZX Uno
    ear_int <= '0';
-   mouse_clk_int <= '0';
-   mouse_dat_int <= '0';
-   joy_data_int <= '0';
+   mouse_clk_int <= '1';
+   mouse_dat_int <= '1';
+   joy_clk_int <= '1';
+   joy_data_int <= '1';
+   joy_load_n_int <= '1';
    flash_miso_int <= '0';
    
    clk_generator : entity work.clk
@@ -145,8 +149,8 @@ begin
       
       -- joystick
       joy_data             => joy_data_int,
-      joy_clk              => open,
-      joy_load_n           => open,
+      joy_clk              => joy_clk_int,
+      joy_load_n           => joy_load_n_int,
       
       -- flash
       flash_cs_n           => open,
