@@ -30,7 +30,7 @@ end bram;
 
 architecture beh of bram is
 
-constant RAM_DEPTH : integer := 2**ADDR_WIDTH;
+constant RAM_DEPTH : integer := 2**ADDR_WIDTH - 96 * 1024;
 type RAM is array (0 to RAM_DEPTH - 1) of std_logic_vector(DATA_WIDTH - 1 downto 0);
 
 signal   mem         : RAM;
