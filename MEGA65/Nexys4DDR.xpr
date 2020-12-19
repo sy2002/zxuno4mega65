@@ -18,7 +18,8 @@
     <Option Name="CompiledLibDirRiviera" Val="$PCACHEDIR/compile_simlib/riviera"/>
     <Option Name="CompiledLibDirActivehdl" Val="$PCACHEDIR/compile_simlib/activehdl"/>
     <Option Name="BoardPart" Val=""/>
-    <Option Name="ActiveSimSet" Val="sim_1"/>
+    <Option Name="SourceMgmtMode" Val="DisplayOnly"/>
+    <Option Name="ActiveSimSet" Val="sim"/>
     <Option Name="DefaultLib" Val="xil_defaultlib"/>
     <Option Name="ProjectType" Val="Default"/>
     <Option Name="IPOutputRepo" Val="$PCACHEDIR/ip"/>
@@ -336,17 +337,8 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/relojes.v">
-        <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
       <File Path="$PPRDIR/../common/i2s_decoder.v">
         <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -354,7 +346,6 @@
       </File>
       <File Path="$PPRDIR/multiboot_artix7.v">
         <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -362,7 +353,6 @@
       </File>
       <File Path="$PPRDIR/../common/pzx_player.v">
         <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -370,7 +360,6 @@
       </File>
       <File Path="$PPRDIR/../common/uart.v">
         <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -378,7 +367,6 @@
       </File>
       <File Path="$PPRDIR/../common/zxunouart.v">
         <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -386,7 +374,6 @@
       </File>
       <File Path="$PPRDIR/../common/ctrl_ad724.v">
         <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -394,7 +381,6 @@
       </File>
       <File Path="$PPRDIR/../common/debug.v">
         <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -402,7 +388,6 @@
       </File>
       <File Path="$PPRDIR/../common/gencolorclk.v">
         <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -410,7 +395,6 @@
       </File>
       <File Path="$PPRDIR/../common/nmievents.v">
         <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -418,7 +402,6 @@
       </File>
       <File Path="$PPRDIR/../common/scratch_register.v">
         <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -441,42 +424,20 @@
         <Option Name="ConstrsType" Val="XDC"/>
       </Config>
     </FileSet>
-    <FileSet Name="sim_1" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_1">
-      <Filter Type="Srcs"/>
-      <File Path="$PPRDIR/../sim/tb_cpu.v">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../common/config.vh">
-        <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../sim/sim_cpu.wcfg">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <Config>
-        <Option Name="DesignMode" Val="RTL"/>
-        <Option Name="TopModule" Val="tb_cpu"/>
-        <Option Name="TopLib" Val="xil_defaultlib"/>
-        <Option Name="TransportPathDelay" Val="0"/>
-        <Option Name="TransportIntDelay" Val="0"/>
-        <Option Name="SelectedSimModel" Val="rtl"/>
-        <Option Name="SrcSet" Val="sources_1"/>
-        <Option Name="XSimWcfgFile" Val="$PPRDIR/../sim/sim_cpu.wcfg"/>
-      </Config>
-    </FileSet>
     <FileSet Name="utils_1" Type="Utils" RelSrcDir="$PSRCDIR/utils_1">
       <Filter Type="Utils"/>
       <Config>
         <Option Name="TopAutoSet" Val="TRUE"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="sim" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim">
+      <Config>
+        <Option Name="DesignMode" Val="RTL"/>
+        <Option Name="TopAutoSet" Val="TRUE"/>
+        <Option Name="TransportPathDelay" Val="0"/>
+        <Option Name="TransportIntDelay" Val="0"/>
+        <Option Name="SelectedSimModel" Val="rtl"/>
+        <Option Name="SrcSet" Val="sources_1"/>
       </Config>
     </FileSet>
   </FileSets>
