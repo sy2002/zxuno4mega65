@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Webtalk v2019.2 (64-bit)
+# SW Build 2708876 on Wed Nov  6 21:39:14 MST 2019
+# IP Build 2700528 on Thu Nov  7 00:09:20 MST 2019
+# Start of session at: Sat Dec 19 20:28:40 2020
+# Process ID: 3515
+# Current directory: /media/psf/Home/Documents/Privat/GNR/dev/MEGA65/zxuno4mega65/MEGA65
+# Command line: wbtcv -mode batch -source /media/psf/Home/Documents/Privat/GNR/dev/MEGA65/zxuno4mega65/MEGA65/Nexys4DDR.hw/webtalk/labtool_webtalk.tcl -notrace
+# Log file: /media/psf/Home/Documents/Privat/GNR/dev/MEGA65/zxuno4mega65/MEGA65/webtalk.log
+# Journal file: /media/psf/Home/Documents/Privat/GNR/dev/MEGA65/zxuno4mega65/MEGA65/webtalk.jou
+#-----------------------------------------------------------
+source /media/psf/Home/Documents/Privat/GNR/dev/MEGA65/zxuno4mega65/MEGA65/Nexys4DDR.hw/webtalk/labtool_webtalk.tcl -notrace
+INFO: [Common 17-186] '/media/psf/Home/Documents/Privat/GNR/dev/MEGA65/zxuno4mega65/MEGA65/Nexys4DDR.hw/webtalk/usage_statistics_ext_labtool.xml' has been successfully sent to Xilinx on Sat Dec 19 20:28:43 2020. For additional details about this file, please refer to the WebTalk help file at /tools/Xilinx/Vivado/2019.2/doc/webtalk_introduction.html.
+INFO: [Common 17-206] Exiting Webtalk at Sat Dec 19 20:28:43 2020...
