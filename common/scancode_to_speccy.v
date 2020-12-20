@@ -201,8 +201,9 @@ module scancode_to_speccy (
               end
           endcase
           
-          // The MEGA key is used as SYMBOL SHIFT
-          row[7][1] <= ~mega_pressed;
+          // fill matrix in realtime with the two shift keys
+          row[0][0] <= ~shift_pressed;
+          row[7][1] <= ~mega_pressed;    // MEGA key is used as SYMBOL SHIFT
       end
     end
 endmodule	
