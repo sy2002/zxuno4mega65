@@ -128,17 +128,21 @@ begin
    zxuno_wrapper : entity work.tld_zxuno_a100t
    port map
    (
-      -- assumes 100 MHz system clock and transforms it to 28 MHz
       clk28mhz             => clk28mhz,
       reset_n              => RESET_N,
 
-      -- VGA: Nexys only supports 4 bit per color channel
+      -- VGA
       r                    => vga_red_int,
       g                    => vga_green_int,
       b                    => vga_blue_int,
       hsync                => vga_hs_int,
       vsync                => vga_vs_int,
       
+      -- MEGA65 smart keyboard controller
+      kb_io0               => kb_io0,
+      kb_io1               => kb_io1,
+      kb_io2               => kb_io2,   
+            
       -- audio
       ear                  => ear_int,  -- unknown, has something todo with "PZX_PLAYER", what is "PZX_PLAYER"?
       audio_out_left       => open,

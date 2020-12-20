@@ -39,7 +39,12 @@ module tld_zxuno_a100t (
    inout wire mousedata,
    output wire audio_out_left,
    output wire audio_out_right,
-
+   
+   //MEGA65 smart keyboard controller
+   output wire kb_io0,              //clock to keyboard
+   output wire kb_io1,              //data output to keyboard
+   input wire  kb_io2,              //data input from keyboard
+            
    //output wire midi_out,
    //input wire clkbd,
    //input wire wsbd,
@@ -123,6 +128,10 @@ module tld_zxuno_a100t (
     .ear_ext(~ear),  // negada porque el hardware tiene un transistor inversor
     .audio_out_left(audio_out_left),
     .audio_out_right(audio_out_right),
+    
+    .kb_io0(kb_io0),
+    .kb_io1(kb_io1),
+    .kb_io2(kb_io2),
     
     .midi_out(),
     .clkbd(),

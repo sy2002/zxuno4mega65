@@ -27,6 +27,10 @@ module ps2_keyb(
     input wire clk,
     inout wire clkps2,
     inout wire dataps2,
+    //MEGA65 smart keyboard controller
+    output wire kb_io0,              //clock to keyboard
+    output wire kb_io1,              //data output to keyboard
+    input wire  kb_io2,              //data input from keyboard    
     //---------------------------------
     input wire [7:0] rows,
     output wire [4:0] cols,
@@ -93,13 +97,24 @@ module ps2_keyb(
       end
     end        
 
-    ps2_port lectura_de_teclado (
+//    ps2_port lectura_de_teclado (
+//        .clk(clk),
+//        .enable_rcv(~ps2busy),
+//        .kb_or_mouse(1'b0),
+//        .ps2clk_ext(clkps2),
+//        .ps2data_ext(dataps2),
+//        .kb_interrupt(nueva_tecla),
+//        .scancode(kbcode),
+//        .released(released),
+//        .extended(extended)
+//    );
+   
+    keyboard m65_keyboard (
         .clk(clk),
-        .enable_rcv(~ps2busy),
-        .kb_or_mouse(1'b0),
-        .ps2clk_ext(clkps2),
-        .ps2data_ext(dataps2),
-        .kb_interrupt(nueva_tecla),
+        .kio8(kb_io0),
+        .kio9(kb_io1),
+        .kio10(kb_io2),
+        .new_key(nueva_tecla),
         .scancode(kbcode),
         .released(released),
         .extended(extended)
