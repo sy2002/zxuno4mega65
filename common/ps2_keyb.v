@@ -1,6 +1,10 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
+//    ZX-Uno port for MEGA65
+//    The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
+//    MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
+
 //    This file is part of the ZXUNO Spectrum core. 
 //    Creation date is 15:18:53 2015-06-03 by Miguel Angel Rodriguez Jodar
 //    (c)2014-2020 ZXUNO association.
@@ -77,7 +81,7 @@ module ps2_keyb(
     (* mark_debug = "true" *) wire [7:0] keymap_dout_int;
     assign keymap_dout = keymap_dout_int;
     
-    wire shift_pressed, ctrl_pressed, alt_pressed;
+    wire shift_pressed, ctrl_pressed, alt_pressed, mega_pressed;
     assign scancode_dout = kbcode;    
     
     /*
@@ -117,7 +121,11 @@ module ps2_keyb(
         .new_key(nueva_tecla),
         .scancode(kbcode),
         .released(released),
-        .extended(extended)
+        .extended(extended),
+        .shift_pressed(shift_pressed),
+        .ctrl_pressed(ctrl_pressed),
+        .alt_pressed(alt_pressed),
+        .mega_pressed(mega_pressed)     
     );
 
     kb_special_functions funciones_especiales (
@@ -127,9 +135,9 @@ module ps2_keyb(
         .scancode(kbcode),
         .extended(extended),
         .released(released),
-        .shift_pressed(shift_pressed),
-        .ctrl_pressed(ctrl_pressed),
-        .alt_pressed(alt_pressed),
+        .shift_pressed(),
+        .ctrl_pressed(),
+        .alt_pressed(),
         .joyup(joy[3]),
         .joydown(joy[2]),
         .joyleft(joy[1]),
@@ -162,6 +170,7 @@ module ps2_keyb(
         .shift_pressed(shift_pressed),
         .ctrl_pressed(ctrl_pressed),
         .alt_pressed(alt_pressed),
+        .mega_pressed(mega_pressed),
         .kbclean(no_hay_teclas_pulsadas),
         .sp_row(rows),
         .sp_col(cols),

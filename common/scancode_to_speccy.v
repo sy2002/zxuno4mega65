@@ -1,6 +1,10 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
+//    ZX-Uno port for MEGA65
+//    The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
+//    MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
+
 //    This file is part of the ZXUNO Spectrum core. 
 //    Creation date is 17:42:40 2015-06-01 by Miguel Angel Rodriguez Jodar
 //    (c)2014-2020 ZXUNO association.
@@ -33,6 +37,7 @@ module scancode_to_speccy (
     input wire shift_pressed,
     input wire ctrl_pressed,
     input wire alt_pressed,
+    input wire mega_pressed,     // use MEGA key as SYMBOL SHIFT
     input wire kbclean,
     //------------------------
     input wire [7:0] sp_row,
@@ -195,6 +200,9 @@ module scancode_to_speccy (
                   state <= IDLE;
               end
           endcase
+          
+          // The MEGA key is used as SYMBOL SHIFT
+          row[7][1] <= ~mega_pressed;
       end
     end
 endmodule	
