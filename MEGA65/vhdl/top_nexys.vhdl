@@ -72,7 +72,6 @@ signal vga_green_int    : std_logic_vector(5 downto 0);
 signal vga_blue_int     : std_logic_vector(5 downto 0);
 
 signal clk28mhz         : std_logic;
-signal clk112mhz        : std_logic;
 
 begin
    
@@ -100,8 +99,7 @@ begin
    port map
    (
       sys_clk_i            => CLK,
-      clk28mhz_o           => clk28mhz,
-      clk112mhz_o          => open
+      clk28mhz_o           => clk28mhz
    );
       
    zxuno_wrapper : entity work.tld_zxuno_a100t
