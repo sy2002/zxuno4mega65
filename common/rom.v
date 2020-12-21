@@ -1,5 +1,9 @@
 `timescale 1ns / 1ps
 
+//    ZX-Uno port for MEGA65
+//    The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
+//    MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
+
 //    This file is part of the ZXUNO Spectrum core. 
 //    Creation date is 04:12:52 2014-02-09 by Miguel Angel Rodriguez Jodar
 //    (c)2014-2020 ZXUNO association.
@@ -37,7 +41,7 @@ module rom (
       for (i=0;i<16384;i=i+1) begin
         mem[i] = 8'h00;
       end
-      $readmemh ("bootloader_to_bios_and_easter_egg.hex", mem, 0);      
+      $readmemh (`BOOTLOADER_FLASH_ROM, mem, 0);      
    end
 `else
    reg [7:0] mem[0:9215];  // este tama�o es el justito para que quepa en un bloque de BRAM, que es de 9KB
@@ -46,9 +50,7 @@ module rom (
       for (i=0;i<9216;i=i+1) begin
         mem[i] = 8'h00;
       end
-//      $readmemh ("bootloader_copy_bram_to_sram_no_crc.hex", mem, 0);
-//      $readmemh ("/media/psf/Home/Documents/Privat/GNR/dev/MEGA65/ZX Spectrum/keyb_test/testkeys.hex", mem, 0);
-      $readmemh ("bootloader_copy_bram_to_sram.hex", mem, 0);            
+      $readmemh (`BOOTLOADER_STANDARD, mem, 0);            
       $readmemh (`DEFAULT_DIVMMC_ROM, mem, 512);      
    end
 `endif

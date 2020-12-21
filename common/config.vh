@@ -24,12 +24,18 @@
 // Build options (comment out to disable a specific option)
 
 //`define LOAD_ROM_FROM_FLASH_OPTION
+
+//`define BOOTLOADER_STANDARD  "bootloader_copy_bram_to_sram.hex"
+`define BOOTLOADER_STANDARD  "bootloader_copy_bram_to_sram_no_crc.hex"
+`define BOOTLOADER_FLASH_ROM "bootloader_to_bios_and_easter_egg.hex"
+
 // The following two defines are taken into account only if LOAD_ROM_FROM_FLASH_OPTION is not defined
-`define DEFAULT_SYSTEM_ROM "128en.hex"
-//`define DEFAULT_SYSTEM_ROM "/media/psf/Home/Documents/Privat/GNR/dev/MEGA65/ZX Spectrum/keyb_test/testkeys_rasm_version.hex"
+//`define DEFAULT_SYSTEM_ROM "128en.hex"
+`define DEFAULT_SYSTEM_ROM "/media/psf/Home/Documents/Privat/GNR/dev/MEGA65/ZX Spectrum/keyb_test/testkeys_rasm_version.hex"
 //`define DEFAULT_SYSTEM_ROM "~/dev/MEGA65/ZX Spectrum/zxrom/zxrom.hex"
 //`define DEFAULT_SYSTEM_ROM "/media/psf/Home/Downloads/derby.hex"
 `define DEFAULT_DIVMMC_ROM "esxdos088.hex"
+
 //`define MIDI_SYNTH_OPTION
 //`define UART_ESP8266_OPTION
 //`define PZX_PLAYER_OPTION
