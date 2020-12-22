@@ -4,7 +4,8 @@ ZX-Uno @ MEGA65: ZX Spectrum & Chloe 280SE Core
 ===============================================
 
 The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
-Original website: https://zxuno.speccy.org/media_e.shtml
+
+Original website: https://zxuno.speccy.org/index_e.shtml
 
 MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
 
