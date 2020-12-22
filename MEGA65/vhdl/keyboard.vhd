@@ -1,10 +1,14 @@
 ----------------------------------------------------------------------------------
 -- ZX-Uno port for MEGA65
 --
--- Keyboard driver
+-- Keyboard driver which includes the mapping of the MEGA 65 keys to ZX Uno keys
+--
+-- Terminology: CS = Spectrum's CAPS SHIFT
+--              SS = Spectrum's SYMBOL SHIFT 
 --
 -- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 -- MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
+-- Keyboard mapping as defined by Andrew Owen in December 2020
 ----------------------------------------------------------------------------------
 
 
@@ -14,53 +18,132 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity keyboard is
 port (
-   clk      : in std_logic;
+   clk         : in std_logic;
        
    -- interface to the MEGA65 keyboard controller       
-   kio8     : out std_logic;        -- clock to keyboard
-   kio9     : out std_logic;        -- data output to keyboard
-   kio10    : in std_logic;         -- data input from keyboard
+   kio8        : out std_logic;        -- clock to keyboard
+   kio9        : out std_logic;        -- data output to keyboard
+   kio10       : in std_logic;         -- data input from keyboard
       
-   -- interface to ZXUNO's internal logic ("emulate PS/2")
-   new_key        : buffer std_logic;
-   scancode       : out std_logic_vector(7 downto 0);
-   released       : out std_logic;
-   extended       : out std_logic;   
-   shift_pressed  : out std_logic;
-   ctrl_pressed   : out std_logic;
-   alt_pressed    : out std_logic;
-   mega_pressed   : out std_logic
+   -- interface to ZXUNO's internal logic
+   row_select  : in std_logic_vector(7 downto 0);
+   col_data    : out std_logic_vector(4 downto 0)
 );
 end keyboard;
 
 architecture beh of keyboard is
 
--- connectivity for the MEGA65 hardware keyboard controller
 signal matrix_col          : std_logic_vector(7 downto 0);
 signal matrix_col_idx      : integer range 0 to 9 := 0;
-signal key_delete          : std_logic;
-signal key_return          : std_logic;
-signal key_fast            : std_logic;
-signal key_restore_n       : std_logic;
-signal key_capslock_n      : std_logic;
-signal key_left            : std_logic;
-signal key_up              : std_logic;
+signal key_num             : integer range 0 to 79;
+signal key_status_n        : std_logic;
 
--- connectivity for MEGA65 keyboard matrix to ASCII converter
-signal ascii_key           : unsigned(7 downto 0);
-signal ff_ascii_key        : std_logic_vector(7 downto 0) := x"00";
-signal bucky_key           : std_logic_vector(6 downto 0);
-signal ascii_key_valid     : std_logic;
+type matrix_reg_t is array(0 to 7) of std_logic_vector(4 downto 0);
+signal matrix : matrix_reg_t := (others => "11111");
 
-signal delay               : integer range 0 to 1400000 := 0;
+-- Remeber, if a certain matrix key has been set automatically as a key combo so that the raw keyscan will not delete it later.
+-- Example: Consider "Inst/Del", which is mapped to "Inv. Video" aka CS+4: As "Inst/Del" is key_num zero, it would activate
+-- CS and "4" at the 0th iteration. Now "4" is at the 11th iteration and would reset "4" back to "not pressed". This is why
+-- we need to remember, that we did autoset this key combo by "and-ing" the autoset status to what we receive from
+-- the MEGA keyboard. "And-ing" due to the negativ-active logic.
+signal autoset_u : matrix_reg_t := (others => "11111");
+signal autoset_m : std_logic_vector(79 downto 0) := (others => '1');
+
+type mapping_record_t is record
+   first_active   : boolean;
+   first_row      : integer range 0 to 7;
+   first_col      : integer range 0 to 5;
+   second_active  : boolean;
+   second_row     : integer range 0 to 7;
+   second_col     : integer range 0 to 5;
+end record;
+
+type mapping_t is array(0 to 79) of mapping_record_t;
+
+constant mapping : mapping_t := (         -- MEGA 65        => ZX Uno
+   0  => (true,   0, 0, true,   3, 3),    -- Inst/Del       => Inv. Video: CS + 4
+   1  => (true,   6, 0, false,  0, 0),    -- Return         => Enter
+   2  => (false,  0, 0, false,  0, 0),
+   3  => (false,  0, 0, false,  0, 0),      
+   4  => (false,  0, 0, false,  0, 0),      
+   5  => (false,  0, 0, false,  0, 0),      
+   6  => (false,  0, 0, false,  0, 0),      
+   7  => (false,  0, 0, false,  0, 0),      
+   8  => (true,   3, 2, false,  0, 0),    -- 3              => 3      
+   9  => (true,   2, 1, false,  0, 0),    -- W              => W    
+   10 => (false,  0, 0, false,  0, 0),      
+   11 => (true,   3, 3, false,  0, 0),    -- 4              => 4      
+   12 => (false,  0, 0, false,  0, 0),      
+   13 => (false,  0, 0, false,  0, 0),      
+   14 => (true,   2, 2, false,  0, 0),    -- E              => E      
+   15 => (false,  0, 0, false,  0, 0),      
+   16 => (true,   3, 4, false,  0, 0),    -- 5              => 5      
+   17 => (true,   2, 3, false,  0, 0),    -- R              => R      
+   18 => (false,  0, 0, false,  0, 0),      
+   19 => (true ,  4, 4, false,  0, 0),    -- 6              => 6      
+   20 => (false,  0, 0, false,  0, 0),      
+   21 => (false,  0, 0, false,  0, 0),      
+   22 => (true,   2, 4, false,  0, 0),    -- T              => T      
+   23 => (false,  0, 0, false,  0, 0),      
+   24 => (true ,  4, 3, false,  0, 0),    -- 7              => 7      
+   25 => (true,   5, 4, false,  0, 0),    -- Y              => Y      
+   26 => (false,  0, 0, false,  0, 0),      
+   27 => (true ,  4, 2, false,  0, 0),    -- 8              => 8      
+   28 => (false,  0, 0, false,  0, 0),      
+   29 => (false,  0, 0, false,  0, 0),      
+   30 => (true,   5, 3, false,  0, 0),    -- U              => U      
+   31 => (false,  0, 0, false,  0, 0),      
+   32 => (true ,  4, 1, false,  0, 0),    -- 9              => 9      
+   33 => (true ,  5, 2, false,  0, 0),    -- I              => I      
+   34 => (false,  0, 0, false,  0, 0),      
+   35 => (true,   4, 0, false,  0, 0),    -- 0              => 0    
+   36 => (false,  0, 0, false,  0, 0),      
+   37 => (false,  0, 0, false,  0, 0),      
+   38 => (true,   5, 1, false,  0, 0),    -- O              => O  
+   39 => (false,  0, 0, false,  0, 0),      
+   40 => (true,   7, 1, true,   6, 2),    -- +              => +: SS + K       
+   41 => (true,   5, 0, false,  0, 0),    -- P              => P     
+   42 => (false,  0, 0, false,  0, 0),      
+   43 => (true,   7, 1, true,   6, 3),    -- -              => -: SS + J
+   44 => (false,  0, 0, false,  0, 0),      
+   45 => (false,  0, 0, false,  0, 0),      
+   46 => (true,   7, 1, true ,  3, 1),    -- @              => @: SS + 2      
+   47 => (false,  0, 0, false,  0, 0),      
+   48 => (true,   7, 1, true,   0, 2),    -- British Pound  => British Pound: SS + X      
+   49 => (true,   7, 1, true,   7, 4),    -- *              => *: SS + B      
+   50 => (false,  0, 0, false,  0, 0),      
+   51 => (true,   0, 0, true,   3, 2),    -- Clr/Home       => True Video: CS + 3     
+   52 => (false,  0, 0, false,  0, 0),      
+   53 => (false,  0, 0, false,  0, 0),      
+   54 => (true,   7, 1, true,   6, 4),    -- Arrow-up       => Arrow up: SS + H      
+   55 => (false,  0, 0, false,  0, 0),         
+   56 => (true,   3, 0, false,  0, 0),    -- 1              => 1
+   57 => (true,   0, 0, true ,  4, 0),    -- Arrow-left     => Delete: CS + 0          
+   58 => (false,  0, 0, false,  0, 0),      
+   59 => (true ,  3, 1, false,  0, 0),    -- 2              => 2      
+   60 => (false,  0, 0, false,  0, 0),      
+   61 => (false,  0, 0, false,  0, 0),      
+   62 => (true,   2, 0, false,  0, 0),    -- Q              => Q    
+   63 => (false,  0, 0, false,  0, 0),      
+   64 => (false,  0, 0, false,  0, 0),      
+   65 => (true,   0, 0, true ,  3, 0),    -- Tab            => Edit: CS + 1      
+   66 => (false,  0, 0, false,  0, 0),      
+   67 => (false,  0, 0, false,  0, 0),      
+   68 => (false,  0, 0, false,  0, 0),      
+   69 => (false,  0, 0, false,  0, 0),      
+   70 => (false,  0, 0, false,  0, 0),      
+   71 => (false,  0, 0, false,  0, 0),      
+   72 => (false,  0, 0, false,  0, 0),      
+   73 => (false,  0, 0, false,  0, 0),      
+   74 => (false,  0, 0, false,  0, 0),      
+   75 => (true,   0, 0, true,   7, 0),    -- Restore        => Break: CS + Space   
+   76 => (false,  0, 0, false,  0, 0),      
+   77 => (false,  0, 0, false,  0, 0),      
+   78 => (false,  0, 0, false,  0, 0),      
+   79 => (false,  0, 0, false,  0, 0)   
+);
 
 begin
-
-   -- signal special keys to ZXUNO's logic
-   ctrl_pressed   <= bucky_key(2);
-   alt_pressed    <= bucky_key(4);
-   shift_pressed  <= bucky_key(0) or bucky_key(1);
-   mega_pressed   <= bucky_key(3);
 
    m65driver : entity work.mega65kbd_to_matrix
    port map
@@ -76,22 +159,10 @@ begin
        kio10            => kio10,
       
        matrix_col       => matrix_col,
-       matrix_col_idx   => matrix_col_idx,
-      
-       delete_out       => key_delete,
-       return_out       => key_return,
-       fastkey_out      => key_fast,
-       
-       -- RESTORE and capslock are active low
-       restore          => key_restore_n,
-       capslock_out     => key_capslock_n,
-      
-       -- LEFT and UP cursor keys are active HIGH
-       leftkey          => key_left,
-       upkey            => key_up
+       matrix_col_idx   => matrix_col_idx       
    );
    
-   m65matrix_to_ascii : entity work.matrix_to_ascii
+   m65matrix_to_keynum : entity work.matrix_to_keynum
    generic map
    (
       scan_frequency    => 1000,
@@ -104,17 +175,12 @@ begin
 
       matrix_col => matrix_col,
       matrix_col_idx => matrix_col_idx,
-
+      
+      m65_key_num => key_num,
+      m65_key_status_n => key_status_n,
+      
       suppress_key_glitches => '1',
-      suppress_key_retrigger => '0',
-      
-      key_up => key_up,
-      key_left => key_left,
-      key_caps => key_capslock_n,
-      
-      ascii_key => ascii_key,
-      bucky_key => bucky_key,
-      ascii_key_valid => ascii_key_valid        
+      suppress_key_retrigger => '0'
    );
    
    matrix_col_idx_handler : process(clk)
@@ -126,81 +192,51 @@ begin
            matrix_col_idx <= 0;
          end if;      
       end if;
+   end process;      
+   
+   -- fill the matrix registers that will be read by the ZX Uno
+   -- support two ZX Uno matrix entries per pressed MEGA key for the end user's convenience
+   write_matrix : process(clk)
+   variable m : mapping_record_t;
+   begin
+      if rising_edge(clk) then
+         m := mapping(key_num);
+         if m.first_active then
+            matrix(m.first_row)(m.first_col)          <= key_status_n and autoset_u(m.first_row)(m.first_col);
+         end if; 
+         if m.second_active then
+            -- set a key and remember it as being auto-set, because we are in second_active mode
+            if key_status_n = '0' then
+               autoset_u(m.first_row)(m.first_col)    <= '0';
+               autoset_u(m.second_row)(m.second_col)  <= '0';
+               autoset_m(key_num)                     <= '0';
+               matrix(m.second_row)(m.second_col)     <= '0';               
+            end if;
+            
+            -- only unset a key in the ZX Uno matrix in second_active mode, if we did auto-set it
+            if key_status_n = '1' and autoset_m(key_num) = '0' then
+               autoset_u(m.first_row)(m.first_col)    <= '1';
+               autoset_u(m.second_row)(m.second_col)  <= '1';
+               autoset_m(key_num)                     <= '1';
+               matrix(m.second_row)(m.second_col)     <= '1';
+            end if;                        
+         end if;
+      end if;
    end process;
    
-   ascii_to_ps2 : process(clk)
-      variable sc: std_logic_vector(7 downto 0);
-   begin     
-      case ascii_key is
-      
-         -- numbers 0 .. 9
-         when x"30"  => sc := x"45";   -- 0
-         when x"31"  => sc := x"16";   -- 1
-         when x"32"  => sc := x"1E";   -- 2
-         when x"33"  => sc := x"26";   -- 3
-         when x"34"  => sc := x"25";   -- 4
-         when x"35"  => sc := x"2E";   -- 5
-         when x"36"  => sc := x"36";   -- 6
-         when x"37"  => sc := x"3D";   -- 7
-         when x"38"  => sc := x"3E";   -- 8
-         when x"39"  => sc := x"46";   -- 9
-         
-         -- characters a .. z
-         when x"61"  => sc := x"1C";   -- A
-         when x"62"  => sc := x"32";   -- B
-         when x"63"  => sc := x"21";   -- C
-         when x"64"  => sc := x"23";   -- D
-         when x"65"  => sc := x"24";   -- E
-         when x"66"  => sc := x"2B";   -- F
-         when x"67"  => sc := x"34";   -- G
-         when x"68"  => sc := x"33";   -- H
-         when x"69"  => sc := x"43";   -- I
-         when x"6A"  => sc := x"3B";   -- J
-         when x"6B"  => sc := x"42";   -- K
-         when x"6C"  => sc := x"4B";   -- L
-         when x"6D"  => sc := x"3A";   -- M
-         when x"6E"  => sc := x"31";   -- N
-         when x"6F"  => sc := x"44";   -- O
-         when x"70"  => sc := x"4D";   -- P
-         when x"71"  => sc := x"15";   -- Q
-         when x"72"  => sc := x"2D";   -- R
-         when x"73"  => sc := x"1B";   -- S
-         when x"74"  => sc := x"2C";   -- T
-         when x"75"  => sc := x"3C";   -- U
-         when x"76"  => sc := x"2A";   -- V
-         when x"77"  => sc := x"1D";   -- W
-         when x"78"  => sc := x"22";   -- X
-         when x"79"  => sc := x"35";   -- Y (U.S. keyboard layout)
-         when x"7A"  => sc := x"1A";   -- Z (ditto)
-         
-         -- special keys
-         when x"14"  => sc := x"66";   -- Backspace
-         when x"20"  => sc := x"29";   -- Space
-         when x"0D"  => sc := x"5A";   -- Enter                  
-         when others => sc := x"00";
+   read_matrix : process(row_select)
+   begin
+      case row_select is
+         when "11111110" => col_data <= matrix(0);
+         when "11111101" => col_data <= matrix(1);
+         when "11111011" => col_data <= matrix(2);
+         when "11110111" => col_data <= matrix(3);
+         when "11101111" => col_data <= matrix(4);
+         when "11011111" => col_data <= matrix(5);
+         when "10111111" => col_data <= matrix(6);
+         when "01111111" => col_data <= matrix(7);
+         when others => col_data <= "11111";
       end case;
-   
-      if rising_edge(clk) then
-         new_key <= '0';
-         extended <= '0';          
-         released <= '1';
-         
-         if delay = 700000 then
-            delay <= 0;
-            new_key <= '1';
-         elsif delay > 0 then
-            delay <= delay + 1;
-            released <= '0';
-         end if;
-                              
-         if ascii_key_valid = '1' then
-            new_key <= '1';            
-            scancode <= sc;
-            delay <= 1;
-            released <= '0';
-         end if;
-                  
-      end if;
    end process;
       
 end beh;

@@ -115,17 +115,15 @@ module ps2_keyb(
    
     keyboard m65_keyboard (
         .clk(clk),
+        
+        //interface to the MEGA65 keyboard controller   
         .kio8(kb_io0),
         .kio9(kb_io1),
         .kio10(kb_io2),
-        .new_key(nueva_tecla),
-        .scancode(kbcode),
-        .released(released),
-        .extended(extended),
-        .shift_pressed(shift_pressed),
-        .ctrl_pressed(ctrl_pressed),
-        .alt_pressed(alt_pressed),
-        .mega_pressed(mega_pressed)     
+        
+        //interface to ZXUNO's internal logic
+        .row_select(rows),
+        .col_data(cols)
     );
 
     kb_special_functions funciones_especiales (
@@ -172,8 +170,8 @@ module ps2_keyb(
         .alt_pressed(alt_pressed),
         .mega_pressed(mega_pressed),
         .kbclean(no_hay_teclas_pulsadas),
-        .sp_row(rows),
-        .sp_col(cols),
+        .sp_row(),
+        .sp_col(),
         .din(din),
         .dout(keymap_dout_int),
         .cpuwrite(zxuno_addr == KEYMAP && zxuno_regwr == 1'b1),
