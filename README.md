@@ -12,3 +12,27 @@ MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
 Special thanks to Paul, Deft, Miguel, Andrew
 
 README.md work-in progress
+
+### What works already on a MEGA65 R2
+
+* The basic ZX-Uno core runs (CPU, ULA incl. ULAplus, RAM, ROM, ...)
+* VGA output
+* (Work-in-Progress) Keyboard using a convenient mapping (+TODO doc)
+
+### Not working yet
+
+* MEGA65 R3
+* HDMI
+* ESXDOS / DivMMC / SD-Cards
+* Audio
+* Joystick
+* Mouse
+
+### Scratchpad
+
+#### Keyboard TODOs
+
+* Support PS/2 codes for at least the function keys for Chloe
+* Handle the MEGA65's SHIFT-LOCK key differently. Currently, it just
+  locks the "convenicence" shift key (left shift), which does not make
+  a lot of sense.

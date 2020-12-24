@@ -3,8 +3,19 @@
 --
 -- Keyboard driver which includes the mapping of the MEGA 65 keys to ZX Uno keys
 --
--- Terminology: CS = Spectrum's CAPS SHIFT
---              SS = Spectrum's SYMBOL SHIFT 
+-- Terminology: CS = Spectrum's CAPS SHIFT    (MEGA65's right shift key)
+--              SS = Spectrum's SYMBOL SHIFT  (MEGA65 key)
+--              Convencience Shift Key        (MEGA65's left shift key)
+--
+-- The keyboard mapping includes a "Convenience Shift Key", which is meant to
+-- simplify entering special characters. The MEGA65's left shift key is the
+-- convenience shift key and the right shift key is the Spectrum's CAPS SHIFT.
+-- Example: When pressing the Convenience Shift + 2, then the keyboard driver
+-- will generate SS + P to generate " (double quotes), because this is what you
+-- would expect when looking at the MEGA65 keyboard.
+--
+-- If you want the native Spectrrum behavior, then you use the MEGA65's right
+-- shift key, which is always mapped to be the CAPS SHIFT.
 --
 -- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 -- MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
@@ -38,6 +49,14 @@ signal matrix_col_idx      : integer range 0 to 9 := 0;
 signal key_num             : integer range 0 to 79;
 signal key_status_n        : std_logic;
 
+-- special key handling
+signal bucky_key           : std_logic_vector(6 downto 0);
+signal key_shift_left      : std_logic;
+signal key_shift_right     : std_logic;
+signal key_ctrl            : std_logic;
+signal key_mega            : std_logic;
+
+
 type matrix_reg_t is array(0 to 7) of std_logic_vector(4 downto 0);
 signal matrix : matrix_reg_t := (others => "11111");
 
@@ -63,66 +82,66 @@ type mapping_t is array(0 to 79) of mapping_record_t;
 constant mapping : mapping_t := (         -- MEGA 65        => ZX Uno
    0  => (true,   0, 0, true,   3, 3),    -- Inst/Del       => Inv. Video: CS + 4
    1  => (true,   6, 0, false,  0, 0),    -- Return         => Enter
-   2  => (false,  0, 0, false,  0, 0),
+   2  => (true,   0, 0, true,   4, 2),    -- Cursor Right   => Cursor Right: CS + 8
    3  => (false,  0, 0, false,  0, 0),      
    4  => (false,  0, 0, false,  0, 0),      
    5  => (false,  0, 0, false,  0, 0),      
    6  => (false,  0, 0, false,  0, 0),      
-   7  => (false,  0, 0, false,  0, 0),      
+   7  => (true,   0, 0, true,   4, 4),    -- Cursor Down    => Cursor Down: CS + 6    
    8  => (true,   3, 2, false,  0, 0),    -- 3              => 3      
    9  => (true,   2, 1, false,  0, 0),    -- W              => W    
-   10 => (false,  0, 0, false,  0, 0),      
+   10 => (true,   1, 0, false,  0, 0),    -- A              => A     
    11 => (true,   3, 3, false,  0, 0),    -- 4              => 4      
-   12 => (false,  0, 0, false,  0, 0),      
-   13 => (false,  0, 0, false,  0, 0),      
+   12 => (true,   0, 1, false,  0, 0),    -- Z              => Z      
+   13 => (true,   1, 1, false,  0, 0),    -- S              => S      
    14 => (true,   2, 2, false,  0, 0),    -- E              => E      
    15 => (false,  0, 0, false,  0, 0),      
    16 => (true,   3, 4, false,  0, 0),    -- 5              => 5      
    17 => (true,   2, 3, false,  0, 0),    -- R              => R      
-   18 => (false,  0, 0, false,  0, 0),      
+   18 => (true,   1, 2, false,  0, 0),    -- D              => D      
    19 => (true ,  4, 4, false,  0, 0),    -- 6              => 6      
-   20 => (false,  0, 0, false,  0, 0),      
-   21 => (false,  0, 0, false,  0, 0),      
+   20 => (true,   0, 3, false,  0, 0),    -- C              => C      
+   21 => (true,   1, 3, false,  0, 0),    -- F              => F      
    22 => (true,   2, 4, false,  0, 0),    -- T              => T      
-   23 => (false,  0, 0, false,  0, 0),      
+   23 => (true,   0, 2, false,  0, 0),    -- X              => X      
    24 => (true ,  4, 3, false,  0, 0),    -- 7              => 7      
    25 => (true,   5, 4, false,  0, 0),    -- Y              => Y      
-   26 => (false,  0, 0, false,  0, 0),      
+   26 => (true,   1, 4, false,  0, 0),    -- G              => G      
    27 => (true ,  4, 2, false,  0, 0),    -- 8              => 8      
-   28 => (false,  0, 0, false,  0, 0),      
-   29 => (false,  0, 0, false,  0, 0),      
+   28 => (true ,  7, 4, false,  0, 0),    -- B              => B
+   29 => (true,   6, 4, false,  0, 0),    -- H              => H      
    30 => (true,   5, 3, false,  0, 0),    -- U              => U      
-   31 => (false,  0, 0, false,  0, 0),      
+   31 => (true,   0, 4, false,  0, 0),    -- V              => V      
    32 => (true ,  4, 1, false,  0, 0),    -- 9              => 9      
    33 => (true ,  5, 2, false,  0, 0),    -- I              => I      
-   34 => (false,  0, 0, false,  0, 0),      
+   34 => (true,   6, 3, false,  0, 0),    -- J              => J      
    35 => (true,   4, 0, false,  0, 0),    -- 0              => 0    
-   36 => (false,  0, 0, false,  0, 0),      
-   37 => (false,  0, 0, false,  0, 0),      
+   36 => (true,   7, 2, false,  0, 0),    -- M              => M
+   37 => (true,   6, 2, false,  0, 0),    -- K              => K      
    38 => (true,   5, 1, false,  0, 0),    -- O              => O  
-   39 => (false,  0, 0, false,  0, 0),      
+   39 => (true,   7, 3, false,  0, 0),    -- N              => N      
    40 => (true,   7, 1, true,   6, 2),    -- +              => +: SS + K       
    41 => (true,   5, 0, false,  0, 0),    -- P              => P     
-   42 => (false,  0, 0, false,  0, 0),      
+   42 => (true,   6, 1, false,  0, 0),    -- L              => L      
    43 => (true,   7, 1, true,   6, 3),    -- -              => -: SS + J
-   44 => (false,  0, 0, false,  0, 0),      
-   45 => (false,  0, 0, false,  0, 0),      
+   44 => (true,   7, 1, true,   7, 2),    -- .              => .: SS + M      
+   45 => (true,   7, 1, true,   0, 1),    -- :              => :: SS + Z      
    46 => (true,   7, 1, true ,  3, 1),    -- @              => @: SS + 2      
-   47 => (false,  0, 0, false,  0, 0),      
+   47 => (true,   7, 1, true,   7, 3),    -- ,              => ,: SS + N     
    48 => (true,   7, 1, true,   0, 2),    -- British Pound  => British Pound: SS + X      
    49 => (true,   7, 1, true,   7, 4),    -- *              => *: SS + B      
-   50 => (false,  0, 0, false,  0, 0),      
+   50 => (true,   7, 1, true,   5, 1),    -- ;              => ;: SS + O      
    51 => (true,   0, 0, true,   3, 2),    -- Clr/Home       => True Video: CS + 3     
-   52 => (false,  0, 0, false,  0, 0),      
-   53 => (false,  0, 0, false,  0, 0),      
+   52 => (true,   0, 0, false,  0, 0),    -- Right Shift    => Caps Shift (CS)    
+   53 => (true,   7, 1, true,   6, 1),    -- =              => =: SS + L      
    54 => (true,   7, 1, true,   6, 4),    -- Arrow-up       => Arrow up: SS + H      
-   55 => (false,  0, 0, false,  0, 0),         
+   55 => (true,   7, 1, true,   0, 4),    -- /              => /: SS + V         
    56 => (true,   3, 0, false,  0, 0),    -- 1              => 1
    57 => (true,   0, 0, true ,  4, 0),    -- Arrow-left     => Delete: CS + 0          
-   58 => (false,  0, 0, false,  0, 0),      
+   58 => (true,   0, 0, true,   7, 1),    -- Ctrl           => Extend Mode: CS + SS       
    59 => (true ,  3, 1, false,  0, 0),    -- 2              => 2      
-   60 => (false,  0, 0, false,  0, 0),      
-   61 => (false,  0, 0, false,  0, 0),      
+   60 => (true,   7, 0, false,  0, 0),    -- Space          => Space      
+   61 => (true,   7, 1, false,  0, 0),    -- Mega65         => Symbol Shift (SS)   
    62 => (true,   2, 0, false,  0, 0),    -- Q              => Q    
    63 => (false,  0, 0, false,  0, 0),      
    64 => (false,  0, 0, false,  0, 0),      
@@ -134,8 +153,8 @@ constant mapping : mapping_t := (         -- MEGA 65        => ZX Uno
    70 => (false,  0, 0, false,  0, 0),      
    71 => (false,  0, 0, false,  0, 0),      
    72 => (false,  0, 0, false,  0, 0),      
-   73 => (false,  0, 0, false,  0, 0),      
-   74 => (false,  0, 0, false,  0, 0),      
+   73 => (true,   0, 0, true,   4, 3),    -- Cursor Up      => Cursor Up: CS + 7      
+   74 => (true,   0, 0, true,   3, 4),    -- Cursor Left    => Cursor Left: CS + 5      
    75 => (true,   0, 0, true,   7, 0),    -- Restore        => Break: CS + Space   
    76 => (false,  0, 0, false,  0, 0),      
    77 => (false,  0, 0, false,  0, 0),      
@@ -144,6 +163,11 @@ constant mapping : mapping_t := (         -- MEGA 65        => ZX Uno
 );
 
 begin
+
+   key_shift_left    <= bucky_key(0);
+   key_shift_right   <= bucky_key(1);
+   key_ctrl          <= bucky_key(2);
+   key_mega          <= bucky_key(3);
 
    m65driver : entity work.mega65kbd_to_matrix
    port map
@@ -180,7 +204,9 @@ begin
       m65_key_status_n => key_status_n,
       
       suppress_key_glitches => '1',
-      suppress_key_retrigger => '0'
+      suppress_key_retrigger => '0',
+      
+      bucky_key => bucky_key      
    );
    
    matrix_col_idx_handler : process(clk)
