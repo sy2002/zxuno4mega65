@@ -36,3 +36,10 @@ README.md work-in progress
 * Handle the MEGA65's SHIFT-LOCK key differently. Currently, it just
   locks the "convenicence" shift key (left shift), which does not make
   a lot of sense.
+
+#### Acknowledgement TODOs
+
+* Z80 Core
+* ZX-Uno
+* Keyboard Mapping GFX
+* M65 driver stubs
