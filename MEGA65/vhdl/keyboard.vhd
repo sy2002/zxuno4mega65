@@ -99,21 +99,21 @@ constant mapping : mapping_t := (         -- MEGA 65        => ZX Uno
    16 => (true,   3, 4, false,  0, 0),    -- 5              => 5      
    17 => (true,   2, 3, false,  0, 0),    -- R              => R      
    18 => (true,   1, 2, false,  0, 0),    -- D              => D      
-   19 => (true ,  4, 4, false,  0, 0),    -- 6              => 6      
+   19 => (true,   4, 4, false,  0, 0),    -- 6              => 6      
    20 => (true,   0, 3, false,  0, 0),    -- C              => C      
    21 => (true,   1, 3, false,  0, 0),    -- F              => F      
    22 => (true,   2, 4, false,  0, 0),    -- T              => T      
    23 => (true,   0, 2, false,  0, 0),    -- X              => X      
-   24 => (true ,  4, 3, false,  0, 0),    -- 7              => 7      
+   24 => (true,   4, 3, false,  0, 0),    -- 7              => 7      
    25 => (true,   5, 4, false,  0, 0),    -- Y              => Y      
    26 => (true,   1, 4, false,  0, 0),    -- G              => G      
-   27 => (true ,  4, 2, false,  0, 0),    -- 8              => 8      
-   28 => (true ,  7, 4, false,  0, 0),    -- B              => B
+   27 => (true,   4, 2, false,  0, 0),    -- 8              => 8      
+   28 => (true,   7, 4, false,  0, 0),    -- B              => B
    29 => (true,   6, 4, false,  0, 0),    -- H              => H      
    30 => (true,   5, 3, false,  0, 0),    -- U              => U      
    31 => (true,   0, 4, false,  0, 0),    -- V              => V      
-   32 => (true ,  4, 1, false,  0, 0),    -- 9              => 9      
-   33 => (true ,  5, 2, false,  0, 0),    -- I              => I      
+   32 => (true,   4, 1, false,  0, 0),    -- 9              => 9      
+   33 => (true,   5, 2, false,  0, 0),    -- I              => I      
    34 => (true,   6, 3, false,  0, 0),    -- J              => J      
    35 => (true,   4, 0, false,  0, 0),    -- 0              => 0    
    36 => (true,   7, 2, false,  0, 0),    -- M              => M
@@ -139,7 +139,7 @@ constant mapping : mapping_t := (         -- MEGA 65        => ZX Uno
    56 => (true,   3, 0, false,  0, 0),    -- 1              => 1
    57 => (true,   0, 0, true ,  4, 0),    -- Arrow-left     => Delete: CS + 0          
    58 => (true,   0, 0, true,   7, 1),    -- Ctrl           => Extend Mode: CS + SS       
-   59 => (true ,  3, 1, false,  0, 0),    -- 2              => 2      
+   59 => (true,   3, 1, false,  0, 0),    -- 2              => 2      
    60 => (true,   7, 0, false,  0, 0),    -- Space          => Space      
    61 => (true,   7, 1, false,  0, 0),    -- Mega65         => Symbol Shift (SS)   
    62 => (true,   2, 0, false,  0, 0),    -- Q              => Q    
@@ -247,6 +247,11 @@ begin
                matrix(m.second_row)(m.second_col)     <= '1';
             end if;                        
          end if;
+         
+         -- If the MEGA65's MEGA key (SS) or right shift (CS) is being pressed, then
+         -- this has precedence over all decisions we made above
+         if key_shift_right = '1' then matrix(0)(0) <= '0'; end if;
+         if key_mega        = '1' then matrix(7)(1) <= '0'; end if;
       end if;
    end process;
    
