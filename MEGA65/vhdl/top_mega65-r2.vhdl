@@ -42,8 +42,15 @@ port (
    SD_RESET       : out std_logic;
    SD_CLK         : out std_logic;
    SD_MOSI        : out std_logic;
-   SD_MISO        : in std_logic
+   SD_MISO        : in std_logic;
    
+   -- Joystick Port 1
+   joy_1_up       : in std_logic;
+   joy_1_down     : in std_logic;
+   joy_1_left     : in std_logic;
+   joy_1_right    : in std_logic;
+   joy_1_fire     : in std_logic
+      
    -- HDMI via ADV7511
 --   hdmi_vsync     : out std_logic;
 --   hdmi_hsync     : out std_logic;
