@@ -53,7 +53,7 @@ architecture beh of keyboard is
 
 constant CLOCK_SPEED       : integer := 28000000;
 constant SEQ_SPEED         : integer := (CLOCK_SPEED / 1000) * 50; -- 50ms delay between sequence actions at 28 MHz
-constant SEQ_MAXLEN        : integer := 8;
+constant SEQ_MAXLEN        : integer := 18;
 
 
 signal matrix_col          : std_logic_vector(7 downto 0);
@@ -186,10 +186,12 @@ constant mapping : mapping_t := (                                      -- MEGA 6
                                                                        -- (pi) (ALT + Arrow-up) => (c) (copyright): SEQ 8 (CS + SS, SS + P)
    55 => (true,   7, 1, true,   0, 4, true,  7, 1, 0, 3, true,  3),    -- / | ? (MS + /)  => /: SS + V | ? (SS + C)
                                                                        --   | \ (ALT + /) => \: SEQ 3 (CS + SS, SS + D)       
-   56 => (true,   3, 0, false,  0, 0, true , 7, 1, 3, 0, false, 0),    -- 1 | ! (MS + 1)  => 1 | ! (SS + 1) 
+   56 => (true,   3, 0, false,  0, 0, true , 7, 1, 3, 0, true,  9),    -- 1 | ! (MS + 1)  => 1 | ! (SS + 1)
+                                                                       --   | Blk (Alt + 1) => Black: SEQ 9 (CS + SS, 0)
    57 => (true,   0, 0, true ,  4, 0, false, 0, 0, 0, 0, false, 0),    -- Arrow-left      => Delete: CS + 0          
    58 => (true,   0, 0, true,   7, 1, false, 0, 0, 0, 0, false, 0),    -- Ctrl            => Extend Mode: CS + SS       
-   59 => (true,   3, 1, false,  0, 0, true , 7, 1, 5, 0, false, 0),    -- 2 | " (MS + 2)  => 2 | " (SS + P)      
+   59 => (true,   3, 1, false,  0, 0, true , 7, 1, 5, 0, true, 10),    -- 2 | " (MS + 2)  => 2 | " (SS + P)
+                                                                       --   | Wht (Alt + 2) => White: SEQ 10 (CS + SS, 7)      
    60 => (true,   7, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Space           => Space      
    61 => (true,   7, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Mega65          => Symbol Shift (SS)   
    62 => (true,   2, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Q               => Q    
@@ -213,7 +215,7 @@ constant mapping : mapping_t := (                                      -- MEGA 6
 );
 
 type sequence_record_t is record
-   size           : integer range 1 to 2;
+   size           : integer range 2 to 4;
    s1_1_row       : integer range 0 to 7;
    s1_1_col       : integer range 0 to 4;
    s1_2_row       : integer range 0 to 7;
@@ -227,16 +229,26 @@ end record;
 type sequence_t is array(0 to SEQ_MAXLEN) of sequence_record_t;
 
 constant seq : sequence_t := (
-   0 => (1, 7, 1, 4, 0, 0, 0, 0, 0),   -- SEQ 0: _ => SS + 0 
-   1 => (2, 0, 0, 7, 1, 7, 1, 1, 0),   -- SEQ 1: ~ => CS + SS, SS + A
-   2 => (2, 0, 0, 7, 1, 7, 1, 1, 1),   -- SEQ 2: | => CS + SS, SS + S    
-   3 => (2, 0, 0, 7, 1, 7, 1, 1, 2),   -- SEQ 3: \ => CS + SS, SS + D
-   4 => (2, 0, 0, 7, 1, 7, 1, 1, 3),   -- SEQ 4: { => CS + SS, SS + F
-   5 => (2, 0, 0, 7, 1, 7, 1, 1, 4),   -- SEQ 5: } => CS + SS, SS + G
-   6 => (2, 0, 0, 7, 1, 7, 1, 5, 4),   -- SEQ 6: [ => CS + SS, SS + Y
-   7 => (2, 0, 0, 7, 1, 7, 1, 5, 3),   -- SEQ 7: ] => CS + SS, SS + U
-   8 => (2, 0, 0, 7, 1, 7, 1, 5, 0)    -- SEQ 8: (c) => CS + SS, SS + P
-);
+   0  => (2, 7, 1, 4, 0, 0, 0, 0, 0),   -- SEQ 0:    _ => SS + 0 
+   1  => (4, 0, 0, 7, 1, 7, 1, 1, 0),   -- SEQ 1:    ~ => CS + SS, SS + A
+   2  => (4, 0, 0, 7, 1, 7, 1, 1, 1),   -- SEQ 2:    | => CS + SS, SS + S    
+   3  => (4, 0, 0, 7, 1, 7, 1, 1, 2),   -- SEQ 3:    \ => CS + SS, SS + D
+   4  => (4, 0, 0, 7, 1, 7, 1, 1, 3),   -- SEQ 4:    { => CS + SS, SS + F
+   5  => (4, 0, 0, 7, 1, 7, 1, 1, 4),   -- SEQ 5:    } => CS + SS, SS + G
+   6  => (4, 0, 0, 7, 1, 7, 1, 5, 4),   -- SEQ 6:    [ => CS + SS, SS + Y
+   7  => (4, 0, 0, 7, 1, 7, 1, 5, 3),   -- SEQ 7:    ] => CS + SS, SS + U
+   8  => (4, 0, 0, 7, 1, 7, 1, 5, 0),   -- SEQ 8:  (c) => CS + SS, SS + P
+   9  => (3, 0, 0, 7, 1, 4, 0, 0, 0),   -- SEQ 9:  Blk => CS + SS, 0    
+   10 => (3, 0, 0, 7, 1, 4, 3, 0, 0),   -- SEQ 10: Wht => CS + SS, 7
+   11 => (3, 0, 0, 7, 1, 3, 1, 0, 0),   -- SEQ 11: Red => CS + SS, 2
+   12 => (3, 0, 0, 7, 1, 3, 4, 0, 0),   -- SEQ 12: Cyn => CS + SS, 5
+   13 => (3, 0, 0, 7, 1, 3, 2, 0, 0),   -- SEQ 13: Pur => CS + SS, 3    (Purple => Magenta)
+   14 => (3, 0, 0, 7, 1, 3, 3, 0, 0),   -- SEQ 14: Grn => CS + SS, 4
+   15 => (3, 0, 0, 7, 1, 3, 0, 0, 0),   -- SEQ 15: Blu => CS + SS, 1
+   16 => (3, 0, 0, 7, 1, 4, 4, 0, 0),   -- SEQ 16: Yel => CS + SS, 6
+   17 => (2, 0, 0, 3, 3, 0, 0, 0, 0),   -- SEQ 17: Rvs On => CS + 4     (Reverse On => Inv. Video)
+   18 => (2, 0, 0, 3, 2, 0, 0, 0, 0)    -- SEQ 18: Rvs Off => CS + 3    (Reverse Off => True Video)
+ );
 
 type sequencer_t is (seq_none, seq_start, seq_1, seq_clear, seq_2, seq_end);
 signal sequencer        : sequencer_t := seq_none;
@@ -412,7 +424,9 @@ begin
                   
                when seq_2 =>
                   matrix(s.s2_1_row)(s.s2_1_col) <= '0';
-                  matrix(s.s2_2_row)(s.s2_2_col) <= '0';
+                  if s.size = 4 then
+                     matrix(s.s2_2_row)(s.s2_2_col) <= '0';
+                  end if;
                   
                when others =>
                   null;                  
@@ -484,7 +498,7 @@ begin
                when seq_start => seq_next <= seq_1;
                when seq_1     => seq_next <= seq_clear;
                when seq_clear =>
-                  if seq(seq_active).size = 2 then
+                  if seq(seq_active).size > 2 then
                      seq_next <= seq_2;
                   else
                      seq_next <= seq_none;
