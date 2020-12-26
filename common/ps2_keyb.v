@@ -123,7 +123,8 @@ module ps2_keyb(
         
         //interface to ZXUNO's internal logic
         .row_select(rows),
-        .col_data(cols)
+        .col_data(cols),
+        .user_nmi(user_nmi)
     );
 
     kb_special_functions funciones_especiales (
@@ -144,7 +145,7 @@ module ps2_keyb(
         .video_output_change(video_output_change),
         .master_reset(master_reset),
         .user_reset(user_reset),
-        .user_nmi(user_nmi),
+        .user_nmi(),
         .user_fnt(user_fnt)
     );
     

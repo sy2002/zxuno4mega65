@@ -45,7 +45,8 @@ port (
       
    -- interface to ZXUNO's internal logic
    row_select  : in std_logic_vector(7 downto 0);
-   col_data    : out std_logic_vector(4 downto 0)
+   col_data    : out std_logic_vector(4 downto 0);
+   user_nmi    : out std_logic
 );
 end keyboard;
 
@@ -69,6 +70,9 @@ signal key_shift_right     : std_logic;
 signal key_ctrl            : std_logic;
 signal key_mega            : std_logic;
 signal key_alt             : std_logic;
+
+-- Special keys that are not mapped to the Spectrum's matrix
+signal key_esc             : std_logic;
 
 -- [ (MS + :) and ] (MS + ;) need a special treatment, because they are the only keys, that are
 -- utilizing the sequencer without the need of the ALT key to be pressed.
@@ -268,6 +272,9 @@ signal seq_delay_start  : boolean;
 
 begin
 
+   -- ESC is the NMI key (e.g. for being used in ESXDOS)
+   user_nmi          <= key_esc;
+
    -- high if the special key is pressed during the current scan cycle
    key_shift_left    <= bucky_key(0);
    key_shift_right   <= bucky_key(1);
@@ -336,7 +343,13 @@ begin
    variable s : sequence_record_t;
    variable shifted_color_keys : boolean;
    begin
-      if rising_edge(clk) then      
+      if rising_edge(clk) then
+         --------------------------------------------------------------------------------------
+         -- Handle keys that are not part of the Spectrum's matrix
+         --------------------------------------------------------------------------------------      
+         if key_num = 71 then
+            key_esc <= not key_status_n;
+         end if;
          --------------------------------------------------------------------------------------
          -- None-sequenced mode: Read actual keypresses from the keyboard
          --------------------------------------------------------------------------------------
