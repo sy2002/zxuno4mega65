@@ -123,95 +123,96 @@ end record;
 
 type mapping_t is array(0 to 79) of mapping_record_t;
 
-constant mapping : mapping_t := (                                      -- MEGA 65        => ZX Uno
-   0  => (true,   0, 0, true,   3, 3, false, 0, 0, 0, 0, false, 0),    -- Inst/Del       => Inv. Video: CS + 4
-   1  => (true,   6, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Return         => Enter
-   2  => (true,   0, 0, true,   4, 2, false, 0, 0, 0, 0, false, 0),    -- Cursor Right   => Cursor Right: CS + 8
+constant mapping : mapping_t := (                                      -- MEGA 65          => ZX Uno
+   0  => (true,   0, 0, true,   3, 3, false, 0, 0, 0, 0, false, 0),    -- Inst/Del         => Inv. Video: CS + 4
+   1  => (true,   6, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Return           => Enter
+   2  => (true,   0, 0, true,   4, 2, false, 0, 0, 0, 0, false, 0),    -- Cursor Right     => Cursor Right: CS + 8
    3  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
    4  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
    5  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
    6  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   7  => (true,   0, 0, true,   4, 4, false, 0, 0, 0, 0, false, 0),    -- Cursor Down     => Cursor Down: CS + 6    
-   8  => (true,   3, 2, false,  0, 0, true,  7, 1, 3, 2, false, 0),    -- 3 | # (MS + 3)  => 3 | # (SS + 3)     
-   9  => (true,   2, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- W               => W    
-   10 => (true,   1, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- A               => A     
-   11 => (true,   3, 3, false,  0, 0, true,  7, 1, 3, 3, false, 0),    -- 4 | $ (MS + 4)  => 4 | $ (SS + 4)      
-   12 => (true,   0, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Z               => Z      
-   13 => (true,   1, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- S               => S      
-   14 => (true,   2, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- E               => E      
+   7  => (true,   0, 0, true,   4, 4, false, 0, 0, 0, 0, false, 0),    -- Cursor Down       => Cursor Down: CS + 6    
+   8  => (true,   3, 2, false,  0, 0, true,  7, 1, 3, 2, true, 11),    -- 3 | # (MS + 3)    => 3 | # (SS + 3)
+                                                                       --   | Red (ALT + 3) => SEQ 11 (CS + SS, 2)      
+   9  => (true,   2, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- W                 => W    
+   10 => (true,   1, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- A                 => A     
+   11 => (true,   3, 3, false,  0, 0, true,  7, 1, 3, 3, false, 0),    -- 4 | $ (MS + 4)    => 4 | $ (SS + 4)      
+   12 => (true,   0, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Z                 => Z      
+   13 => (true,   1, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- S                 => S      
+   14 => (true,   2, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- E                 => E      
    15 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   16 => (true,   3, 4, false,  0, 0, true,  7, 1, 3, 4, false, 0),    -- 5 | % (MS + 5)  => 5 | % (SS + 5)      
-   17 => (true,   2, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- R               => R      
-   18 => (true,   1, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- D               => D      
-   19 => (true,   4, 4, false,  0, 0, true,  7, 1, 4, 4, false, 0),    -- 6 | & (MS + 6)  => 6 | & (SS + 6)      
-   20 => (true,   0, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- C               => C      
-   21 => (true,   1, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- F               => F      
-   22 => (true,   2, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- T               => T      
-   23 => (true,   0, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- X               => X      
-   24 => (true,   4, 3, false,  0, 0, true,  7, 1, 4, 3, false, 0),    -- 7 | ' (MS + 7)  => 7 | ' (SS + 7)       
-   25 => (true,   5, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Y               => Y      
-   26 => (true,   1, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- G               => G      
-   27 => (true,   4, 2, false,  0, 0, true , 7, 1, 4, 2, false, 0),    -- 8 | ( (MS + 8)  => 8 | ( (SS + 8)      
-   28 => (true,   7, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- B               => B
-   29 => (true,   6, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- H               => H      
-   30 => (true,   5, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- U               => U      
-   31 => (true,   0, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- V               => V      
-   32 => (true,   4, 1, false,  0, 0, true,  7, 1, 4, 1, false, 0),    -- 9 | ) (MS + 9)  => 9 | ) (SS + 9)      
-   33 => (true,   5, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- I               => I      
-   34 => (true,   6, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- J               => J      
-   35 => (true,   4, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- 0               => 0    
-   36 => (true,   7, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- M               => M
-   37 => (true,   6, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- K               => K      
-   38 => (true,   5, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- O               => O  
-   39 => (true,   7, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- N               => N      
-   40 => (true,   7, 1, true,   6, 2, false, 0, 0, 0, 0, false, 0),    -- +               => +: SS + K       
-   41 => (true,   5, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- P               => P     
-   42 => (true,   6, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- L               => L      
-   43 => (true,   7, 1, true,   6, 3, false, 0, 0, 0, 0, false, 0),    -- -               => -: SS + J
-   44 => (true,   7, 1, true,   7, 2, true,  7, 1, 2, 4, true,  2),    -- . | > (MS + .)  => .: SS + M | > (SS + T)
-                                                                       --   | | (ALT + .) => |: SEQ 2 (CS + SS, SS + S)       
-   45 => (true,   7, 1, true,   0, 1, false, 0, 0, 0, 0, true,  4),    -- :               => :: SS + Z
-                                                                       --   | { (ALT + :) => {: SEQ 4 (CS + SS, SS + F)      
-   46 => (true,   7, 1, true ,  3, 1, false, 0, 0, 0, 0, false, 0),    -- @               => @: SS + 2      
-   47 => (true,   7, 1, true,   7, 3, true,  7, 1, 2, 3, true,  1),    -- , | < (MS + ,)  => ,: SS + N | < (SS + R)  
-                                                                       --   | ~ (ALT + ,) => ~: SEQ 1 (CS + SS, SS + A)
-   48 => (true,   7, 1, true,   0, 2, false, 0, 0, 0, 0, false, 0),    -- British Pound   => British Pound: SS + X      
-   49 => (true,   7, 1, true,   7, 4, false, 0, 0, 0, 0, false, 0),    -- *               => *: SS + B      
-   50 => (true,   7, 1, true,   5, 1, false, 0, 0, 0, 0, true,  5),    -- ;               => ;: SS + O
-                                                                       --   | } (ALT + ;) => }: SEQ 5 (CS + SS, SS + G)      
-   51 => (true,   0, 0, true,   3, 2, false, 0, 0, 0, 0, false, 0),    -- Clr/Home        => True Video: CS + 3     
-   52 => (true,   0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Right Shift     => Caps Shift (CS)    
-   53 => (true,   7, 1, true,   6, 1, false, 0, 0, 0, 0, true,  0),    -- = | _ (ALT + =) => =: SS + L | _: SEQ 0 (SS + 0)      
-   54 => (true,   7, 1, true,   6, 4, false, 0, 0, 0, 0, true,  8),    -- Arrow-up        => Arrow up: SS + H
+   16 => (true,   3, 4, false,  0, 0, true,  7, 1, 3, 4, false, 0),    -- 5 | % (MS + 5)    => 5 | % (SS + 5)      
+   17 => (true,   2, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- R                 => R      
+   18 => (true,   1, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- D                 => D      
+   19 => (true,   4, 4, false,  0, 0, true,  7, 1, 4, 4, false, 0),    -- 6 | & (MS + 6)    => 6 | & (SS + 6)      
+   20 => (true,   0, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- C                 => C      
+   21 => (true,   1, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- F                 => F      
+   22 => (true,   2, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- T                 => T      
+   23 => (true,   0, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- X                 => X      
+   24 => (true,   4, 3, false,  0, 0, true,  7, 1, 4, 3, false, 0),    -- 7 | ' (MS + 7)    => 7 | ' (SS + 7)       
+   25 => (true,   5, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Y                 => Y      
+   26 => (true,   1, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- G                 => G      
+   27 => (true,   4, 2, false,  0, 0, true , 7, 1, 4, 2, false, 0),    -- 8 | ( (MS + 8)    => 8 | ( (SS + 8)      
+   28 => (true,   7, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- B                 => B
+   29 => (true,   6, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- H                 => H      
+   30 => (true,   5, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- U                 => U      
+   31 => (true,   0, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- V                 => V      
+   32 => (true,   4, 1, false,  0, 0, true,  7, 1, 4, 1, false, 0),    -- 9 | ) (MS + 9)    => 9 | ) (SS + 9)      
+   33 => (true,   5, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- I                 => I      
+   34 => (true,   6, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- J                 => J      
+   35 => (true,   4, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- 0                 => 0    
+   36 => (true,   7, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- M                 => M
+   37 => (true,   6, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- K                 => K      
+   38 => (true,   5, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- O                 => O  
+   39 => (true,   7, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- N                 => N      
+   40 => (true,   7, 1, true,   6, 2, false, 0, 0, 0, 0, false, 0),    -- +                 => +: SS + K       
+   41 => (true,   5, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- P                 => P     
+   42 => (true,   6, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- L                 => L      
+   43 => (true,   7, 1, true,   6, 3, false, 0, 0, 0, 0, false, 0),    -- -                 => -: SS + J
+   44 => (true,   7, 1, true,   7, 2, true,  7, 1, 2, 4, true,  2),    -- . | > (MS + .)    => .: SS + M | > (SS + T)
+                                                                       --   | | (ALT + .)   => |: SEQ 2 (CS + SS, SS + S)       
+   45 => (true,   7, 1, true,   0, 1, false, 0, 0, 0, 0, true,  4),    -- :                 => :: SS + Z
+                                                                       --   | { (ALT + :)   => {: SEQ 4 (CS + SS, SS + F)      
+   46 => (true,   7, 1, true ,  3, 1, false, 0, 0, 0, 0, false, 0),    -- @                 => @: SS + 2      
+   47 => (true,   7, 1, true,   7, 3, true,  7, 1, 2, 3, true,  1),    -- , | < (MS + ,)    => ,: SS + N | < (SS + R)  
+                                                                       --   | ~ (ALT + ,)   => ~: SEQ 1 (CS + SS, SS + A)
+   48 => (true,   7, 1, true,   0, 2, false, 0, 0, 0, 0, false, 0),    -- British Pound     => British Pound: SS + X      
+   49 => (true,   7, 1, true,   7, 4, false, 0, 0, 0, 0, false, 0),    -- *                 => *: SS + B      
+   50 => (true,   7, 1, true,   5, 1, false, 0, 0, 0, 0, true,  5),    -- ;                 => ;: SS + O
+                                                                       --   | } (ALT + ;)   => }: SEQ 5 (CS + SS, SS + G)      
+   51 => (true,   0, 0, true,   3, 2, false, 0, 0, 0, 0, false, 0),    -- Clr/Home          => True Video: CS + 3     
+   52 => (true,   0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Right Shift       => Caps Shift (CS)    
+   53 => (true,   7, 1, true,   6, 1, false, 0, 0, 0, 0, true,  0),    -- = | _ (ALT + =)   => =: SS + L | _: SEQ 0 (SS + 0)      
+   54 => (true,   7, 1, true,   6, 4, false, 0, 0, 0, 0, true,  8),    -- Arrow-up          => Arrow up: SS + H
                                                                        -- (pi) (ALT + Arrow-up) => (c) (copyright): SEQ 8 (CS + SS, SS + P)
-   55 => (true,   7, 1, true,   0, 4, true,  7, 1, 0, 3, true,  3),    -- / | ? (MS + /)  => /: SS + V | ? (SS + C)
-                                                                       --   | \ (ALT + /) => \: SEQ 3 (CS + SS, SS + D)       
-   56 => (true,   3, 0, false,  0, 0, true , 7, 1, 3, 0, true,  9),    -- 1 | ! (MS + 1)  => 1 | ! (SS + 1)
+   55 => (true,   7, 1, true,   0, 4, true,  7, 1, 0, 3, true,  3),    -- / | ? (MS + /)    => /: SS + V | ? (SS + C)
+                                                                       --   | \ (ALT + /)   => \: SEQ 3 (CS + SS, SS + D)       
+   56 => (true,   3, 0, false,  0, 0, true , 7, 1, 3, 0, true,  9),    -- 1 | ! (MS + 1)    => 1 | ! (SS + 1)
                                                                        --   | Blk (Alt + 1) => Black: SEQ 9 (CS + SS, 0)
-   57 => (true,   0, 0, true ,  4, 0, false, 0, 0, 0, 0, false, 0),    -- Arrow-left      => Delete: CS + 0          
-   58 => (true,   0, 0, true,   7, 1, false, 0, 0, 0, 0, false, 0),    -- Ctrl            => Extend Mode: CS + SS       
-   59 => (true,   3, 1, false,  0, 0, true , 7, 1, 5, 0, true, 10),    -- 2 | " (MS + 2)  => 2 | " (SS + P)
+   57 => (true,   0, 0, true ,  4, 0, false, 0, 0, 0, 0, false, 0),    -- Arrow-left        => Delete: CS + 0          
+   58 => (true,   0, 0, true,   7, 1, false, 0, 0, 0, 0, false, 0),    -- Ctrl              => Extend Mode: CS + SS       
+   59 => (true,   3, 1, false,  0, 0, true , 7, 1, 5, 0, true, 10),    -- 2 | " (MS + 2)    => 2 | " (SS + P)
                                                                        --   | Wht (Alt + 2) => White: SEQ 10 (CS + SS, 7)      
-   60 => (true,   7, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Space           => Space      
-   61 => (true,   7, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Mega65          => Symbol Shift (SS)   
-   62 => (true,   2, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Q               => Q    
-   63 => (true,   0, 0, false,  4, 1, false, 0, 0, 0, 0, false, 0),    -- Run/Stop        => Graphics: CS + 9      
+   60 => (true,   7, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Space             => Space      
+   61 => (true,   7, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Mega65            => Symbol Shift (SS)   
+   62 => (true,   2, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Q                 => Q    
+   63 => (true,   0, 0, false,  4, 1, false, 0, 0, 0, 0, false, 0),    -- Run/Stop          => Graphics: CS + 9      
    64 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   65 => (true,   0, 0, true ,  3, 0, false, 0, 0, 0, 0, false, 0),    -- Tab             => Edit: CS + 1      
-   66 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   67 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   68 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   69 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   70 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   71 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   72 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   73 => (true,   0, 0, true,   4, 3, false, 0, 0, 0, 0, false, 0),    -- Cursor Up       => Cursor Up: CS + 7      
-   74 => (true,   0, 0, true,   3, 4, false, 0, 0, 0, 0, false, 0),    -- Cursor Left     => Cursor Left: CS + 5      
-   75 => (true,   0, 0, true,   7, 0, false, 0, 0, 0, 0, false, 0),    -- Restore         => Break: CS + Space   
-   76 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   77 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   78 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   79 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0)   
+   65 => (true,   0, 0, true ,  3, 0, false, 0, 0, 0, 0, false, 0),    -- Tab               => Edit: CS + 1      
+   66 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),
+   67 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),
+   68 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),
+   69 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),
+   70 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),
+   71 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),
+   72 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),
+   73 => (true,   0, 0, true,   4, 3, false, 0, 0, 0, 0, false, 0),    -- Cursor Up         => Cursor Up: CS + 7
+   74 => (true,   0, 0, true,   3, 4, false, 0, 0, 0, 0, false, 0),    -- Cursor Left       => Cursor Left: CS + 5
+   75 => (true,   0, 0, true,   7, 0, false, 0, 0, 0, 0, false, 0),    -- Restore           => Break: CS + Space
+   76 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),
+   77 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),
+   78 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),
+   79 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0)
 );
 
 type sequence_record_t is record
