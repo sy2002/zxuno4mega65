@@ -64,14 +64,14 @@ module scancode_to_speccy (
     end
         
     // El gran mapa de teclado y sus registros de acceso
-    reg [7:0] keymap1[0:2047];  // 2K x 8 bits
-    reg [7:0] keymap2[0:2047];  // 2K x 8 bits
+    //reg [7:0] keymap1[0:2047];  // 2K x 8 bits
+    //reg [7:0] keymap2[0:2047];  // 2K x 8 bits
     (* mark_debug = "true" *) reg [10:0] addr = 11'h0000;
     (* mark_debug = "true" *) reg [11:0] cpuaddr = 12'h0000;  // Direcci�n E/S desde la CPU. Se autoincrementa en cada acceso
-    initial begin
-        $readmemh ("../keymaps/keyb1_us_hex.txt", keymap1);
-        $readmemh ("../keymaps/keyb2_us_hex.txt", keymap2);
-    end
+//    initial begin
+//        $readmemh ("../keymaps/keyb1_us_hex.txt", keymap1);
+//        $readmemh ("../keymaps/keyb2_us_hex.txt", keymap2);
+//    end
     
     (* mark_debug = "true" *) reg [2:0] keyrow1 = 3'h0;
     (* mark_debug = "true" *) reg [4:0] keycol1 = 5'h00;
@@ -136,8 +136,8 @@ module scancode_to_speccy (
                       state <= CPUTIME;
               end
               READSPKEY: begin
-                  {keyrow1,keycol1} <= keymap1[addr];
-                  {keyrow2,keycol2} <= keymap2[addr];
+//                  {keyrow1,keycol1} <= keymap1[addr];
+//                  {keyrow2,keycol2} <= keymap2[addr];
                   state <= TRANSLATE1;
               end
               TRANSLATE1: begin
@@ -178,16 +178,18 @@ module scancode_to_speccy (
               end
               CPUREAD: begin   // CPU wants to read from keymap
                   if (cpuaddr[0] == 1'b0)
-                    dout <= keymap1[addr];
+                    dout <= 8'b11111111;
                   else
-                    dout <= keymap1[addr];
+                    dout <= 8'b11111111;
                   state <= CPUINCADD;
               end
               CPUWRITE: begin
                   if (cpuaddr[0] == 1'b0)
-                    keymap1[addr] <= din;
+                     ;
+                    //keymap1[addr] <= din;
                   else
-                    keymap2[addr] <= din;
+                     ;
+                    //keymap2[addr] <= din;
                   state <= CPUINCADD;
               end
               CPUINCADD: begin

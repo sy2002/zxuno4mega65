@@ -425,7 +425,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/vhdl/drivers/matrix_to_ascii.vhdl">
+      <File Path="$PPRDIR/vhdl/drivers/matrix_to_keynum.vhdl">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>

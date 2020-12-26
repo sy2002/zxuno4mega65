@@ -88,91 +88,91 @@ architecture beh of matrix_to_keynum is
   
   signal reset : std_logic := '1';
   
-  type key_matrix_t is array(0 to MAXKEY) of unsigned(7 downto 0);
-  signal matrix_normal : key_matrix_t := (
-    0 => x"14", -- INS/DEL
-    1 => x"0D", -- RET/NO KEY
-    2 => x"1d", -- HORZ/CRSR
-    3 => x"f7", -- F8/F7
-    4 => x"f1", -- F2/F1
-    5 => x"f3", -- F4/F3
-    6 => x"f5", -- F6/F5
-    7 => x"11", -- VERT/CRSR
-    8 => x"33", -- #/3
-    9 => x"77", -- W/w
-    10 => x"61", -- A/a
-    11 => x"34", -- $/4
-    12 => x"7a", -- Z/z
-    13 => x"73", -- S/s
-    14 => x"65", -- E/e
-    15 => x"00", -- LEFT/SHIFT
-    16 => x"35", -- %/5
-    17 => x"72", -- R/r
-    18 => x"64", -- D/d
-    19 => x"36", -- &/6
-    20 => x"63", -- C/c
-    21 => x"66", -- F/f
-    22 => x"74", -- T/t
-    23 => x"78", -- X/x
-    24 => x"37", -- '/7
-    25 => x"79", -- Y/y
-    26 => x"67", -- G/g
-    27 => x"38", -- (/8
-    28 => x"62", -- B/b
-    29 => x"68", -- H/h
-    30 => x"75", -- U/u
-    31 => x"76", -- V/v
-    32 => x"39", -- )/9
-    33 => x"69", -- I/i
-    34 => x"6a", -- J/j
-    35 => x"30", -- 0/0
-    36 => x"6d", -- M/m
-    37 => x"6b", -- K/k
-    38 => x"6f", -- O/o
-    39 => x"6e", -- N/n
-    40 => x"2b", -- NO KEY/+
-    41 => x"70", -- P/p
-    42 => x"6c", -- L/l
-    43 => x"2d", -- NO KEY/-
-    44 => x"2e", -- >/.
-    45 => x"3a", -- [/:
-    46 => x"40", -- @
-    47 => x"2c", -- </,
-    48 => x"A3", -- British pound
-    49 => x"2a", -- *
-    50 => x"3b", -- ]/;
-    51 => x"13", -- CLR/HOM
-    52 => x"00", -- RIGHT/SHIFT
-    53 => x"3d", -- }/=
-    54 => x"e0", -- ARROW UP KEY
-    55 => x"2f", -- ?//
-    56 => x"31", -- !/1
-    57 => x"ea", -- ARROW LEFT KEY
-    58 => x"00", -- CTRL/NO KEY
-    59 => x"32", -- "/2
-    60 => x"20", -- SPACE/BAR
-    61 => x"00", -- C=/NO KEY
-    62 => x"71", -- Q/q
-    63 => x"03", -- RUN/STOP
-    64 => x"00", -- NO/SCRL
-    65 => x"09", -- TAB
-    66 => x"00", -- ALT/NO KEY
-    67 => x"00", -- HELP/NO KEY
-    68 => x"f9", -- F10/F9
-    69 => x"fb", -- F12/F11
-    70 => x"fd", -- F14/F13
-    71 => x"1b", -- ESC/NO KEY
-    72 => x"00", -- CAPSLOCK (ignore, handled otherwise)
-    73 => x"91", -- CURSOR UP = SHIFT+VERT/CRSR
-    74 => x"9d", -- CURSOR LEFT = SHIFT+HORZ/CRSR
-    75 => x"00",
-    76 => x"00",
-    77 => x"00",
-    78 => x"00",
-    79 => x"00",
+--  type key_matrix_t is array(0 to MAXKEY) of unsigned(7 downto 0);
+--  signal matrix_normal : key_matrix_t := (
+--    0 => x"14", -- INS/DEL
+--    1 => x"0D", -- RET/NO KEY
+--    2 => x"1d", -- HORZ/CRSR
+--    3 => x"f7", -- F8/F7
+--    4 => x"f1", -- F2/F1
+--    5 => x"f3", -- F4/F3
+--    6 => x"f5", -- F6/F5
+--    7 => x"11", -- VERT/CRSR
+--    8 => x"33", -- #/3
+--    9 => x"77", -- W/w
+--    10 => x"61", -- A/a
+--    11 => x"34", -- $/4
+--    12 => x"7a", -- Z/z
+--    13 => x"73", -- S/s
+--    14 => x"65", -- E/e
+--    15 => x"00", -- LEFT/SHIFT
+--    16 => x"35", -- %/5
+--    17 => x"72", -- R/r
+--    18 => x"64", -- D/d
+--    19 => x"36", -- &/6
+--    20 => x"63", -- C/c
+--    21 => x"66", -- F/f
+--    22 => x"74", -- T/t
+--    23 => x"78", -- X/x
+--    24 => x"37", -- '/7
+--    25 => x"79", -- Y/y
+--    26 => x"67", -- G/g
+--    27 => x"38", -- (/8
+--    28 => x"62", -- B/b
+--    29 => x"68", -- H/h
+--    30 => x"75", -- U/u
+--    31 => x"76", -- V/v
+--    32 => x"39", -- )/9
+--    33 => x"69", -- I/i
+--    34 => x"6a", -- J/j
+--    35 => x"30", -- 0/0
+--    36 => x"6d", -- M/m
+--    37 => x"6b", -- K/k
+--    38 => x"6f", -- O/o
+--    39 => x"6e", -- N/n
+--    40 => x"2b", -- NO KEY/+
+--    41 => x"70", -- P/p
+--    42 => x"6c", -- L/l
+--    43 => x"2d", -- NO KEY/-
+--    44 => x"2e", -- >/.
+--    45 => x"3a", -- [/:
+--    46 => x"40", -- @
+--    47 => x"2c", -- </,
+--    48 => x"A3", -- British pound
+--    49 => x"2a", -- *
+--    50 => x"3b", -- ]/;
+--    51 => x"13", -- CLR/HOM
+--    52 => x"00", -- RIGHT/SHIFT
+--    53 => x"3d", -- }/=
+--    54 => x"e0", -- ARROW UP KEY
+--    55 => x"2f", -- ?//
+--    56 => x"31", -- !/1
+--    57 => x"ea", -- ARROW LEFT KEY
+--    58 => x"00", -- CTRL/NO KEY
+--    59 => x"32", -- "/2
+--    60 => x"20", -- SPACE/BAR
+--    61 => x"00", -- C=/NO KEY
+--    62 => x"71", -- Q/q
+--    63 => x"03", -- RUN/STOP
+--    64 => x"00", -- NO/SCRL
+--    65 => x"09", -- TAB
+--    66 => x"00", -- ALT/NO KEY
+--    67 => x"00", -- HELP/NO KEY
+--    68 => x"f9", -- F10/F9
+--    69 => x"fb", -- F12/F11
+--    70 => x"fd", -- F14/F13
+--    71 => x"1b", -- ESC/NO KEY
+--    72 => x"00", -- CAPSLOCK (ignore, handled otherwise)
+--    73 => x"91", -- CURSOR UP = SHIFT+VERT/CRSR
+--    74 => x"9d", -- CURSOR LEFT = SHIFT+HORZ/CRSR
+--    75 => x"00",
+--    76 => x"00",
+--    77 => x"00",
+--    78 => x"00",
+--    79 => x"00",
 
-    others => x"00"
-    );
+--    others => x"00"
+--    );
 
   
   signal key_num : integer range 0 to MAXKEY := 0;
@@ -281,7 +281,7 @@ begin
   end process;
   
   process(clk)
-    variable key_matrix : key_matrix_t;
+--    variable key_matrix : key_matrix_t;
   begin
     if rising_edge(clk) then
 
@@ -314,7 +314,7 @@ begin
 --        key_matrix := matrix_normal;
 --      end if;
 
-      key_matrix := matrix_normal;
+--      key_matrix := matrix_normal;
 
       bucky_key <= bucky_key_internal;
 
@@ -342,64 +342,64 @@ begin
         
         keyscan_counter <= keyscan_delay;
 
-        if (last_key_state = '1') and (debounce_key_state='0') then
-          if key_matrix(key_num) /= x"00" then
-            -- Key press event
-            --report "matrix = " & to_string(matrix);
-            --report "key press, ASCII code = " & to_hstring(key_matrix(key_num));
+--        if (last_key_state = '1') and (debounce_key_state='0') then
+--          if key_matrix(key_num) /= x"00" then
+--            -- Key press event
+--            --report "matrix = " & to_string(matrix);
+--            --report "key press, ASCII code = " & to_hstring(key_matrix(key_num));
 
-            ascii_key <= key_matrix(key_num);
+--            ascii_key <= key_matrix(key_num);
             
-            -- Make CAPS LOCK invert case of only letters
-            if bucky_key_internal(6)='1'
-              and (
-                ((to_integer(key_matrix(key_num)) >= (96+1))
-                 and (to_integer(key_matrix(key_num)) <= (96+26)))
-                or (bucky_key_internal(4) = '1')
-                )
-                then
-                  -- Clear bit 5 ($20) to convert lower to upper case letters
-                  -- (Applies to some weird Latin1 characters, regardless of
-                  -- the symbol.)
-              ascii_key(5) <= '0';
-            end if;
+--            -- Make CAPS LOCK invert case of only letters
+--            if bucky_key_internal(6)='1'
+--              and (
+--                ((to_integer(key_matrix(key_num)) >= (96+1))
+--                 and (to_integer(key_matrix(key_num)) <= (96+26)))
+--                or (bucky_key_internal(4) = '1')
+--                )
+--                then
+--                  -- Clear bit 5 ($20) to convert lower to upper case letters
+--                  -- (Applies to some weird Latin1 characters, regardless of
+--                  -- the symbol.)
+--              ascii_key(5) <= '0';
+--            end if;
             
-            repeat_key <= key_num;
-            repeat_key_timer <= repeat_start_timer;
-            ascii_key_valid_countdown <= 1023;
-            ascii_key_valid <= '0';
-          else
-            ascii_key_valid <= '0';
-          end if;
-        else
-          if repeat_key_timer /= 0 then
-            repeat_key_timer <= repeat_key_timer - 1;
-            ascii_key_valid <= '0';
-          elsif repeat_timer_expired = '1' then
-            --repeat_key_timer <= repeat_again_timer;
-            if (repeat_key = key_num) and debounce_key_state='0' then
-              ascii_key_valid <= '1';
-              --report "Repeating key held down";
-              -- Republish the key, so that modifiers can change during repeat,
-              -- e.g., to allow cursor direction changing without stopping the
-              -- repeat.
-              ascii_key <= key_matrix(repeat_key);
-              --else
-              --ascii_key_valid <= '0';              
-            end if;
-          end if;
-        end if;
+--            repeat_key <= key_num;
+--            repeat_key_timer <= repeat_start_timer;
+--            ascii_key_valid_countdown <= 1023;
+--            ascii_key_valid <= '0';
+--          else
+--            ascii_key_valid <= '0';
+--          end if;
+--        else
+--          if repeat_key_timer /= 0 then
+--            repeat_key_timer <= repeat_key_timer - 1;
+--            ascii_key_valid <= '0';
+--          elsif repeat_timer_expired = '1' then
+--            --repeat_key_timer <= repeat_again_timer;
+--            if (repeat_key = key_num) and debounce_key_state='0' then
+--              ascii_key_valid <= '1';
+--              --report "Repeating key held down";
+--              -- Republish the key, so that modifiers can change during repeat,
+--              -- e.g., to allow cursor direction changing without stopping the
+--              -- repeat.
+--              ascii_key <= key_matrix(repeat_key);
+--              --else
+--              --ascii_key_valid <= '0';              
+--            end if;
+--          end if;
+--        end if;
 
-        -- Do delayed presentation of down/right, modifying it to up/left if
-        -- the shift key has gone down in the meantime.
-        if ascii_key_valid_countdown = 1 then
-          ascii_key_valid_countdown <= 0;
-          ascii_key_valid <= '1';
-        elsif ascii_key_valid_countdown /= 0 then
-          ascii_key_valid_countdown <= ascii_key_valid_countdown - 1;
-        else
-          null;
-        end if;
+--        -- Do delayed presentation of down/right, modifying it to up/left if
+--        -- the shift key has gone down in the meantime.
+--        if ascii_key_valid_countdown = 1 then
+--          ascii_key_valid_countdown <= 0;
+--          ascii_key_valid <= '1';
+--        elsif ascii_key_valid_countdown /= 0 then
+--          ascii_key_valid_countdown <= ascii_key_valid_countdown - 1;
+--        else
+--          null;
+--        end if;
         
         if key_num /= MAXKEY then
           key_num <= key_num + 1;

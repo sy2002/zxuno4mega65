@@ -61,9 +61,9 @@ module ps2_keyb(
 `include "config.vh"
 
     wire master_reset, user_reset, user_nmi;
-    assign mrst_out_n = ~master_reset;
-    assign rst_out_n = ~user_reset;
-    assign nmi_out_n = ~user_nmi;
+    assign mrst_out_n = 1'b1;
+    assign rst_out_n  = 1'b1;
+    assign nmi_out_n  = ~user_nmi;
     
     assign oe_keymap = (zxuno_addr == KEYMAP && zxuno_regrd == 1'b1);
     assign oe_scancode = (zxuno_addr == SCANCODE && zxuno_regrd == 1'b1);
@@ -143,8 +143,8 @@ module ps2_keyb(
         .joyright(joy[0]),
         .joyfire(joy[4]),
         .video_output_change(video_output_change),
-        .master_reset(master_reset),
-        .user_reset(user_reset),
+        .master_reset(),
+        .user_reset(),
         .user_nmi(),
         .user_fnt(user_fnt)
     );
