@@ -72,7 +72,7 @@ signal key_alt             : std_logic;
 
 -- [ (MS + :) and ] (MS + ;) need a special treatment, because they are the only keys, that are
 -- utilizing the sequencer without the need of the ALT key to be pressed.
-signal key_seq             : std_logic;
+signal key_seq             : boolean;
 
 -- Spectrum's keyboard matrix: low active matrix with 8 rows and 5 columns
 -- Refer to "doc/assets/spectrum_keyboard_ports.png" to learn how it works
@@ -133,34 +133,41 @@ constant mapping : mapping_t := (                                      -- MEGA 6
    6  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
    7  => (true,   0, 0, true,   4, 4, false, 0, 0, 0, 0, false, 0),    -- Cursor Down       => Cursor Down: CS + 6    
    8  => (true,   3, 2, false,  0, 0, true,  7, 1, 3, 2, true, 11),    -- 3 | # (MS + 3)    => 3 | # (SS + 3)
-                                                                       --   | Red (ALT + 3) => SEQ 11 (CS + SS, 2)      
+                                                                       --   | Red (ALT + 3) => Red: SEQ 11 (CS + SS, 2)      
    9  => (true,   2, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- W                 => W    
    10 => (true,   1, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- A                 => A     
-   11 => (true,   3, 3, false,  0, 0, true,  7, 1, 3, 3, false, 0),    -- 4 | $ (MS + 4)    => 4 | $ (SS + 4)      
+   11 => (true,   3, 3, false,  0, 0, true,  7, 1, 3, 3, true, 12),    -- 4 | $ (MS + 4)    => 4 | $ (SS + 4)
+                                                                       --   | Cyn (ALT + 4) => Cyan: SEQ 12 (CS + SS, 5)    
    12 => (true,   0, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Z                 => Z      
    13 => (true,   1, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- S                 => S      
    14 => (true,   2, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- E                 => E      
    15 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
-   16 => (true,   3, 4, false,  0, 0, true,  7, 1, 3, 4, false, 0),    -- 5 | % (MS + 5)    => 5 | % (SS + 5)      
+   16 => (true,   3, 4, false,  0, 0, true,  7, 1, 3, 4, true, 13),    -- 5 | % (MS + 5)    => 5 | % (SS + 5)
+                                                                       --   | Pur (ALT + 5) => Magenta: SEQ 13 (CS + SS, 3)   
    17 => (true,   2, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- R                 => R      
    18 => (true,   1, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- D                 => D      
-   19 => (true,   4, 4, false,  0, 0, true,  7, 1, 4, 4, false, 0),    -- 6 | & (MS + 6)    => 6 | & (SS + 6)      
+   19 => (true,   4, 4, false,  0, 0, true,  7, 1, 4, 4, true, 14),    -- 6 | & (MS + 6)    => 6 | & (SS + 6)
+                                                                       --   | Grn (ALT + 6) => Green: SEQ 14 (CS + SS, 4)
    20 => (true,   0, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- C                 => C      
    21 => (true,   1, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- F                 => F      
    22 => (true,   2, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- T                 => T      
    23 => (true,   0, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- X                 => X      
-   24 => (true,   4, 3, false,  0, 0, true,  7, 1, 4, 3, false, 0),    -- 7 | ' (MS + 7)    => 7 | ' (SS + 7)       
+   24 => (true,   4, 3, false,  0, 0, true,  7, 1, 4, 3, true, 15),    -- 7 | ' (MS + 7)    => 7 | ' (SS + 7)
+                                                                       --   | Blu (ALT +7 ) => Blue: SEQ 15 (CS + SS, 1)       
    25 => (true,   5, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Y                 => Y      
    26 => (true,   1, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- G                 => G      
-   27 => (true,   4, 2, false,  0, 0, true , 7, 1, 4, 2, false, 0),    -- 8 | ( (MS + 8)    => 8 | ( (SS + 8)      
+   27 => (true,   4, 2, false,  0, 0, true , 7, 1, 4, 2, true, 16),    -- 8 | ( (MS + 8)    => 8 | ( (SS + 8)
+                                                                       --   | Yel (ALT + 8) => Yellow: SEQ 16 (CS + SS, 6)      
    28 => (true,   7, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- B                 => B
    29 => (true,   6, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- H                 => H      
    30 => (true,   5, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- U                 => U      
    31 => (true,   0, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- V                 => V      
-   32 => (true,   4, 1, false,  0, 0, true,  7, 1, 4, 1, false, 0),    -- 9 | ) (MS + 9)    => 9 | ) (SS + 9)      
+   32 => (true,   4, 1, false,  0, 0, true,  7, 1, 4, 1, true, 17),    -- 9 | ) (MS + 9)    => 9 | ) (SS + 9)
+                                                                       --   | Rvs On (ALT + 9) => Inv. Video: SEQ 17 (CS + 4) 
    33 => (true,   5, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- I                 => I      
    34 => (true,   6, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- J                 => J      
-   35 => (true,   4, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- 0                 => 0    
+   35 => (true,   4, 0, false,  0, 0, false, 0, 0, 0, 0, true, 18),    -- 0 |               => 0
+                                                                       --   | Rvs Off (ALT + 0) => True Video: SEQ 18 (CS + 3)
    36 => (true,   7, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- M                 => M
    37 => (true,   6, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- K                 => K      
    38 => (true,   5, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- O                 => O  
@@ -269,8 +276,7 @@ begin
    key_alt           <= bucky_key(4);
    
    -- special handling for "[" and "]" on the MEGA65 keyboard (see comments above)
-   key_seq           <= '1' when key_alt = '1' or (key_status_n = '0' and key_shift_left = '1' and (key_num = 45 or key_num = 50))
-                            else '0';
+   key_seq           <= key_alt = '1' or (key_status_n = '0' and key_shift_left = '1' and (key_num = 45 or key_num = 50));
 
    m65driver : entity work.mega65kbd_to_matrix
    port map
@@ -328,12 +334,13 @@ begin
    write_matrix : process(clk)
    variable m : mapping_record_t;
    variable s : sequence_record_t;
+   variable shifted_color_keys : boolean;
    begin
       if rising_edge(clk) then      
          --------------------------------------------------------------------------------------
          -- None-sequenced mode: Read actual keypresses from the keyboard
          --------------------------------------------------------------------------------------
-         if sequencer = seq_none and key_seq = '0' then
+         if sequencer = seq_none and not key_seq then
             m := mapping(key_num);         
             -- key is currently pressed and ALT is not pressed, because ALT starts the sequencer
             if key_status_n = '0' then         
@@ -411,6 +418,12 @@ begin
          --------------------------------------------------------------------------------------         
          else
             s := seq(seq_active);
+            
+            -- special case: The MEGA65's color keys produce the background color when not shifted
+            -- and the frontend color when shifted: By changing the length of the sequence from 3 to 4,
+            -- the final (0, 0) will lead the the shift key being pressed on the Spectrum
+            shifted_color_keys := seq_active >= 9 and seq_active <= 18 and (key_shift_left = '1' or key_shift_right = '1');
+            
             case sequencer is
                when seq_start | seq_clear | seq_end =>
                   matrix      <= (others => "11111");
@@ -425,7 +438,7 @@ begin
                   
                when seq_2 =>
                   matrix(s.s2_1_row)(s.s2_1_col) <= '0';
-                  if s.size = 4 then
+                  if s.size = 4 or shifted_color_keys then
                      matrix(s.s2_2_row)(s.s2_2_col) <= '0';
                   end if;
                   
@@ -474,7 +487,7 @@ begin
       seq_delay_start   <= false;
       
       if sequencer = seq_none then           
-         if key_seq = '1' and key_status_n = '0' and mapping(key_num).seq_mode then
+         if key_seq and key_status_n = '0' and mapping(key_num).seq_mode then
             seq_next        <= seq_start;
             seq_delay_start <= true;
             -- standard case: the sequence was initiated using ALT + <key>
