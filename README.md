@@ -37,9 +37,6 @@ There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4m
 #### Keyboard TODOs
 
 * Support PS/2 codes for at least the function keys for Chloe
-* Handle the MEGA65's SHIFT-LOCK key differently. Currently, it just
-  locks the "convenicence" shift key (left shift), which does not make
-  a lot of sense.
 
 #### Acknowledgement TODOs
 
