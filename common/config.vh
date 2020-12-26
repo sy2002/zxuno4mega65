@@ -1,3 +1,7 @@
+//    ZX-Uno port for MEGA65
+//    The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
+//    MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
+
 //    This file is part of the ZXUNO Spectrum core. 
 //    Creation date is 18:39:21 2020-02-09 by Miguel Angel Rodriguez Jodar
 //    (c)2014-2020 ZXUNO association.
@@ -32,8 +36,6 @@
 // The following two defines are taken into account only if LOAD_ROM_FROM_FLASH_OPTION is not defined
 `define DEFAULT_SYSTEM_ROM "128en.hex"
 //`define DEFAULT_SYSTEM_ROM "../test/keyb_test/testkeys_rasm_version.hex"
-//`define DEFAULT_SYSTEM_ROM "~/dev/MEGA65/ZX Spectrum/zxrom/zxrom.hex"
-//`define DEFAULT_SYSTEM_ROM "/media/psf/Home/Downloads/derby.hex"
 `define DEFAULT_DIVMMC_ROM "esxdos088.hex"
 
 //`define MIDI_SYNTH_OPTION
@@ -41,7 +43,7 @@
 //`define PZX_PLAYER_OPTION
 `define VGA_OUTPUT_OPTION
 `define CPU_TURBO_OPTION
-//`define DIVMMC_SUPPORT
+`define DIVMMC_SUPPORT
 `define ZXUNO_DMA_SUPPORT
 `define ULA_TIMEX_SUPPORT
 
