@@ -1,20 +1,25 @@
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
 -- ZX-Uno port for MEGA65
 --
 -- Keyboard driver which includes the mapping of the MEGA 65 keys to ZX Uno keys
 --
 -- Terminology: CS = Spectrum's CAPS SHIFT            (MEGA65's right shift key)
 --              SS = Spectrum's SYMBOL SHIFT          (MEGA65 key)
---              MS = MEGA65's Convencience Shift Key  (MEGA65's left shift key)
+--              MS = MEGA65's Convenience Shift Key   (MEGA65's left shift key)
+--             ALT = MEGA65's Convenience Alt Key     (MEGA65' Alt key)
 --
 -- The keyboard mapping includes a "Convenience Shift Key", which is meant to
 -- simplify entering special characters. The MEGA65's left shift key is the
--- convenience shift key and the right shift key is the Spectrum's CAPS SHIFT.
+-- convenience shift key and the right shift key is the Spectrum's CAPS SHIFT (CS).
 -- Example: When pressing the Convenience Shift + 2, then the keyboard driver
 -- will generate SS + P to generate " (double quotes), because this is what you
 -- would expect when looking at the MEGA65 keyboard. In situations, where there
 -- is no special shift character available on the MEGA65's keyboard, the MS
 -- key behaves just like this CS key.
+--
+-- ALT is used to generate sequences of keys on the Spectrum to conveniently produce
+-- special characters. Example: ALT + , produces ~ by first switching to spectrum's
+-- "E" mode via CS + SS and then pressing SS + A. 
 --
 -- If you want the native Spectrrum behavior, then you use the MEGA65's right
 -- shift key, which is always mapped to be the CAPS SHIFT.
@@ -22,7 +27,7 @@
 -- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 -- MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
 -- Keyboard mapping as defined by Andrew Owen in December 2020
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
 
 
 library IEEE;
@@ -31,7 +36,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity keyboard is
 port (
-   clk         : in std_logic;
+   clk         : in std_logic;         -- assumes a 28 MHz clock 
        
    -- interface to the MEGA65 keyboard controller       
    kio8        : out std_logic;        -- clock to keyboard
@@ -46,6 +51,11 @@ end keyboard;
 
 architecture beh of keyboard is
 
+constant CLOCK_SPEED       : integer := 28000000;
+constant SEQ_SPEED         : integer := (CLOCK_SPEED / 1000) * 50; -- 50ms delay between sequence actions at 28 MHz
+constant SEQ_MAXLEN        : integer := 8;
+
+
 signal matrix_col          : std_logic_vector(7 downto 0);
 signal matrix_col_idx      : integer range 0 to 9 := 0;
 signal key_num             : integer range 0 to 79;
@@ -58,6 +68,11 @@ signal key_shift_left      : std_logic;
 signal key_shift_right     : std_logic;
 signal key_ctrl            : std_logic;
 signal key_mega            : std_logic;
+signal key_alt             : std_logic;
+
+-- [ (MS + :) and ] (MS + ;) need a special treatment, because they are the only keys, that are
+-- utilizing the sequencer without the need of the ALT key to be pressed.
+signal key_seq             : std_logic;
 
 -- Spectrum's keyboard matrix: low active matrix with 8 rows and 5 columns
 -- Refer to "doc/assets/spectrum_keyboard_ports.png" to learn how it works
@@ -87,104 +102,149 @@ signal msca_u    : matrix_reg_t := (others => "11111");
 --    In this case, independend of "first_active" and "second_active" which are only meant to be evaluated
 --    when MS is not pressed, there is now "convenience_active" = true and the ca* record fields are describing the
 --    sequence of Spectrum keys that need to be pressed. 
+-- 4. The ALT key is used to trigger sequences of keys on the Spectrum to retrieve special characters.
+--    If such a sequence is supported, then "seq_mode" needs to be true and "seq_prg" needs to contain the
+--    number of the sequence (program) to execute.
 type mapping_record_t is record
-   first_active         : boolean;
-   first_row            : integer range 0 to 7;
-   first_col            : integer range 0 to 5;
-   second_active        : boolean;
-   second_row           : integer range 0 to 7;
-   second_col           : integer range 0 to 5;
-   msca                 : boolean;                 -- MEGA65's Convencience Shift Key active
-   ca1_row              : integer range 0 to 7;
-   ca1_col              : integer range 0 to 5;
-   ca2_row              : integer range 0 to 7;
-   ca2_col              : integer range 0 to 5;
+   first_active   : boolean;
+   first_row      : integer range 0 to 7;
+   first_col      : integer range 0 to 5;
+   second_active  : boolean;
+   second_row     : integer range 0 to 7;
+   second_col     : integer range 0 to 5;
+   msca           : boolean;                 -- MEGA65's Convencience Shift Key active
+   ca1_row        : integer range 0 to 7;
+   ca1_col        : integer range 0 to 5;
+   ca2_row        : integer range 0 to 7;
+   ca2_col        : integer range 0 to 5;
+   seq_mode       : boolean;
+   seq_prg        : integer range 0 to SEQ_MAXLEN;
 end record;
 
 type mapping_t is array(0 to 79) of mapping_record_t;
 
-constant mapping : mapping_t := (                            -- MEGA 65        => ZX Uno
-   0  => (true,   0, 0, true,   3, 3, false, 0, 0, 0, 0),    -- Inst/Del       => Inv. Video: CS + 4
-   1  => (true,   6, 0, false,  0, 0, false, 0, 0, 0, 0),    -- Return         => Enter
-   2  => (true,   0, 0, true,   4, 2, false, 0, 0, 0, 0),    -- Cursor Right   => Cursor Right: CS + 8
-   3  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   4  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   5  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   6  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   7  => (true,   0, 0, true,   4, 4, false, 0, 0, 0, 0),    -- Cursor Down    => Cursor Down: CS + 6    
-   8  => (true,   3, 2, false,  0, 0, true,  7, 1, 3, 2),    -- 3 | # (MS + 3) => 3 | # (SS + 3)     
-   9  => (true,   2, 1, false,  0, 0, false, 0, 0, 0, 0),    -- W              => W    
-   10 => (true,   1, 0, false,  0, 0, false, 0, 0, 0, 0),    -- A              => A     
-   11 => (true,   3, 3, false,  0, 0, true,  7, 1, 3, 3),    -- 4 | $ (MS + 4) => 4 | $ (SS + 4)      
-   12 => (true,   0, 1, false,  0, 0, false, 0, 0, 0, 0),    -- Z              => Z      
-   13 => (true,   1, 1, false,  0, 0, false, 0, 0, 0, 0),    -- S              => S      
-   14 => (true,   2, 2, false,  0, 0, false, 0, 0, 0, 0),    -- E              => E      
-   15 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   16 => (true,   3, 4, false,  0, 0, true,  7, 1, 3, 4),    -- 5 | % (MS + 5) => 5 | % (SS + 5)      
-   17 => (true,   2, 3, false,  0, 0, false, 0, 0, 0, 0),    -- R              => R      
-   18 => (true,   1, 2, false,  0, 0, false, 0, 0, 0, 0),    -- D              => D      
-   19 => (true,   4, 4, false,  0, 0, true,  7, 1, 4, 4),    -- 6 | & (MS + 6) => 6 | & (SS + 6)      
-   20 => (true,   0, 3, false,  0, 0, false, 0, 0, 0, 0),    -- C              => C      
-   21 => (true,   1, 3, false,  0, 0, false, 0, 0, 0, 0),    -- F              => F      
-   22 => (true,   2, 4, false,  0, 0, false, 0, 0, 0, 0),    -- T              => T      
-   23 => (true,   0, 2, false,  0, 0, false, 0, 0, 0, 0),    -- X              => X      
-   24 => (true,   4, 3, false,  0, 0, true,  7, 1, 4, 3),    -- 7 | ' (MS + 7) => 7 | ' (SS + 7)       
-   25 => (true,   5, 4, false,  0, 0, false, 0, 0, 0, 0),    -- Y              => Y      
-   26 => (true,   1, 4, false,  0, 0, false, 0, 0, 0, 0),    -- G              => G      
-   27 => (true,   4, 2, false,  0, 0, true , 7, 1, 4, 2),    -- 8 | ( (MS + 8) => 8 | ( (SS + 8)      
-   28 => (true,   7, 4, false,  0, 0, false, 0, 0, 0, 0),    -- B              => B
-   29 => (true,   6, 4, false,  0, 0, false, 0, 0, 0, 0),    -- H              => H      
-   30 => (true,   5, 3, false,  0, 0, false, 0, 0, 0, 0),    -- U              => U      
-   31 => (true,   0, 4, false,  0, 0, false, 0, 0, 0, 0),    -- V              => V      
-   32 => (true,   4, 1, false,  0, 0, true,  7, 1, 4, 1),    -- 9 | ) (MS + 9) => 9 | ) (SS + 9)      
-   33 => (true,   5, 2, false,  0, 0, false, 0, 0, 0, 0),    -- I              => I      
-   34 => (true,   6, 3, false,  0, 0, false, 0, 0, 0, 0),    -- J              => J      
-   35 => (true,   4, 0, false,  0, 0, false, 0, 0, 0, 0),    -- 0              => 0    
-   36 => (true,   7, 2, false,  0, 0, false, 0, 0, 0, 0),    -- M              => M
-   37 => (true,   6, 2, false,  0, 0, false, 0, 0, 0, 0),    -- K              => K      
-   38 => (true,   5, 1, false,  0, 0, false, 0, 0, 0, 0),    -- O              => O  
-   39 => (true,   7, 3, false,  0, 0, false, 0, 0, 0, 0),    -- N              => N      
-   40 => (true,   7, 1, true,   6, 2, false, 0, 0, 0, 0),    -- +              => +: SS + K       
-   41 => (true,   5, 0, false,  0, 0, false, 0, 0, 0, 0),    -- P              => P     
-   42 => (true,   6, 1, false,  0, 0, false, 0, 0, 0, 0),    -- L              => L      
-   43 => (true,   7, 1, true,   6, 3, false, 0, 0, 0, 0),    -- -              => -: SS + J
-   44 => (true,   7, 1, true,   7, 2, true,  7, 1, 2, 4),    -- . | > (MS + .) => .: SS + M | > (SS + T)      
-   45 => (true,   7, 1, true,   0, 1, false, 0, 0, 0, 0),    -- :              => :: SS + Z      
-   46 => (true,   7, 1, true ,  3, 1, false, 0, 0, 0, 0),    -- @              => @: SS + 2      
-   47 => (true,   7, 1, true,   7, 3, true,  7, 1, 2, 3),    -- , | < (MS + ,) => ,: SS + N | < (SS + R)     
-   48 => (true,   7, 1, true,   0, 2, false, 0, 0, 0, 0),    -- British Pound  => British Pound: SS + X      
-   49 => (true,   7, 1, true,   7, 4, false, 0, 0, 0, 0),    -- *              => *: SS + B      
-   50 => (true,   7, 1, true,   5, 1, false, 0, 0, 0, 0),    -- ;              => ;: SS + O      
-   51 => (true,   0, 0, true,   3, 2, false, 0, 0, 0, 0),    -- Clr/Home       => True Video: CS + 3     
-   52 => (true,   0, 0, false,  0, 0, false, 0, 0, 0, 0),    -- Right Shift    => Caps Shift (CS)    
-   53 => (true,   7, 1, true,   6, 1, false, 0, 0, 0, 0),    -- =              => =: SS + L      
-   54 => (true,   7, 1, true,   6, 4, false, 0, 0, 0, 0),    -- Arrow-up       => Arrow up: SS + H      
-   55 => (true,   7, 1, true,   0, 4, true,  7, 1, 0, 3),    -- / | ? (MS + /) => /: SS + V | ? (SS + C)        
-   56 => (true,   3, 0, false,  0, 0, true , 7, 1, 3, 0),    -- 1 | ! (MS + 1) => 1 | ! (SS + 1) 
-   57 => (true,   0, 0, true ,  4, 0, false, 0, 0, 0, 0),    -- Arrow-left     => Delete: CS + 0          
-   58 => (true,   0, 0, true,   7, 1, false, 0, 0, 0, 0),    -- Ctrl           => Extend Mode: CS + SS       
-   59 => (true,   3, 1, false,  0, 0, true , 7, 1, 5, 0),    -- 2 | " (MS + 2) => 2 | " (SS + P)      
-   60 => (true,   7, 0, false,  0, 0, false, 0, 0, 0, 0),    -- Space          => Space      
-   61 => (true,   7, 1, false,  0, 0, false, 0, 0, 0, 0),    -- Mega65         => Symbol Shift (SS)   
-   62 => (true,   2, 0, false,  0, 0, false, 0, 0, 0, 0),    -- Q              => Q    
-   63 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   64 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   65 => (true,   0, 0, true ,  3, 0, false, 0, 0, 0, 0),    -- Tab            => Edit: CS + 1      
-   66 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   67 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   68 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   69 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   70 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   71 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   72 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   73 => (true,   0, 0, true,   4, 3, false, 0, 0, 0, 0),    -- Cursor Up      => Cursor Up: CS + 7      
-   74 => (true,   0, 0, true,   3, 4, false, 0, 0, 0, 0),    -- Cursor Left    => Cursor Left: CS + 5      
-   75 => (true,   0, 0, true,   7, 0, false, 0, 0, 0, 0),    -- Restore        => Break: CS + Space   
-   76 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   77 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   78 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0),      
-   79 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0)   
+constant mapping : mapping_t := (                                      -- MEGA 65        => ZX Uno
+   0  => (true,   0, 0, true,   3, 3, false, 0, 0, 0, 0, false, 0),    -- Inst/Del       => Inv. Video: CS + 4
+   1  => (true,   6, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Return         => Enter
+   2  => (true,   0, 0, true,   4, 2, false, 0, 0, 0, 0, false, 0),    -- Cursor Right   => Cursor Right: CS + 8
+   3  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   4  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   5  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   6  => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   7  => (true,   0, 0, true,   4, 4, false, 0, 0, 0, 0, false, 0),    -- Cursor Down     => Cursor Down: CS + 6    
+   8  => (true,   3, 2, false,  0, 0, true,  7, 1, 3, 2, false, 0),    -- 3 | # (MS + 3)  => 3 | # (SS + 3)     
+   9  => (true,   2, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- W               => W    
+   10 => (true,   1, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- A               => A     
+   11 => (true,   3, 3, false,  0, 0, true,  7, 1, 3, 3, false, 0),    -- 4 | $ (MS + 4)  => 4 | $ (SS + 4)      
+   12 => (true,   0, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Z               => Z      
+   13 => (true,   1, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- S               => S      
+   14 => (true,   2, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- E               => E      
+   15 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   16 => (true,   3, 4, false,  0, 0, true,  7, 1, 3, 4, false, 0),    -- 5 | % (MS + 5)  => 5 | % (SS + 5)      
+   17 => (true,   2, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- R               => R      
+   18 => (true,   1, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- D               => D      
+   19 => (true,   4, 4, false,  0, 0, true,  7, 1, 4, 4, false, 0),    -- 6 | & (MS + 6)  => 6 | & (SS + 6)      
+   20 => (true,   0, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- C               => C      
+   21 => (true,   1, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- F               => F      
+   22 => (true,   2, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- T               => T      
+   23 => (true,   0, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- X               => X      
+   24 => (true,   4, 3, false,  0, 0, true,  7, 1, 4, 3, false, 0),    -- 7 | ' (MS + 7)  => 7 | ' (SS + 7)       
+   25 => (true,   5, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Y               => Y      
+   26 => (true,   1, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- G               => G      
+   27 => (true,   4, 2, false,  0, 0, true , 7, 1, 4, 2, false, 0),    -- 8 | ( (MS + 8)  => 8 | ( (SS + 8)      
+   28 => (true,   7, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- B               => B
+   29 => (true,   6, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- H               => H      
+   30 => (true,   5, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- U               => U      
+   31 => (true,   0, 4, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- V               => V      
+   32 => (true,   4, 1, false,  0, 0, true,  7, 1, 4, 1, false, 0),    -- 9 | ) (MS + 9)  => 9 | ) (SS + 9)      
+   33 => (true,   5, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- I               => I      
+   34 => (true,   6, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- J               => J      
+   35 => (true,   4, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- 0               => 0    
+   36 => (true,   7, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- M               => M
+   37 => (true,   6, 2, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- K               => K      
+   38 => (true,   5, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- O               => O  
+   39 => (true,   7, 3, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- N               => N      
+   40 => (true,   7, 1, true,   6, 2, false, 0, 0, 0, 0, false, 0),    -- +               => +: SS + K       
+   41 => (true,   5, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- P               => P     
+   42 => (true,   6, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- L               => L      
+   43 => (true,   7, 1, true,   6, 3, false, 0, 0, 0, 0, false, 0),    -- -               => -: SS + J
+   44 => (true,   7, 1, true,   7, 2, true,  7, 1, 2, 4, true,  2),    -- . | > (MS + .)  => .: SS + M | > (SS + T)
+                                                                       --   | | (ALT + .) => |: SEQ 2 (CS + SS, SS + S)       
+   45 => (true,   7, 1, true,   0, 1, false, 0, 0, 0, 0, true,  4),    -- :               => :: SS + Z
+                                                                       --   | { (ALT + :) => {: SEQ 4 (CS + SS, SS + F)      
+   46 => (true,   7, 1, true ,  3, 1, false, 0, 0, 0, 0, false, 0),    -- @               => @: SS + 2      
+   47 => (true,   7, 1, true,   7, 3, true,  7, 1, 2, 3, true,  1),    -- , | < (MS + ,)  => ,: SS + N | < (SS + R)  
+                                                                       --   | ~ (ALT + ,) => ~: SEQ 1 (CS + SS, SS + A)
+   48 => (true,   7, 1, true,   0, 2, false, 0, 0, 0, 0, false, 0),    -- British Pound   => British Pound: SS + X      
+   49 => (true,   7, 1, true,   7, 4, false, 0, 0, 0, 0, false, 0),    -- *               => *: SS + B      
+   50 => (true,   7, 1, true,   5, 1, false, 0, 0, 0, 0, true,  5),    -- ;               => ;: SS + O
+                                                                       --   | } (ALT + ;) => }: SEQ 5 (CS + SS, SS + G)      
+   51 => (true,   0, 0, true,   3, 2, false, 0, 0, 0, 0, false, 0),    -- Clr/Home        => True Video: CS + 3     
+   52 => (true,   0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Right Shift     => Caps Shift (CS)    
+   53 => (true,   7, 1, true,   6, 1, false, 0, 0, 0, 0, true,  0),    -- = | _ (ALT + =) => =: SS + L | _: SEQ 0 (SS + 0)      
+   54 => (true,   7, 1, true,   6, 4, false, 0, 0, 0, 0, true,  8),    -- Arrow-up        => Arrow up: SS + H
+                                                                       -- (pi) (ALT + Arrow-up) => (c) (copyright): SEQ 8 (CS + SS, SS + P)
+   55 => (true,   7, 1, true,   0, 4, true,  7, 1, 0, 3, true,  3),    -- / | ? (MS + /)  => /: SS + V | ? (SS + C)
+                                                                       --   | \ (ALT + /) => \: SEQ 3 (CS + SS, SS + D)       
+   56 => (true,   3, 0, false,  0, 0, true , 7, 1, 3, 0, false, 0),    -- 1 | ! (MS + 1)  => 1 | ! (SS + 1) 
+   57 => (true,   0, 0, true ,  4, 0, false, 0, 0, 0, 0, false, 0),    -- Arrow-left      => Delete: CS + 0          
+   58 => (true,   0, 0, true,   7, 1, false, 0, 0, 0, 0, false, 0),    -- Ctrl            => Extend Mode: CS + SS       
+   59 => (true,   3, 1, false,  0, 0, true , 7, 1, 5, 0, false, 0),    -- 2 | " (MS + 2)  => 2 | " (SS + P)      
+   60 => (true,   7, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Space           => Space      
+   61 => (true,   7, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Mega65          => Symbol Shift (SS)   
+   62 => (true,   2, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Q               => Q    
+   63 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   64 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   65 => (true,   0, 0, true ,  3, 0, false, 0, 0, 0, 0, false, 0),    -- Tab             => Edit: CS + 1      
+   66 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   67 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   68 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   69 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   70 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   71 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   72 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   73 => (true,   0, 0, true,   4, 3, false, 0, 0, 0, 0, false, 0),    -- Cursor Up       => Cursor Up: CS + 7      
+   74 => (true,   0, 0, true,   3, 4, false, 0, 0, 0, 0, false, 0),    -- Cursor Left     => Cursor Left: CS + 5      
+   75 => (true,   0, 0, true,   7, 0, false, 0, 0, 0, 0, false, 0),    -- Restore         => Break: CS + Space   
+   76 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   77 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   78 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
+   79 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0)   
 );
+
+type sequence_record_t is record
+   size           : integer range 1 to 2;
+   s1_1_row       : integer range 0 to 7;
+   s1_1_col       : integer range 0 to 4;
+   s1_2_row       : integer range 0 to 7;
+   s1_2_col       : integer range 0 to 4;
+   s2_1_row       : integer range 0 to 7;
+   s2_1_col       : integer range 0 to 4;
+   s2_2_row       : integer range 0 to 7;
+   s2_2_col       : integer range 0 to 4;   
+end record;
+
+type sequence_t is array(0 to SEQ_MAXLEN) of sequence_record_t;
+
+constant seq : sequence_t := (
+   0 => (1, 7, 1, 4, 0, 0, 0, 0, 0),   -- SEQ 0: _ => SS + 0 
+   1 => (2, 0, 0, 7, 1, 7, 1, 1, 0),   -- SEQ 1: ~ => CS + SS, SS + A
+   2 => (2, 0, 0, 7, 1, 7, 1, 1, 1),   -- SEQ 2: | => CS + SS, SS + S    
+   3 => (2, 0, 0, 7, 1, 7, 1, 1, 2),   -- SEQ 3: \ => CS + SS, SS + D
+   4 => (2, 0, 0, 7, 1, 7, 1, 1, 3),   -- SEQ 4: { => CS + SS, SS + F
+   5 => (2, 0, 0, 7, 1, 7, 1, 1, 4),   -- SEQ 5: } => CS + SS, SS + G
+   6 => (2, 0, 0, 7, 1, 7, 1, 5, 4),   -- SEQ 6: [ => CS + SS, SS + Y
+   7 => (2, 0, 0, 7, 1, 7, 1, 5, 3),   -- SEQ 7: ] => CS + SS, SS + U
+   8 => (2, 0, 0, 7, 1, 7, 1, 5, 0)    -- SEQ 8: (c) => CS + SS, SS + P
+);
+
+type sequencer_t is (seq_none, seq_start, seq_1, seq_clear, seq_2, seq_end);
+signal sequencer        : sequencer_t := seq_none;
+signal seq_next         : sequencer_t := seq_none;
+signal seq_active       : integer range 0 to SEQ_MAXLEN;
+signal seq_active_next  : integer range 0 to SEQ_MAXLEN;
+signal seq_delay        : integer range 0 to SEQ_SPEED;
+signal seq_delay_start  : boolean;
 
 begin
 
@@ -193,6 +253,11 @@ begin
    key_shift_right   <= bucky_key(1);
    key_ctrl          <= bucky_key(2);
    key_mega          <= bucky_key(3);
+   key_alt           <= bucky_key(4);
+   
+   -- special handling for "[" and "]" on the MEGA65 keyboard (see comments above)
+   key_seq           <= '1' when key_alt = '1' or (key_status_n = '0' and key_shift_left = '1' and (key_num = 45 or key_num = 50))
+                            else '0';
 
    m65driver : entity work.mega65kbd_to_matrix
    port map
@@ -215,7 +280,7 @@ begin
    generic map
    (
       scan_frequency    => 1000,
-      clock_frequency   => 28000000      
+      clock_frequency   => CLOCK_SPEED      
    )
    port map
    (
@@ -249,82 +314,115 @@ begin
    -- support two ZX Uno matrix entries per pressed MEGA key for the end user's convenience
    write_matrix : process(clk)
    variable m : mapping_record_t;
+   variable s : sequence_record_t;
    begin
-      if rising_edge(clk) then
-         m := mapping(key_num);         
-         -- key is currently pressed
-         if key_status_n = '0' then         
-            -- standard operation: no MEGA65's Convencience Shift Key (MS) pressed or no special treatment available          
-            if (key_shift_left = '0') or (not m.msca) then
-               if m.first_active then
-                  matrix(m.first_row)(m.first_col)       <= '0';
+      if rising_edge(clk) then      
+         --------------------------------------------------------------------------------------
+         -- None-sequenced mode: Read actual keypresses from the keyboard
+         --------------------------------------------------------------------------------------
+         if sequencer = seq_none and key_seq = '0' then
+            m := mapping(key_num);         
+            -- key is currently pressed and ALT is not pressed, because ALT starts the sequencer
+            if key_status_n = '0' then         
+               -- standard operation: no MEGA65's Convencience Shift Key (MS) pressed or no special treatment available          
+               if (key_shift_left = '0') or (not m.msca) then
+                  if m.first_active then
+                     matrix(m.first_row)(m.first_col)       <= '0';
+                  end if;
+                  if m.second_active then
+                     autoset_m(key_num)                     <= '0';  -- remember standard autoset
+                     autoset_u(m.first_row)(m.first_col)    <= '0';
+                     autoset_u(m.second_row)(m.second_col)  <= '0';
+                     matrix(m.second_row)(m.second_col)     <= '0';  -- set Spectrum's matrix          
+                  end if;
+
+               -- convenience mode via MEGA65's Convencience Shift Key (MS)           
+               else
+                  msca_m(key_num)                           <= '0';  -- remember MS autoset
+                  msca_u(m.ca1_row)(m.ca1_col)              <= '0';
+                  msca_u(m.ca2_row)(m.ca2_col)              <= '0';               
+                  matrix(m.ca1_row)(m.ca1_col)              <= '0';
+                  matrix(m.ca2_row)(m.ca2_col)              <= '0';  -- set Spectrum's matrix
+                  
+                  -- prevent glitch that when you release MS while the combo (e.g. MS + 2) is pressed
+                  -- and then press MS again, that you have then one extra active key
+                  if m.first_active and not (m.first_row = m.ca1_row and m.first_col = m.ca1_col) and
+                                        not (m.first_row = m.ca2_row and m.first_col = m.ca2_col) then
+                     matrix(m.first_row)(m.first_col)       <= '1' and autoset_u(m.first_row)(m.first_col);
+                  end if;
+                  if m.second_active and not (m.second_row = m.ca1_row and m.second_col = m.ca1_col) and
+                                         not (m.second_row = m.ca2_row and m.second_col = m.ca2_col) then
+                     matrix(m.second_row)(m.second_col)     <= '1' and autoset_u(m.second_row)(m.second_col);
+                  end if;               
                end if;
-               if m.second_active then
-                  autoset_m(key_num)                     <= '0';  -- remember standard autoset
-                  autoset_u(m.first_row)(m.first_col)    <= '0';
-                  autoset_u(m.second_row)(m.second_col)  <= '0';
-                  matrix(m.second_row)(m.second_col)     <= '0';  -- set Spectrum's matrix          
-               end if;
-               
-            -- convenience mode via MEGA65's Convencience Shift Key (MS)           
-            else
-               msca_m(key_num)                           <= '0';  -- remember MS autoset
-               msca_u(m.ca1_row)(m.ca1_col)              <= '0';
-               msca_u(m.ca2_row)(m.ca2_col)              <= '0';               
-               matrix(m.ca1_row)(m.ca1_col)              <= '0';
-               matrix(m.ca2_row)(m.ca2_col)              <= '0';  -- set Spectrum's matrix
-               
-               -- prevent glitch that when you release MS while the combo (e.g. MS + 2) is pressed
-               -- and then press MS again, that you have then one extra active key
-               if m.first_active and not (m.first_row = m.ca1_row and m.first_col = m.ca1_col) and
-                                     not (m.first_row = m.ca2_row and m.first_col = m.ca2_col) then
-                  matrix(m.first_row)(m.first_col)       <= '1' and autoset_u(m.first_row)(m.first_col);
-               end if;
-               if m.second_active and not (m.second_row = m.ca1_row and m.second_col = m.ca1_col) and
-                                      not (m.second_row = m.ca2_row and m.second_col = m.ca2_col) then
-                  matrix(m.second_row)(m.second_col)     <= '1' and autoset_u(m.second_row)(m.second_col);
-               end if;               
-            end if;
-         
-         -- key is currently released: we prevent releasing an autoset key (standard or msca) by and-ing
-         -- the Spectrum's matrix value with our remembered autoset matrices
-         else
-            if m.first_active then
-               matrix(m.first_row)(m.first_col)          <= '1' and autoset_u(m.first_row)(m.first_col)
-                                                                and msca_u(m.first_row)(m.first_col);
-            end if;
-            if m.second_active and autoset_m(key_num) = '0' then
-               autoset_m(key_num)                        <= '1';
-               autoset_u(m.first_row)(m.first_col)       <= '1';
-               autoset_u(m.second_row)(m.second_col)     <= '1';
-               matrix(m.second_row)(m.second_col)        <= '1' and msca_u(m.second_row)(m.second_col);
-            end if;
-            if m.msca and msca_m(key_num) = '0' then
-               msca_m(key_num)                           <= '1';
-               msca_u(m.ca1_row)(m.ca1_col)              <= '1';
-               msca_u(m.ca2_row)(m.ca2_col)              <= '1';
-               matrix(m.ca1_row)(m.ca1_col)              <= '1' and autoset_u(m.ca1_row)(m.ca1_col);
-               matrix(m.ca2_row)(m.ca2_col)              <= '1' and autoset_u(m.ca2_row)(m.ca2_col);
-            end if;
-         end if;               
-         
-         -- If the MEGA65's MEGA key (SS) or right shift (CS) is being pressed, then
-         -- this has precedence over all decisions we made above
-         if key_shift_right = '1' then matrix(0)(0) <= '0'; end if;
-         if key_mega        = '1' then matrix(7)(1) <= '0'; end if;
-         
-         -- Releasing the MS key means that all remembered convenience combos are gone
-         if key_shift_left  = '0' then
-            msca_m <= (others => '1');
-            msca_u <= (others => "11111");
             
-         -- Pressing the MS key while no special convenience combo is active means: MS behaves like CS
-         elsif msca_m = "11111111111111111111111111111111111111111111111111111111111111111111111111111111" then
-            matrix(0)(0) <= '0';
+            -- key is currently released: we prevent releasing an autoset key (standard or msca) by and-ing
+            -- the Spectrum's matrix value with our remembered autoset matrices
+            else
+               if m.first_active then
+                  matrix(m.first_row)(m.first_col)          <= '1' and autoset_u(m.first_row)(m.first_col)
+                                                                   and msca_u(m.first_row)(m.first_col);
+               end if;
+               if m.second_active and autoset_m(key_num) = '0' then
+                  autoset_m(key_num)                        <= '1';
+                  autoset_u(m.first_row)(m.first_col)       <= '1';
+                  autoset_u(m.second_row)(m.second_col)     <= '1';
+                  matrix(m.second_row)(m.second_col)        <= '1' and msca_u(m.second_row)(m.second_col);
+               end if;
+               if m.msca and msca_m(key_num) = '0' then
+                  msca_m(key_num)                           <= '1';
+                  msca_u(m.ca1_row)(m.ca1_col)              <= '1';
+                  msca_u(m.ca2_row)(m.ca2_col)              <= '1';
+                  matrix(m.ca1_row)(m.ca1_col)              <= '1' and autoset_u(m.ca1_row)(m.ca1_col);
+                  matrix(m.ca2_row)(m.ca2_col)              <= '1' and autoset_u(m.ca2_row)(m.ca2_col);
+               end if;
+            end if;               
+            
+            -- If the MEGA65's MEGA key (SS) or right shift (CS) is being pressed, then
+            -- this has precedence over all decisions we made above
+            if key_shift_right = '1' then matrix(0)(0) <= '0'; end if;
+            if key_mega        = '1' then matrix(7)(1) <= '0'; end if;
+            
+            -- Releasing the MS key means that all remembered convenience combos are gone
+            if key_shift_left  = '0' then
+               msca_m <= (others => '1');
+               msca_u <= (others => "11111");
+               
+            -- Pressing the MS key while no special convenience combo is active means: MS behaves like CS
+            elsif msca_m = "11111111111111111111111111111111111111111111111111111111111111111111111111111111" then
+               matrix(0)(0) <= '0';
+            end if;
+         
+         --------------------------------------------------------------------------------------
+         -- Sequenced mode: Play back pre-recorded key combos
+         --------------------------------------------------------------------------------------         
+         else
+            s := seq(seq_active);
+            case sequencer is
+               when seq_start | seq_clear | seq_end =>
+                  matrix      <= (others => "11111");
+                  autoset_u   <= (others => "11111");
+                  msca_u      <= (others => "11111");
+                  autoset_m   <= (others => '1');
+                  msca_m      <= (others => '1');
+                  
+               when seq_1 =>
+                  matrix(s.s1_1_row)(s.s1_1_col) <= '0';
+                  matrix(s.s1_2_row)(s.s1_2_col) <= '0';
+                  
+               when seq_2 =>
+                  matrix(s.s2_1_row)(s.s2_1_col) <= '0';
+                  matrix(s.s2_2_row)(s.s2_2_col) <= '0';
+                  
+               when others =>
+                  null;                  
+            end case;
          end if;
       end if;
    end process;
    
+   -- return matrix to Spectrum
+   -- (refer to "doc/assets/spectrum_keyboard_ports.png" for the "row_select" encoding)
    read_matrix : process(row_select)
    begin
       case row_select is
@@ -339,5 +437,63 @@ begin
          when others => col_data <= "11111";
       end case;
    end process;
+   
+   sequencer_fsm : process(clk)
+   begin
+      if rising_edge(clk) then
+         sequencer   <= seq_next;
+         seq_active  <= seq_active_next;
+         
+         if seq_delay_start then
+            seq_delay <= SEQ_SPEED;
+         elsif seq_delay /= 0 then
+            seq_delay <= seq_delay - 1;
+         end if;         
+      end if;
+   end process;
+   
+   sequencer_control : process(sequencer, seq_active, key_seq, key_alt, key_num, key_status_n, seq_delay)
+   begin
+      seq_next          <= seq_none;
+      seq_active_next   <= seq_active;      
+      seq_delay_start   <= false;
       
+      if sequencer = seq_none then           
+         if key_seq = '1' and key_status_n = '0' and mapping(key_num).seq_mode then
+            seq_next        <= seq_start;
+            seq_delay_start <= true;
+            -- standard case: the sequence was initiated using ALT + <key>
+            if key_alt = '1' then
+               seq_active_next <= mapping(key_num).seq_prg;            
+            -- special treatment for [ and ] necessary (see comments above), because the sequence
+            -- is initiated by MS instead of ALT, so we hardcode the sequence numbers here
+            else            
+               if key_num = 45 then
+                  seq_active_next <= 6; -- SEQ 6: [
+               elsif key_num = 50 then
+                  seq_active_next <= 7; -- SEQ 7: ]
+               end if; 
+            end if;                    
+         end if;         
+      else
+         if seq_delay /= 0 then
+            seq_next <= sequencer;
+         else
+            seq_delay_start <= true;
+            case sequencer is
+               when seq_start => seq_next <= seq_1;
+               when seq_1     => seq_next <= seq_clear;
+               when seq_clear =>
+                  if seq(seq_active).size = 2 then
+                     seq_next <= seq_2;
+                  else
+                     seq_next <= seq_none;
+                  end if;
+               when seq_2     => seq_next <= seq_end;
+               when seq_end   => seq_next <= seq_none;
+               when others    => seq_next <= seq_none;
+            end case;
+         end if; 
+      end if;
+   end process;      
 end beh;

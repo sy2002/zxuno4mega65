@@ -222,6 +222,6 @@ begin
    -- make the VDAC output the image    
    vdac_sync_n <= '0';
    vdac_blank_n <= '1';   
-   vdac_clk <= clk28mhz;
+   vdac_clk <= not clk28mhz; -- inverting the clock leads to a sharper signal for some reason
    
 end beh;
