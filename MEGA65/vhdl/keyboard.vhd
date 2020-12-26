@@ -203,7 +203,7 @@ constant mapping : mapping_t := (                                      -- MEGA 6
    60 => (true,   7, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Space             => Space      
    61 => (true,   7, 1, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Mega65            => Symbol Shift (SS)   
    62 => (true,   2, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),    -- Q                 => Q    
-   63 => (true,   0, 0, false,  4, 1, false, 0, 0, 0, 0, false, 0),    -- Run/Stop          => Graphics: CS + 9      
+   63 => (true,   0, 0, true,   4, 1, false, 0, 0, 0, 0, false, 0),    -- Run/Stop          => Graphics: CS + 9      
    64 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),      
    65 => (true,   0, 0, true ,  3, 0, false, 0, 0, 0, 0, false, 0),    -- Tab               => Edit: CS + 1      
    66 => (false,  0, 0, false,  0, 0, false, 0, 0, 0, 0, false, 0),
