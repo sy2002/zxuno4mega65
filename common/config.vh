@@ -31,7 +31,7 @@
 
 // The following two defines are taken into account only if LOAD_ROM_FROM_FLASH_OPTION is not defined
 `define DEFAULT_SYSTEM_ROM "128en.hex"
-//`define DEFAULT_SYSTEM_ROM "/media/psf/Home/Documents/Privat/GNR/dev/MEGA65/ZX Spectrum/keyb_test/testkeys_rasm_version.hex"
+//`define DEFAULT_SYSTEM_ROM "../test/keyb_test/testkeys_rasm_version.hex"
 //`define DEFAULT_SYSTEM_ROM "~/dev/MEGA65/ZX Spectrum/zxrom/zxrom.hex"
 //`define DEFAULT_SYSTEM_ROM "/media/psf/Home/Downloads/derby.hex"
 `define DEFAULT_DIVMMC_ROM "esxdos088.hex"
