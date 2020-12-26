@@ -13,6 +13,10 @@ Special thanks to Paul, Deft, Miguel, Andrew
 
 README.md work-in progress
 
+### Keyboard mapping
+
+There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard).
+
 ### What works already on a MEGA65 R2
 
 * The basic ZX-Uno core runs (CPU, ULA incl. ULAplus, RAM, ROM, ...)
