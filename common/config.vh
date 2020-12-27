@@ -28,13 +28,20 @@
 // Build options (comment out to disable a specific option)
 
 //`define LOAD_ROM_FROM_FLASH_OPTION
-
-`define BOOTLOADER_STANDARD  "bootloader_copy_bram_to_sram.hex"
-//`define BOOTLOADER_STANDARD  "bootloader_copy_bram_to_sram_no_crc.hex"
 `define BOOTLOADER_FLASH_ROM "bootloader_to_bios_and_easter_egg.hex"
+
+//Bootloader for 128en.hex incl. CRC check
+`define BOOTLOADER_STANDARD  "bootloader_copy_bram_to_sram.hex"
+
+//Bootloader without CRC check and without ESXDOS
+//`define BOOTLOADER_STANDARD  "bootloader_copy_bram_to_sram_no_crc.hex"
+
+//Bootloader without CRC check and with ESXDOS, e.g .for Chloe
+//`define BOOTLOADER_STANDARD "bootloader_copy_bram_to_sram_chloe.hex"
 
 // The following two defines are taken into account only if LOAD_ROM_FROM_FLASH_OPTION is not defined
 `define DEFAULT_SYSTEM_ROM "128en.hex"
+//`define DEFAULT_SYSTEM_ROM "../chloe/se.hex"
 //`define DEFAULT_SYSTEM_ROM "../test/keyb_test/testkeys_rasm_version.hex"
 `define DEFAULT_DIVMMC_ROM "esxdos088.hex"
 

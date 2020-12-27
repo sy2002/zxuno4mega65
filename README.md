@@ -1,7 +1,7 @@
 ![PRE-ALPHA](https://img.shields.io/badge/-WARNING%3A%20PRE--ALPHA-red)
 
-ZX-Uno @ MEGA65: ZX Spectrum & Chloe 280SE Core
-===============================================
+ZX-Uno @ MEGA65: ZX Spectrum & Core
+===================================
 
 The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 
@@ -15,14 +15,14 @@ README.md work-in progress
 
 ### Keyboard mapping
 
-There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard).
+There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard-Mapping).
 
 ### What works already on a MEGA65 R2
 
 * The basic ZX-Uno core runs (CPU, ULA incl. ULAplus, RAM, ROM, ...)
 * 48k BASIC
 * VGA output
-* Keyboard using a [convenient mapping](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard)
+* Keyboard using a [convenient mapping](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard-Mapping)
 * Ability to [emulate joysticks](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard#cursor-keys-standard-and-joystick-mode) via cursor keys
 * ESXDOS / DivMMC / SD-Cards
 
