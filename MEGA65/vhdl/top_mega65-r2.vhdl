@@ -4,7 +4,7 @@
 -- Nexys 4 DDR development testbed: Top Module for synthesizing the whole machine
 --
 -- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
--- Nexys and MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
+-- MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
 ----------------------------------------------------------------------------------
 
 
@@ -102,7 +102,6 @@ signal joy_data_int     : std_logic;
 signal joy_clk_int      : std_logic;
 signal joy_load_n_int   : std_logic;
 signal flash_miso_int   : std_logic;
-signal testled_int      : std_logic;
 
 signal vga_red_int      : std_logic_vector(5 downto 0);
 signal vga_green_int    : std_logic_vector(5 downto 0);
@@ -111,6 +110,20 @@ signal vga_hs_int       : std_logic;
 signal vga_vs_int       : std_logic;
 
 signal clk28mhz         : std_logic;   -- system clock & pixel clock
+
+signal joy_up_n         : std_logic;
+signal joy_down_n       : std_logic;
+signal joy_left_n       : std_logic;
+signal joy_right_n      : std_logic;
+signal joy_fire_n       : std_logic;
+signal joy_null_n       : std_logic;
+
+--attribute mark_debug                   : boolean;
+--attribute mark_debug of joy_up_n       : signal is true;
+--attribute mark_debug of joy_down_n     : signal is true;
+--attribute mark_debug of joy_left_n     : signal is true;
+--attribute mark_debug of joy_right_n    : signal is true;
+--attribute mark_debug of joy_fire_n     : signal is true;
 
 begin
             
@@ -124,6 +137,13 @@ begin
    joy_data_int <= '1';
    joy_load_n_int <= '1';
    flash_miso_int <= '0';
+   
+   joy_up_n     <= not joy_1_up;
+   joy_down_n   <= not joy_1_down;
+   joy_left_n   <= not joy_1_left;
+   joy_right_n  <= not joy_1_right;
+   joy_fire_n   <= not joy_1_fire;
+   joy_null_n <= '1'; -- ZX-Uno expects joysticks to be low-active
    
    clk_generator : entity work.clk
    port map
@@ -148,7 +168,22 @@ begin
       -- MEGA65 smart keyboard controller
       kb_io0               => kb_io0,
       kb_io1               => kb_io1,
-      kb_io2               => kb_io2,   
+      kb_io2               => kb_io2,
+      
+      -- Joysticks      
+      joy1up               => joy_up_n,
+      joy1down             => joy_down_n,
+      joy1left             => joy_left_n,
+      joy1right            => joy_right_n,
+      joy1fire1            => joy_fire_n,   
+      joy1fire2            => joy_null_n,
+   
+      joy2up               => joy_null_n,
+      joy2down             => joy_null_n,
+      joy2left             => joy_null_n,
+      joy2right            => joy_null_n,
+      joy2fire1            => joy_null_n,
+      joy2fire2            => joy_null_n,
             
       -- audio
       ear                  => ear_int,  -- unknown, has something todo with "PZX_PLAYER", what is "PZX_PLAYER"?
@@ -178,20 +213,24 @@ begin
       sd_clk               => SD_CLK,
       sd_mosi              => SD_MOSI,
       sd_miso              => SD_MISO,
-      
-      -- joystick
-      joy_data             => joy_data_int,
-      joy_clk              => joy_clk_int,
-      joy_load_n           => joy_load_n_int,
-      
+           
       -- flash
       flash_cs_n           => open,
       flash_mosi           => open, 
-      flash_miso           => flash_miso_int,
-         
-      testled              => testled_int
+      flash_miso           => flash_miso_int        
    );
-  
+
+--   joystick_registers : process(clk)
+--   begin
+--      if rising_edge(clk) then
+--         joy_up_n     <= not joy_1_up;
+--         joy_down_n   <= not joy_1_down;
+--         joy_left_n   <= not joy_1_left;
+--         joy_right_n  <= not joy_1_right;
+--         joy_fire_n   <= not joy_1_fire;
+--      end if;
+--   end process;   
+     
    -- emulate the SRAM that ZX-Uno needs via 512kB of BRAM
    pseudo_sram : entity work.bram
    generic map

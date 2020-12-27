@@ -45,6 +45,21 @@ module tld_zxuno_a100t (
    output wire kb_io1,              //data output to keyboard
    input wire  kb_io2,              //data input from keyboard
             
+   //Joysticks
+   input wire joy1up,
+   input wire joy1down,
+   input wire joy1left,
+   input wire joy1right,
+   input wire joy1fire1,   
+   input wire joy1fire2,
+   
+   input wire joy2up,
+   input wire joy2down,
+   input wire joy2left,
+   input wire joy2right,
+   input wire joy2fire1,
+   input wire joy2fire2,
+                  
    //output wire midi_out,
    //input wire clkbd,
    //input wire wsbd,
@@ -68,16 +83,10 @@ module tld_zxuno_a100t (
    output wire flash_mosi,
    input wire flash_miso,
    
-   input wire joy_data,
-   output wire joy_clk,
-   output wire joy_load_n,
-
    output wire sd_cs_n,    
    output wire sd_clk,     
    output wire sd_mosi,    
-   input wire sd_miso,
-
-   output wire testled
+   input wire sd_miso
    );
 
    wire flash_clk;
@@ -87,33 +96,6 @@ module tld_zxuno_a100t (
    wire vga_enable, scanlines_enable;
    wire clk14en_tovga;
    
-   wire joy1up, joy1down, joy1left, joy1right, joy1fire1, joy1fire2;
-   wire joy2up, joy2down, joy2left, joy2right, joy2fire1, joy2fire2;
-
-   joydecoder decodificador_joysticks (
-    .clk(clk28mhz),
-    .joy_data(joy_data),
-    .joy_latch_megadrive(hsync),
-    .joy_clk(joy_clk),
-    .joy_load_n(joy_load_n),
-    .joy1up(joy1up),
-    .joy1down(joy1down),
-    .joy1left(joy1left),
-    .joy1right(joy1right),
-    .joy1fire1(joy1fire1),
-    .joy1fire2(joy1fire2),
-    .joy1fire3(),
-    .joy1start(),
-    .joy2up(joy2up),
-    .joy2down(joy2down),
-    .joy2left(joy2left),
-    .joy2right(joy2right),
-    .joy2fire1(joy2fire1),
-    .joy2fire2(joy2fire2),
-    .joy2fire3(),
-    .joy2start()    
-   );   
-
    zxuno #(.FPGA_MODEL(3'b111), .MASTERCLK(28000000)) la_maquina (
     .sysclk(clk28mhz),
     .power_on_reset_n(reset_n),  // s�lo para simulaci�n. Para implementacion, dejar a 1
@@ -200,7 +182,6 @@ module tld_zxuno_a100t (
     .vsync(vsync)
    );	 
        
-   assign testled = flash_cs_n & sd_cs_n;
    //assign uart_reset = 1'bz;
    assign sram_ub = 1'b0;
    

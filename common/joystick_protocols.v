@@ -83,8 +83,8 @@ module joystick_protocols (
     end
     
     // Update JOYCONF from CPU
-//    reg [7:0] joyconf = {1'b0,SINCLAIRP1, 1'b0,KEMPSTON};
-    reg [7:0] joyconf = {1'b0,KEMPSTON, 1'b0,SINCLAIRP1};
+    reg [7:0] joyconf = {1'b0,SINCLAIRP1, 1'b0,KEMPSTON};
+//    reg [7:0] joyconf = {1'b0,KEMPSTON, 1'b0,SINCLAIRP1};
     always @(posedge clk) begin
         if (zxuno_addr==JOYCONFADDR && zxuno_regwr==1'b1)
             joyconf <= din;

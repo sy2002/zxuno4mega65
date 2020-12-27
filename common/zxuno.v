@@ -1,6 +1,10 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
+//    ZX-Uno port for MEGA65
+//    The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
+//    MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
+
 //    This file is part of the ZXUNO Spectrum core. 
 //    Creation date is 14:16:16 2014-02-06 by Miguel Angel Rodriguez Jodar
 //    (c)2014-2020 ZXUNO association.
