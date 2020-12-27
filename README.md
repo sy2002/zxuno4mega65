@@ -23,6 +23,7 @@ There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4m
 * 48k BASIC
 * VGA output
 * Keyboard using a [convenient mapping](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard)
+* Sinclair Joystick [emulation](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard#cursor-keys-standard-and-joystick-mode) via MEGA65 cursor keys
 * ESXDOS / DivMMC / SD-Cards
 
 ### Not working yet
