@@ -83,7 +83,8 @@ module joystick_protocols (
     end
     
     // Update JOYCONF from CPU
-    reg [7:0] joyconf = {1'b0,SINCLAIRP1, 1'b0,KEMPSTON};
+//    reg [7:0] joyconf = {1'b0,SINCLAIRP1, 1'b0,KEMPSTON};
+    reg [7:0] joyconf = {1'b0,KEMPSTON, 1'b0,SINCLAIRP1};
     always @(posedge clk) begin
         if (zxuno_addr==JOYCONFADDR && zxuno_regwr==1'b1)
             joyconf <= din;
@@ -105,11 +106,11 @@ module joystick_protocols (
       oe = 1'b0;
       dout = 8'hFF;
       kbdcol_out = kbdcol_in;
-      if (zxuno_addr==JOYCONFADDR && zxuno_regrd==1'b1) begin  // lectura específica de I/O de ZXUNO
+      if (zxuno_addr==JOYCONFADDR && zxuno_regrd==1'b1) begin  // lectura especï¿½fica de I/O de ZXUNO
         oe = 1'b1;
         dout = joyconf;
       end
-      else if (iorq_n == 1'b0 && rd_n == 1'b0) begin  // lectura genérica de I/O
+      else if (iorq_n == 1'b0 && rd_n == 1'b0) begin  // lectura genï¿½rica de I/O
         if (a[7:0] == KEMPSTONADDR) begin
           dout = 8'h00;
           oe = 1'b1;
@@ -178,6 +179,6 @@ module joystick_protocols (
           end	  
           //
         end  // fin de lectura de I/O de teclado
-      end    // fin lectura genérica de I/O
+      end    // fin lectura genï¿½rica de I/O
     end
 endmodule

@@ -23,6 +23,7 @@ There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4m
 * 48k BASIC
 * VGA output
 * Keyboard using a [convenient mapping](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard)
+* Ability to [emulate joysticks](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard#cursor-keys-standard-and-joystick-mode) via cursor keys
 * ESXDOS / DivMMC / SD-Cards
 
 ### Not working yet
@@ -38,6 +39,10 @@ There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4m
 #### Keyboard TODOs
 
 * Support PS/2 codes for at least the function keys for Chloe
+
+#### Joystick TODOs
+
+* Make configurable: Which joystick is emulated when CAPS LOCK is on? (Also explain this in the keyboard mapping Wiki.)
 
 #### Acknowledgement TODOs
 

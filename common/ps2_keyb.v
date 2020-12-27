@@ -124,7 +124,8 @@ module ps2_keyb(
         //interface to ZXUNO's internal logic
         .row_select(rows),
         .col_data(cols),
-        .user_nmi(user_nmi)
+        .user_nmi(user_nmi),
+        .joystick(joy)
     );
 
     kb_special_functions funciones_especiales (
@@ -137,11 +138,11 @@ module ps2_keyb(
         .shift_pressed(),
         .ctrl_pressed(),
         .alt_pressed(),
-        .joyup(joy[3]),
-        .joydown(joy[2]),
-        .joyleft(joy[1]),
-        .joyright(joy[0]),
-        .joyfire(joy[4]),
+        .joyup(),
+        .joydown(),
+        .joyleft(),
+        .joyright(),
+        .joyfire(),
         .video_output_change(video_output_change),
         .master_reset(),
         .user_reset(),

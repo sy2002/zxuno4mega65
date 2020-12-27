@@ -44,9 +44,10 @@ port (
    kio10       : in std_logic;         -- data input from keyboard
       
    -- interface to ZXUNO's internal logic
-   row_select  : in std_logic_vector(7 downto 0);
-   col_data    : out std_logic_vector(4 downto 0);
-   user_nmi    : out std_logic
+   row_select  : in std_logic_vector(7 downto 0);  -- query Spectrum's matrix
+   col_data    : out std_logic_vector(4 downto 0); -- return value of query
+   user_nmi    : out std_logic;                    -- NMI key (ESC) pressed
+   joystick    : out std_logic_vector(4 downto 0)  -- CAPS LOCK on: use cursor keys as joystick   
 );
 end keyboard;
 
@@ -71,8 +72,12 @@ signal key_ctrl            : std_logic;
 signal key_mega            : std_logic;
 signal key_alt             : std_logic;
 
--- Special keys that are not mapped to the Spectrum's matrix
+-- Special keys that are not mapped to and not used in context of the Spectrum's matrix
 signal key_esc             : std_logic;
+signal m65_capslock_n      : std_logic;
+
+-- CAPS LOCK on: use the cursor keys as joystick
+signal cursor_as_joystick  : boolean;
 
 -- [ (MS + :) and ] (MS + ;) need a special treatment, because they are the only keys, that are
 -- utilizing the sequencer without the need of the ALT key to be pressed.
@@ -299,7 +304,9 @@ begin
        kio10            => kio10,
       
        matrix_col       => matrix_col,
-       matrix_col_idx   => matrix_col_idx       
+       matrix_col_idx   => matrix_col_idx,
+       
+       capslock_out     => m65_capslock_n     
    );
    
    m65matrix_to_keynum : entity work.matrix_to_keynum
@@ -339,21 +346,47 @@ begin
    -- fill the matrix registers that will be read by the ZX Uno
    -- support two ZX Uno matrix entries per pressed MEGA key for the end user's convenience
    write_matrix : process(clk)
-   variable m : mapping_record_t;
-   variable s : sequence_record_t;
-   variable shifted_color_keys : boolean;
+      variable m : mapping_record_t;
+      variable s : sequence_record_t;
+      variable shifted_color_keys : boolean;
+      variable cursor_as_joystick : boolean;
+      constant joy_up     : integer := 73; -- cursor up
+      constant joy_down   : integer := 7;  -- cursor down
+      constant joy_left   : integer := 74; -- cursor left
+      constant joy_right  : integer := 2;  -- cursor right
+      constant joy_fire   : integer := 60; -- space
    begin
       if rising_edge(clk) then
          --------------------------------------------------------------------------------------
          -- Handle keys that are not part of the Spectrum's matrix
-         --------------------------------------------------------------------------------------      
+         --------------------------------------------------------------------------------------     
          if key_num = 71 then
             key_esc <= not key_status_n;
          end if;
+         
+         -- if CAPS LOCK is on, then handle cursor keys and space as joystick
+         if m65_capslock_n = '0' and (key_num = joy_up   or key_num = joy_down  or 
+                                      key_num = joy_left or key_num = joy_right or key_num = joy_fire) then
+            cursor_as_joystick := true;
+            case key_num is
+               when joy_right => joystick(0) <= not key_status_n;
+               when joy_left  => joystick(1) <= not key_status_n;
+               when joy_down  => joystick(2) <= not key_status_n;
+               when joy_up    => joystick(3) <= not key_status_n;
+               when joy_fire  => joystick(4) <= not key_status_n;
+               when others    => null;
+            end case;
+         else
+            cursor_as_joystick := false;
+         end if;
+         if m65_capslock_n = '1' then
+            joystick <= "00000";
+         end if;         
+                        
          --------------------------------------------------------------------------------------
          -- None-sequenced mode: Read actual keypresses from the keyboard
          --------------------------------------------------------------------------------------
-         if sequencer = seq_none and not key_seq then
+         if sequencer = seq_none and not key_seq and not cursor_as_joystick then
             m := mapping(key_num);         
             -- key is currently pressed and ALT is not pressed, because ALT starts the sequencer
             if key_status_n = '0' then         
@@ -429,7 +462,7 @@ begin
          --------------------------------------------------------------------------------------
          -- Sequenced mode: Play back pre-recorded key combos
          --------------------------------------------------------------------------------------         
-         else
+         elsif not cursor_as_joystick then
             s := seq(seq_active);
             
             -- special case: The MEGA65's color keys produce the background color when not shifted
@@ -536,5 +569,5 @@ begin
             end case;
          end if; 
       end if;
-   end process;      
+   end process;       
 end beh;
