@@ -1,6 +1,10 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
+//    ZX-Uno port for MEGA65
+//    The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
+//    MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
+
 //    This file is part of the ZXUNO Spectrum core. 
 //    Creation date is 15:52:26 2015-06-07 by Miguel Angel Rodriguez Jodar
 //    (c)2014-2020 ZXUNO association.
@@ -62,7 +66,16 @@ module joystick_protocols (
       KMAPOP		      = 13,
       KMAPQ			      = 10,
       KMAPA			      = 9,
-      KMAPSPACEM	    = 15;	  
+      KMAPSPACEM	    = 15;
+              
+    wire joy1_up, joy1_down, joy1_left, joy1_right, joy1_fire;
+      
+    // Debounce the joystick input
+    debounce #(.clk_freq(28000000), .stable_time(5)) dbj1u (.clk(clk), .reset_n(1'b1), .button(~db9joy1_in[3]), .result(joy1_up));
+    debounce #(.clk_freq(28000000), .stable_time(5)) dbj1d (.clk(clk), .reset_n(1'b1), .button(~db9joy1_in[2]), .result(joy1_down));
+    debounce #(.clk_freq(28000000), .stable_time(5)) dbj1l (.clk(clk), .reset_n(1'b1), .button(~db9joy1_in[1]), .result(joy1_left));
+    debounce #(.clk_freq(28000000), .stable_time(5)) dbj1r (.clk(clk), .reset_n(1'b1), .button(~db9joy1_in[0]), .result(joy1_right));
+    debounce #(.clk_freq(28000000), .stable_time(1)) dbj1f (.clk(clk), .reset_n(1'b1), .button(~db9joy1_in[4]), .result(joy1_fire));
 
     // Input format: FUDLR . 0=pressed, 1=released
     reg db9joyup;
@@ -78,7 +91,7 @@ module joystick_protocols (
     reg kbdjoyfire1;
     reg kbdjoyfire2;
     always @* begin
-        {db9joyfire2,db9joyfire1,db9joyup,db9joydown,db9joyleft,db9joyright} <= ~db9joy1_in;
+        {db9joyfire2,db9joyfire1,db9joyup,db9joydown,db9joyleft,db9joyright} <= {1'b0, joy1_fire, joy1_up, joy1_down, joy1_left, joy1_right};
         {kbdjoyfire2,kbdjoyfire1,kbdjoyup,kbdjoydown,kbdjoyleft,kbdjoyright} <= {1'b0, kbdjoy_in} | ~db9joy2_in;
     end
     

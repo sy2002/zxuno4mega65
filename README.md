@@ -53,11 +53,11 @@ There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4m
 #### Joystick TODOs
 
 * Support two joysticks
-* Maybe a debouncer might make sense (though it seems to work quite nicely without right now)
 * Currently, you need to directly write to ZX UNO registers to configure the joysticks.
   We might want to make this configurable: Which joystick is emulated when CAPS LOCK is on?
   (Also explain this in the keyboard mapping Wiki.)
   Which joystick is being emulated when a hardware joystick in port #1 is used? 
+* Describe the debouncing (5ms for the axis, 1ms for the button); add a Register for making it configurable?
 
 #### Acknowledgement TODOs
 
