@@ -94,13 +94,6 @@ signal psram_data       : std_logic_vector(7 downto 0);
 signal psram_we_n       : std_logic;
 
 signal ear_int          : std_logic;
-signal ps2_clk_int      : std_logic;
-signal ps2_dat_int      : std_logic;
-signal mouse_clk_int    : std_logic;
-signal mouse_dat_int    : std_logic;
-signal joy_data_int     : std_logic;
-signal joy_clk_int      : std_logic;
-signal joy_load_n_int   : std_logic;
 signal flash_miso_int   : std_logic;
 
 signal vga_red_int      : std_logic_vector(5 downto 0);
@@ -129,13 +122,6 @@ begin
             
    -- fixed inputs to the ZX Uno
    ear_int <= '0';
-   mouse_clk_int <= '1';
-   mouse_dat_int <= '1';
-   ps2_clk_int <= '1';
-   ps2_dat_int <= '1';
-   joy_clk_int <= '1';
-   joy_data_int <= '1';
-   joy_load_n_int <= '1';
    flash_miso_int <= '0';
    
    joy_up_n     <= not joy_1_up;
@@ -190,13 +176,6 @@ begin
       audio_out_left       => open,
       audio_out_right      => open,
       
-      -- keyboard and mouse
-      
-      clkps2               => ps2_clk_int,
-      dataps2              => ps2_dat_int,
-      mouseclk             => mouse_clk_int,      
-      mousedata            => mouse_dat_int,
-
       -- UART
       uart_rx              => UART_RXD,
       uart_tx              => UART_TXD,

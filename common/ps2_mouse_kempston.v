@@ -26,8 +26,6 @@
 module ps2_mouse_kempston (
     input wire clk,
     input wire rst_n,
-    inout wire clkps2,
-    inout wire dataps2,
     //---------------------------------
     input wire [15:0] a,
     input wire iorq_n,
@@ -49,6 +47,11 @@ module ps2_mouse_kempston (
 
     assign oe_mousedata = (zxuno_addr == MOUSEDATA && zxuno_regrd == 1'b1);
     assign oe_mousestatus = (zxuno_addr == MOUSESTATUS && zxuno_regrd == 1'b1);
+    
+    wire clkps2;
+    wire dataps2;
+    assign clkps2 = 1'b1;
+    assign dataps2 = 1'b1;
 
     wire [7:0] mousedata;
     wire [7:0] kmouse_x, kmouse_y, kmouse_buttons;
@@ -111,13 +114,13 @@ module ps2_mouse_kempston (
         .kmouse_buttons(kmouse_buttons)
     );
 
-    ps2_host_to_kb escritura_a_raton (
-        .clk(clk),
-        .ps2clk_ext(clkps2),
-        .ps2data_ext(dataps2),
-        .data(din),
-        .dataload(zxuno_addr == MOUSEDATA && zxuno_regwr== 1'b1),
-        .ps2busy(ps2busy),
-        .ps2error(ps2error)
-    );
+//    ps2_host_to_kb escritura_a_raton (
+//        .clk(clk),
+//        .ps2clk_ext(clkps2),
+//        .ps2data_ext(dataps2),
+//        .data(din),
+//        .dataload(zxuno_addr == MOUSEDATA && zxuno_regwr== 1'b1),
+//        .ps2busy(ps2busy),
+//        .ps2error(ps2error)
+//    );
 endmodule

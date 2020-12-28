@@ -32,15 +32,15 @@ module zxuno (
   input wire sysclk,
   input wire power_on_reset_n,
   
-  // E/S
+  // VGA
   output wire [2:0] r,
   output wire [2:0] g,
   output wire [2:0] b,
   output wire hsync,
   output wire vsync,
   output wire csync,
-  inout wire clkps2,
-  inout wire dataps2,
+  
+  // EAR and audio
   input wire ear_ext,
   output wire audio_out_left,
   output wire audio_out_right,
@@ -92,10 +92,6 @@ module zxuno (
   input wire joy2right,
   input wire joy2fire1,
   input wire joy2fire2,   
-
-  // MOUSE
-  inout wire mouseclk,
-  inout wire mousedata,
   
   // SCANDOUBLER CTRL
   output wire clk14en_tovga,
@@ -564,10 +560,8 @@ module zxuno (
     .sram_we_n(sram_we_n)
   );
 
-  ps2_keyb el_teclado (
+  m65_keyb el_teclado (
     .clk(sysclk),        
-    .clkps2(clkps2),
-    .dataps2(dataps2),
     .kb_io0(kb_io0),
     .kb_io1(kb_io1),
     .kb_io2(kb_io2),    
@@ -721,31 +715,9 @@ module zxuno (
   );
 `endif  
 
-  // DESHABILITADO!!!!!!!!!!!!!!!!!!!!!!!!!
-//    nmievents nmi_especial_de_antonio (
-//        .clk(sysclk),
-//        .rst_n(rst_n & mrst_n & power_on_reset_n),
-//        //------------------------------
-//        .zxuno_addr(zxuno_addr),
-//        .zxuno_regrd(zxuno_regrd),
-//        //------------------------------
-//        .userevents(user_fnt),
-//        //------------------------------
-//        .a(cpuaddr),
-//        .m1_n(m1_n),
-//        .mreq_n(mreq_n),
-//        .rd_n(rd_n),
-//        .dout(nmievents_dout),
-//        .oe(oe_nmievents),
-//        .nmiout_n(nmispecial_n),
-//        .page_configrom_active(page_configrom_active)
-//    );
-
   ps2_mouse_kempston el_raton (
     .clk(sysclk),
     .rst_n(rst_n & mrst_n & power_on_reset_n),
-    .clkps2(mouseclk),
-    .dataps2(mousedata),
   //---------------------------------
     .a(cpuaddr),
     .iorq_n(iorq_n),

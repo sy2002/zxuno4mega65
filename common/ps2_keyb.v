@@ -27,10 +27,9 @@
 //
 //    Any distributed copy of this file must keep this notice intact.
 
-module ps2_keyb(
+module m65_keyb(
     input wire clk,
-    inout wire clkps2,
-    inout wire dataps2,
+    
     //MEGA65 smart keyboard controller
     output wire kb_io0,              //clock to keyboard
     output wire kb_io1,              //data output to keyboard
@@ -72,13 +71,13 @@ module ps2_keyb(
     wire ps2busy = 1'b0;
     wire kberror = 1'b0;
 
-    (* mark_debug = "true" *) wire [7:0] kbcode;
-    (* mark_debug = "true" *) wire nueva_tecla;
-    (* mark_debug = "true" *) wire no_hay_teclas_pulsadas;
-    (* mark_debug = "true" *) wire extended;
-    (* mark_debug = "true" *) wire released;
+    wire [7:0] kbcode;
+    wire nueva_tecla;
+    wire no_hay_teclas_pulsadas;
+    wire extended;
+    wire released;
     
-    (* mark_debug = "true" *) wire [7:0] keymap_dout_int;
+    wire [7:0] keymap_dout_int;
     assign keymap_dout = keymap_dout_int;
     
     wire shift_pressed, ctrl_pressed, alt_pressed, mega_pressed;

@@ -33,10 +33,6 @@ module tld_zxuno_a100t (
    output wire hsync,
    output wire vsync,
    input wire ear,
-   inout wire clkps2,
-   inout wire dataps2,
-   inout wire mouseclk,
-   inout wire mousedata,
    output wire audio_out_left,
    output wire audio_out_right,
    
@@ -105,8 +101,6 @@ module tld_zxuno_a100t (
     .hsync(hsync_pal),
     .vsync(vsync_pal),
     .csync(csync_pal),
-    .clkps2(clkps2),
-    .dataps2(dataps2),
     .ear_ext(~ear),  // negada porque el hardware tiene un transistor inversor
     .audio_out_left(audio_out_left),
     .audio_out_right(audio_out_right),
@@ -151,9 +145,6 @@ module tld_zxuno_a100t (
     .joy2right(joy2right),
     .joy2fire1(joy2fire1),
     .joy2fire2(joy2fire2),    
-
-    .mouseclk(mouseclk),
-    .mousedata(mousedata),
     
     .clk14en_tovga(clk14en_tovga),
     .vga_enable(vga_enable),
