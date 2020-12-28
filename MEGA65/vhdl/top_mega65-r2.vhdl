@@ -45,11 +45,11 @@ port (
    SD_MISO        : in std_logic;
    
    -- Joystick Port 1
-   joy_1_up       : in std_logic;
-   joy_1_down     : in std_logic;
-   joy_1_left     : in std_logic;
-   joy_1_right    : in std_logic;
-   joy_1_fire     : in std_logic
+   joy_1_up_n     : in std_logic;
+   joy_1_down_n   : in std_logic;
+   joy_1_left_n   : in std_logic;
+   joy_1_right_n  : in std_logic;
+   joy_1_fire_n   : in std_logic
       
    -- HDMI via ADV7511
 --   hdmi_vsync     : out std_logic;
@@ -111,25 +111,18 @@ signal joy_right_n      : std_logic;
 signal joy_fire_n       : std_logic;
 signal joy_null_n       : std_logic;
 
---attribute mark_debug                   : boolean;
---attribute mark_debug of joy_up_n       : signal is true;
---attribute mark_debug of joy_down_n     : signal is true;
---attribute mark_debug of joy_left_n     : signal is true;
---attribute mark_debug of joy_right_n    : signal is true;
---attribute mark_debug of joy_fire_n     : signal is true;
-
 begin
             
    -- fixed inputs to the ZX Uno
    ear_int <= '0';
    flash_miso_int <= '0';
    
-   joy_up_n     <= not joy_1_up;
-   joy_down_n   <= not joy_1_down;
-   joy_left_n   <= not joy_1_left;
-   joy_right_n  <= not joy_1_right;
-   joy_fire_n   <= not joy_1_fire;
-   joy_null_n <= '1'; -- ZX-Uno expects joysticks to be low-active
+   joy_up_n     <= joy_1_up_n;
+   joy_down_n   <= joy_1_down_n;
+   joy_left_n   <= joy_1_left_n;
+   joy_right_n  <= joy_1_right_n;
+   joy_fire_n   <= joy_1_fire_n;
+   joy_null_n   <= '1';
    
    clk_generator : entity work.clk
    port map
@@ -198,17 +191,6 @@ begin
       flash_mosi           => open, 
       flash_miso           => flash_miso_int        
    );
-
---   joystick_registers : process(clk)
---   begin
---      if rising_edge(clk) then
---         joy_up_n     <= not joy_1_up;
---         joy_down_n   <= not joy_1_down;
---         joy_left_n   <= not joy_1_left;
---         joy_right_n  <= not joy_1_right;
---         joy_fire_n   <= not joy_1_fire;
---      end if;
---   end process;   
      
    -- emulate the SRAM that ZX-Uno needs via 512kB of BRAM
    pseudo_sram : entity work.bram

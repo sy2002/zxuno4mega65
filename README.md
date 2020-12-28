@@ -23,18 +23,28 @@ There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4m
 * 48k BASIC
 * VGA output
 * Keyboard using a [convenient mapping](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard-Mapping)
-* Ability to [emulate joysticks](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard#cursor-keys-standard-and-joystick-mode) via cursor keys
+* Ability to [emulate a joystick](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard#cursor-keys-standard-and-joystick-mode) via cursor keys.
+  By default, a Sinclair joystick is emulated.
 * ESXDOS / DivMMC / SD-Cards
+* Joystick in port #1 is mapped as Sinclair joystick.
 
 ### Not working yet
 
 * MEGA65 R3
 * HDMI
 * Audio
-* Joystick
 * Mouse
 
 ### Scratchpad
+
+#### Documentation TODOs
+
+* Setup: Download EXDOS, hint about SDHC vs. SD, FAT32, ...
+* How to start a game: Mention NMI menu, but if this does not work, one might need to switch
+  into 48k mode by entering OUT 32765, 48 in basic and then use the EXTDOS dot commands to load:
+  explain how. 128k games vs. 48k games.
+* EXTDOS basics
+* How to use OUT commands to configure the joystick
 
 #### Keyboard TODOs
 
@@ -42,7 +52,12 @@ There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4m
 
 #### Joystick TODOs
 
-* Make configurable: Which joystick is emulated when CAPS LOCK is on? (Also explain this in the keyboard mapping Wiki.)
+* Support two joysticks
+* Maybe a debouncer might make sense (though it seems to work quite nicely without right now)
+* Currently, you need to directly write to ZX UNO registers to configure the joysticks.
+  We might want to make this configurable: Which joystick is emulated when CAPS LOCK is on?
+  (Also explain this in the keyboard mapping Wiki.)
+  Which joystick is being emulated when a hardware joystick in port #1 is used? 
 
 #### Acknowledgement TODOs
 

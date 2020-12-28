@@ -66,17 +66,17 @@ module scancode_to_speccy (
     // El gran mapa de teclado y sus registros de acceso
     //reg [7:0] keymap1[0:2047];  // 2K x 8 bits
     //reg [7:0] keymap2[0:2047];  // 2K x 8 bits
-    (* mark_debug = "true" *) reg [10:0] addr = 11'h0000;
-    (* mark_debug = "true" *) reg [11:0] cpuaddr = 12'h0000;  // Direcci�n E/S desde la CPU. Se autoincrementa en cada acceso
+    reg [10:0] addr = 11'h0000;
+    reg [11:0] cpuaddr = 12'h0000;  // Direcci�n E/S desde la CPU. Se autoincrementa en cada acceso
 //    initial begin
 //        $readmemh ("../keymaps/keyb1_us_hex.txt", keymap1);
 //        $readmemh ("../keymaps/keyb2_us_hex.txt", keymap2);
 //    end
     
-    (* mark_debug = "true" *) reg [2:0] keyrow1 = 3'h0;
-    (* mark_debug = "true" *) reg [4:0] keycol1 = 5'h00;
-    (* mark_debug = "true" *) reg [2:0] keyrow2 = 3'h0;
-    (* mark_debug = "true" *) (* mark_debug = "true" *) reg [4:0] keycol2 = 5'h00;
+    reg [2:0] keyrow1 = 3'h0;
+    reg [4:0] keycol1 = 5'h00;
+    reg [2:0] keyrow2 = 3'h0;
+    reg [4:0] keycol2 = 5'h00;
     reg [2:0] signalstate = 3'b000;
     
     // Asi funciona la matriz de teclado cuando se piden semifilas
@@ -101,9 +101,9 @@ module scancode_to_speccy (
         CPUWRITE        = 4'd7,
         CPUINCADD       = 4'd8;
         
-    (* mark_debug = "true" *) reg [3:0] state = CLEANMATRIX;
-    (* mark_debug = "true" *) reg key_is_pending = 1'b0;
-    (* mark_debug = "true" *) wire [2:0] modifiers = {alt_pressed, ctrl_pressed, shift_pressed};
+    reg [3:0] state = CLEANMATRIX;
+    reg key_is_pending = 1'b0;
+    wire [2:0] modifiers = {alt_pressed, ctrl_pressed, shift_pressed};
     
     always @(posedge clk) begin
       if (scan_received == 1'b1)
