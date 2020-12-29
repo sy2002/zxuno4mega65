@@ -1,5 +1,7 @@
 # Welcome to the zxuno4mega65 wiki!
 
-## Go to the [[Keyboard]] mapping page
+## Go to the [[Keyboard Mapping]] page
+
+## Go to the [[Joysticks]] page
 
 
