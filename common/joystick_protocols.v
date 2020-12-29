@@ -42,8 +42,8 @@ module joystick_protocols (
     input wire zxuno_regwr,
     //-- actual joystick and keyboard signals
     input wire [4:0] kbdjoy_in,
-    input wire [5:0] db9joy1_in,
-    input wire [5:0] db9joy2_in,
+    input wire [5:0] db9joy1_in,  //expected to be low-active
+    input wire [5:0] db9joy2_in,  //expected to be low-active
     input wire [4:0] kbdcol_in,
     output reg [4:0] kbdcol_out,
     input wire vertical_retrace_int_n // this is used as base clock for autofire
@@ -68,16 +68,24 @@ module joystick_protocols (
       KMAPA			      = 9,
       KMAPSPACEM	    = 15;
               
+    // Debounced (and due to low-active input) inverted joystick signals
     wire joy1_up, joy1_down, joy1_left, joy1_right, joy1_fire;
+    wire joy2_up, joy2_down, joy2_left, joy2_right, joy2_fire;
       
-    // Debounce the joystick input
+    // Joystick 1 Debounce 
     debounce #(.clk_freq(28000000), .stable_time(5)) dbj1u (.clk(clk), .reset_n(1'b1), .button(~db9joy1_in[3]), .result(joy1_up));
     debounce #(.clk_freq(28000000), .stable_time(5)) dbj1d (.clk(clk), .reset_n(1'b1), .button(~db9joy1_in[2]), .result(joy1_down));
     debounce #(.clk_freq(28000000), .stable_time(5)) dbj1l (.clk(clk), .reset_n(1'b1), .button(~db9joy1_in[1]), .result(joy1_left));
     debounce #(.clk_freq(28000000), .stable_time(5)) dbj1r (.clk(clk), .reset_n(1'b1), .button(~db9joy1_in[0]), .result(joy1_right));
     debounce #(.clk_freq(28000000), .stable_time(1)) dbj1f (.clk(clk), .reset_n(1'b1), .button(~db9joy1_in[4]), .result(joy1_fire));
 
-    // Input format: FUDLR . 0=pressed, 1=released
+    // Joystick 2 Debounce 
+    debounce #(.clk_freq(28000000), .stable_time(5)) dbj2u (.clk(clk), .reset_n(1'b1), .button(~db9joy2_in[3]), .result(joy2_up));
+    debounce #(.clk_freq(28000000), .stable_time(5)) dbj2d (.clk(clk), .reset_n(1'b1), .button(~db9joy2_in[2]), .result(joy2_down));
+    debounce #(.clk_freq(28000000), .stable_time(5)) dbj2l (.clk(clk), .reset_n(1'b1), .button(~db9joy2_in[1]), .result(joy2_left));
+    debounce #(.clk_freq(28000000), .stable_time(5)) dbj2r (.clk(clk), .reset_n(1'b1), .button(~db9joy2_in[0]), .result(joy2_right));
+    debounce #(.clk_freq(28000000), .stable_time(1)) dbj2f (.clk(clk), .reset_n(1'b1), .button(~db9joy2_in[4]), .result(joy2_fire));
+
     reg db9joyup;
     reg db9joydown;
     reg db9joyleft;
@@ -92,7 +100,7 @@ module joystick_protocols (
     reg kbdjoyfire2;
     always @* begin
         {db9joyfire2,db9joyfire1,db9joyup,db9joydown,db9joyleft,db9joyright} <= {1'b0, joy1_fire, joy1_up, joy1_down, joy1_left, joy1_right};
-        {kbdjoyfire2,kbdjoyfire1,kbdjoyup,kbdjoydown,kbdjoyleft,kbdjoyright} <= {1'b0, kbdjoy_in} | ~db9joy2_in;
+        {kbdjoyfire2,kbdjoyfire1,kbdjoyup,kbdjoydown,kbdjoyleft,kbdjoyright} <= {1'b0, kbdjoy_in} | {1'b0, joy2_fire, joy2_up, joy2_down, joy2_left, joy2_right};
     end
     
     // Update JOYCONF from CPU

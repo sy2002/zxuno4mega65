@@ -23,10 +23,10 @@ There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4m
 * 48k BASIC
 * VGA output
 * Keyboard using a [convenient mapping](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard-Mapping)
+* [Joysticks](https://github.com/sy2002/zxuno4mega65/wiki/Joysticks)
 * Ability to [emulate a joystick](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard#cursor-keys-standard-and-joystick-mode) via cursor keys.
   By default, a Sinclair joystick is emulated.
-* ESXDOS / DivMMC / SD-Cards
-* Joystick in port #1 is mapped as Sinclair joystick.
+* SD-Cards via ESXDOS
 
 ### Not working yet
 
@@ -49,15 +49,6 @@ There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4m
 #### Keyboard TODOs
 
 * Support PS/2 codes for at least the function keys for Chloe
-
-#### Joystick TODOs
-
-* Support two joysticks
-* Currently, you need to directly write to ZX UNO registers to configure the joysticks.
-  We might want to make this configurable: Which joystick is emulated when CAPS LOCK is on?
-  (Also explain this in the keyboard mapping Wiki.)
-  Which joystick is being emulated when a hardware joystick in port #1 is used? 
-* Describe the debouncing (5ms for the axis, 1ms for the button); add a Register for making it configurable?
 
 #### Acknowledgement TODOs
 

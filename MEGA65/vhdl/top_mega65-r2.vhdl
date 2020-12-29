@@ -44,12 +44,19 @@ port (
    SD_MOSI        : out std_logic;
    SD_MISO        : in std_logic;
    
-   -- Joystick Port 1
+   -- Joysticks
    joy_1_up_n     : in std_logic;
    joy_1_down_n   : in std_logic;
    joy_1_left_n   : in std_logic;
    joy_1_right_n  : in std_logic;
-   joy_1_fire_n   : in std_logic
+   joy_1_fire_n   : in std_logic;
+   
+   joy_2_up_n     : in std_logic;
+   joy_2_down_n   : in std_logic;
+   joy_2_left_n   : in std_logic;
+   joy_2_right_n  : in std_logic;
+   joy_2_fire_n   : in std_logic
+   
       
    -- HDMI via ADV7511
 --   hdmi_vsync     : out std_logic;
@@ -104,11 +111,16 @@ signal vga_vs_int       : std_logic;
 
 signal clk28mhz         : std_logic;   -- system clock & pixel clock
 
-signal joy_up_n         : std_logic;
-signal joy_down_n       : std_logic;
-signal joy_left_n       : std_logic;
-signal joy_right_n      : std_logic;
-signal joy_fire_n       : std_logic;
+signal j1_up_n          : std_logic;
+signal j1_down_n        : std_logic;
+signal j1_left_n        : std_logic;
+signal j1_right_n       : std_logic;
+signal j1_fire_n        : std_logic;
+signal j2_up_n          : std_logic;
+signal j2_down_n        : std_logic;
+signal j2_left_n        : std_logic;
+signal j2_right_n       : std_logic;
+signal j2_fire_n        : std_logic;
 signal joy_null_n       : std_logic;
 
 begin
@@ -116,12 +128,18 @@ begin
    -- fixed inputs to the ZX Uno
    ear_int <= '0';
    flash_miso_int <= '0';
-   
-   joy_up_n     <= joy_1_up_n;
-   joy_down_n   <= joy_1_down_n;
-   joy_left_n   <= joy_1_left_n;
-   joy_right_n  <= joy_1_right_n;
-   joy_fire_n   <= joy_1_fire_n;
+
+   -- joysticks (low-active)
+   j1_up_n      <= joy_1_up_n;
+   j1_down_n    <= joy_1_down_n;
+   j1_left_n    <= joy_1_left_n;
+   j1_right_n   <= joy_1_right_n;
+   j1_fire_n    <= joy_1_fire_n;
+   j2_up_n      <= joy_2_up_n;
+   j2_down_n    <= joy_2_down_n;
+   j2_left_n    <= joy_2_left_n;
+   j2_right_n   <= joy_2_right_n;
+   j2_fire_n    <= joy_2_fire_n;   
    joy_null_n   <= '1';
    
    clk_generator : entity work.clk
@@ -150,18 +168,18 @@ begin
       kb_io2               => kb_io2,
       
       -- Joysticks      
-      joy1up               => joy_up_n,
-      joy1down             => joy_down_n,
-      joy1left             => joy_left_n,
-      joy1right            => joy_right_n,
-      joy1fire1            => joy_fire_n,   
+      joy1up               => j1_up_n,
+      joy1down             => j1_down_n,
+      joy1left             => j1_left_n,
+      joy1right            => j1_right_n,
+      joy1fire1            => j1_fire_n,   
       joy1fire2            => joy_null_n,
    
-      joy2up               => joy_null_n,
-      joy2down             => joy_null_n,
-      joy2left             => joy_null_n,
-      joy2right            => joy_null_n,
-      joy2fire1            => joy_null_n,
+      joy2up               => j2_up_n,
+      joy2down             => j2_down_n,
+      joy2left             => j2_left_n,
+      joy2right            => j2_right_n,
+      joy2fire1            => j2_fire_n,
       joy2fire2            => joy_null_n,
             
       -- audio
