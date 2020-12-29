@@ -42,9 +42,8 @@ There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4m
 * Setup: Download EXDOS, hint about SDHC vs. SD, FAT32, ...
 * How to start a game: Mention NMI menu, but if this does not work, one might need to switch
   into 48k mode by entering OUT 32765, 48 in basic and then use the EXTDOS dot commands to load:
-  explain how. 128k games vs. 48k games.
+  explain how. 128k games vs. 48k games. Speed changes.
 * EXTDOS basics
-* How to use OUT commands to configure the joystick
 
 #### Keyboard TODOs
 
