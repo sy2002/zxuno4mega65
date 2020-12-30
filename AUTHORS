@@ -1,0 +1,35 @@
+ZX-Uno @ MEGA65: ZX Spectrum Core aka zxuno4mega65
+
+done in 2020/21 by sy2002
+
+www.sy2002.de
+github.com/sy2002
+
+zxuno4mega65 is licensed under the terms of GNU/GPL v3, for more information please read the file LICENSE
+Parts of zxuno4mega65 are licensed under other Free-software licenses as described in the source code
+
+ZX-Uno:
+
+  zxuno4mega65 is a port of ZX-Uno
+  done by Miguel Angel Rodriguez Jodars
+  Original website: https://zxuno.speccy.org/index_e.shtml
+
+Other than Miguel's and my own work, zxuno4mega65 uses:
+
+  * T80(c) core: Z80 CPU based on Daniel Wallner's work, improved by MikeJ and Sorgelig
+    https://opencores.org/projects/t80
+  
+  * Various MEGA65 drivers taken from the MEGA65 VHDL source by Paul Gardner-Stephen
+    https://github.com/MEGA65/mega65-core
+  
+  * ESXDOS: Firmware for the DivIDE/DivMMC interface by papaya dezign
+    http://www.esxdos.org/
+
+  * SOXZ: MEGA65 specific ZX-Uno bootloader by Andrew Owen
+
+  * Spectrum 48k rubber keyboard image by Andrew Owen, taken from the macOS version of the FUSE emulator
+    http://fuse-emulator.sourceforge.net/
+    
+  * Debouncer: I/O debouncing used for the joysticks, done by Scott Larson
+    https://www.digikey.com/eewiki/pages/viewpage.action?pageId=4980758
+    
