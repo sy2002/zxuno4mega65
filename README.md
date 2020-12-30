@@ -13,9 +13,11 @@ Special thanks to Paul, Deft, Miguel, Andrew
 
 README.md is just a stub and work-in progress
 
-### Keyboard mapping
+### Keyboard & Joysticks
 
 There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard-Mapping).
+
+Here is information of [how to use joysticks](https://github.com/sy2002/zxuno4mega65/wiki/Joysticks).
 
 ### What works already on a MEGA65 R2
 
