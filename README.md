@@ -7,11 +7,11 @@ The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 
 Original website: https://zxuno.speccy.org/index_e.shtml
 
-MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
+MEGA65 port done by sy2002 in 2020 and licensed under GPL v3, see AUTHORS for more details
 
 Special thanks to Paul, Deft, Miguel, Andrew
 
-README.md work-in progress
+README.md is just a stub and work-in progress
 
 ### Keyboard mapping
 
@@ -49,10 +49,3 @@ There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4m
 
 * Support PS/2 codes for at least the function keys for Chloe
 
-#### Acknowledgement TODOs
-
-* Z80 Core
-* ZX-Uno
-* Keyboard Mapping GFX
-* Spectrum's Matrix GFX from http://www.breakintoprogram.co.uk/computers/zx-spectrum/keyboard
-* M65 driver stubs
