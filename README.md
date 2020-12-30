@@ -7,7 +7,7 @@ The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 
 Original website: https://zxuno.speccy.org/index_e.shtml
 
-MEGA65 port done by sy2002 in 2020 and licensed under GPL v3, see AUTHORS for more details
+MEGA65 port done by sy2002 in 2020 and licensed under GPL v3, see [AUTHORS](AUTHORS) for more details
 
 Special thanks to Paul, Deft, Miguel, Andrew
 
