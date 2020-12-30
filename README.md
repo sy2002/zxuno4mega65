@@ -1,7 +1,7 @@
 ![PRE-ALPHA](https://img.shields.io/badge/-WARNING%3A%20PRE--ALPHA-red)
 
-ZX-Uno @ MEGA65: ZX Spectrum & Core
-===================================
+ZX-Uno @ MEGA65: ZX Spectrum Core
+=================================
 
 The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 
