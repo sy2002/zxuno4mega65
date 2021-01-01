@@ -14,44 +14,9 @@ tutorial.
 ZX-Uno @ MEGA65 is licensed under GPL v3,
 see [AUTHORS](AUTHORS) for more details.
 
-Special thanks to Miguel for creating ZX Uno and for Andrew, Deft and Paul
-or supporting me during my porting adventure.
+Special thanks to Miguel for creating ZX Uno and to Andrew Owen,
+Detlef Hastik (Deft) and Paul Gardner-Stephen or supporting me during my
+porting adventure.
 
-### Keyboard & Joysticks
-
-There is a [keyboard mapping page in the Wiki](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard-Mapping).
-
-Here is information of [how to use joysticks](https://github.com/sy2002/zxuno4mega65/wiki/Joysticks).
-
-### What works already on a MEGA65 R2
-
-* The basic ZX-Uno core runs (CPU, ULA incl. ULAplus, RAM, ROM, ...)
-* 48k BASIC
-* VGA output
-* Keyboard using a [convenient mapping](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard-Mapping)
-* [Joysticks](https://github.com/sy2002/zxuno4mega65/wiki/Joysticks)
-* Ability to [emulate a joystick](https://github.com/sy2002/zxuno4mega65/wiki/Keyboard#cursor-keys-standard-and-joystick-mode) via cursor keys.
-  By default, a Sinclair joystick is emulated.
-* SD-Cards via ESXDOS
-
-### Not working yet
-
-* MEGA65 R3
-* HDMI
-* Audio
-* Mouse
-
-### Scratchpad
-
-#### Documentation TODOs
-
-* Setup: Download EXDOS, hint about SDHC vs. SD, FAT32, ...
-* How to start a game: Mention NMI menu, but if this does not work, one might need to switch
-  into 48k mode by entering OUT 32765, 48 in basic and then use the EXTDOS dot commands to load:
-  explain how. 128k games vs. 48k games. Speed changes.
-* EXTDOS basics
-
-#### Keyboard TODOs
-
-* Support PS/2 codes for at least the function keys for Chloe
-
+**Please head to the [Wiki](https://github.com/sy2002/zxuno4mega65/wiki),
+you will find all relevant information there.**
