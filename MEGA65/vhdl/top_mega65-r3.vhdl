@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------------------
 -- ZX-Uno port for MEGA65
 --
--- R2-Version: Top Module for synthesizing the whole machine
+-- R3-Version: Top Module for synthesizing the whole machine
 --
 -- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 -- MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
@@ -11,7 +11,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity MEGA65_R2 is
+entity MEGA65_R3 is
 port (
    CLK            : in std_logic;                  -- 100 MHz clock
    RESET_N        : in std_logic;                  -- CPU reset button
@@ -61,27 +61,6 @@ port (
    pwm_l          : out std_logic;
    pwm_r          : out std_logic
    
-      
-   -- HDMI via ADV7511
---   hdmi_vsync     : out std_logic;
---   hdmi_hsync     : out std_logic;
---   hdmired        : out std_logic_vector(7 downto 0);
---   hdmigreen      : out std_logic_vector(7 downto 0);
---   hdmiblue       : out std_logic_vector(7 downto 0);
-   
---   hdmi_clk       : out std_logic;      
---   hdmi_de        : out std_logic;                 -- high when valid pixels being output
-   
---   hdmi_int       : in std_logic;                  -- interrupts by ADV7511
---   hdmi_spdif     : out std_logic := '0';          -- unused: GND
---   hdmi_scl       : inout std_logic;               -- I2C to/from ADV7511: serial clock
---   hdmi_sda       : inout std_logic;               -- I2C to/from ADV7511: serial data
-   
-   -- TPD12S016 companion chip for ADV7511
-   --hpd_a          : inout std_logic;
---   ct_hpd         : out std_logic := '1';          -- assert to connect ADV7511 to the actual port
---   ls_oe          : out std_logic := '1';          -- ditto
-   
    -- Built-in HyperRAM
 --   hr_d           : inout unsigned(7 downto 0);    -- Data/Address
 --   hr_rwds        : inout std_logic;               -- RW Data strobe
@@ -96,9 +75,9 @@ port (
 --   hr_cs0         : out std_logic;
 --   hr_cs1         : out std_logic   
 ); 
-end MEGA65_R2;
+end MEGA65_R3;
 
-architecture beh of MEGA65_R2 is
+architecture beh of MEGA65_R3 is
 
 signal psram_address    : std_logic_vector(20 downto 0);
 signal psram_data       : std_logic_vector(7 downto 0);
@@ -246,12 +225,7 @@ begin
          
          -- VGA horizontal and vertical sync
          VGA_HS      <= vga_hs_int;
-         VGA_VS      <= vga_vs_int;
-         
-         -- HDMI: color signal
---         hdmired     <= vga_r & vga_r & vga_r & vga_r & vga_r & vga_r & vga_r & vga_r;
---         hdmigreen   <= vga_g & vga_g & vga_g & vga_g & vga_g & vga_g & vga_g & vga_g;
---         hdmiblue    <= vga_b & vga_b & vga_b & vga_b & vga_b & vga_b & vga_b & vga_b;
+         VGA_VS      <= vga_vs_int;         
       end if;
    end process;
 
