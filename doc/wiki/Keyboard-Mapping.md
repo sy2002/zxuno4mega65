@@ -18,13 +18,13 @@ The ZX Spectrum's keyboard is a very special beast! It is not uncommon that one 
 | <kbd>Restore</kbd>      | Break               | Break command, for example for interrupting BASIC programs. Equivalent to <kbd>CAPS SHIFT</kbd> + <kbd>Space</kbd>
 | <kbd>Run/Stop</kbd>     | Graphics            | Switch to `G` mode and back. Equivalent to <kbd>CAPS SHIFT</kbd> + <kbd>9</kbd>
 | <kbd>Esc</kbd>          | (NMI)               | Trigger an NMI. In ESXDOS this enters the NMI Browser.
-| <kbd>Caps Lock</kbd>    | (Alternate Mapping) | Emulate joysticks via the MEGA's cursor keys and space (fire).
+| <kbd>Caps Lock</kbd>    | (Alternate Mapping) | Emulate joysticks via the MEGA65's cursor keys and space (fire).
 
 ### Cursor Keys: Standard and Joystick Mode
 
-* The MEGA65's cursor keys behave like expected: They behave like the Spectrum's cursor keys. They are mapped to the cursor key sequences of the Spectrum as shown in the image above: Spectrum's <kbd>CAPS SHIFT</kbd> + \<5 to 8\>. 
+* The MEGA65's cursor keys behave like expected: They behave like the Spectrum's cursor keys, because they are mapped to the cursor key sequences of the Spectrum as shown in the image above: Spectrum's <kbd>CAPS SHIFT</kbd> + \<5 to 8\>. 
 
-* When the MEGA <kbd>Caps Lock</kbd> mode is active, then the cursor keys are by default emulating a Sinclair joystick ("right" map) by mapping the joystick movements to the following numbers: 6=left, 7=right, 8=down, 9=up, 0=fire. The <kbd>Space</kbd> key is mapped to fire in this mode.
+* When the MEGA65 <kbd>Caps Lock</kbd> mode is active, then the cursor keys are by default emulating a Sinclair joystick by mapping the joystick movements to the following numbers: 6=left, 7=right, 8=down, 9=up, 0=fire. The <kbd>Space</kbd> key is mapped to fire in this mode. You can change the configuration of the [[Joysticks]].
 
 ### Convenience Functions
 
