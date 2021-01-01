@@ -1,6 +1,6 @@
 ## ZX-Uno port for MEGA65
 ##
-## Signal mapping
+## Signal mapping für MEGA65-R2
 ##
 ## The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 ## MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
@@ -8,12 +8,6 @@
 ## External clock signal (100 MHz)
 set_property -dict {PACKAGE_PIN V13 IOSTANDARD LVCMOS33} [get_ports CLK]
 create_clock -period 10.000 -name CLK [get_ports CLK]
-
-## Make the general clocks and the pixelclock unrelated to other to avoid erroneous timing
-## violations, and hopefully make everything synthesise faster
-#set_clock_groups -asynchronous \
-#     -group { CLK CLK1x CLK2x CLKFBIN SLOW_CLOCK } \
-#     -group [get_clocks -of_objects [get_pins clk_main/CLKOUT0]]
      
 ## Reset button
 set_property -dict {PACKAGE_PIN M13 IOSTANDARD LVCMOS33} [get_ports RESET_N]

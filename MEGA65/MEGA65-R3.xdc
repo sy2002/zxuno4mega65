@@ -1,6 +1,6 @@
 ## ZX-Uno port for MEGA65
 ##
-## Signal mapping
+## Signal mapping für MEGA65-R3
 ##
 ## The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 ## MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
@@ -8,12 +8,6 @@
 ## External clock signal (100 MHz)
 set_property -dict {PACKAGE_PIN V13 IOSTANDARD LVCMOS33} [get_ports CLK]
 create_clock -period 10.000 -name CLK [get_ports CLK]
-
-## Make the general clocks and the pixelclock unrelated to other to avoid erroneous timing
-## violations, and hopefully make everything synthesise faster
-#set_clock_groups -asynchronous \
-#     -group { CLK CLK1x CLK2x CLKFBIN SLOW_CLOCK } \
-#     -group [get_clocks -of_objects [get_pins clk_main/CLKOUT0]]
      
 ## Reset button
 set_property -dict {PACKAGE_PIN M13 IOSTANDARD LVCMOS33} [get_ports RESET_N]
@@ -61,52 +55,6 @@ set_property -dict {PACKAGE_PIN V14  IOSTANDARD LVCMOS33} [get_ports VGA_VS]
 set_property -dict {PACKAGE_PIN AA9  IOSTANDARD LVCMOS33} [get_ports vdac_clk]
 set_property -dict {PACKAGE_PIN V10  IOSTANDARD LVCMOS33} [get_ports vdac_sync_n]
 set_property -dict {PACKAGE_PIN W11  IOSTANDARD LVCMOS33} [get_ports vdac_blank_n]
-
-## HDMI via ADV7511
-#set_property -dict {PACKAGE_PIN AB3  IOSTANDARD LVCMOS33} [get_ports {hdmired[0]}]
-#set_property -dict {PACKAGE_PIN Y4   IOSTANDARD LVCMOS33} [get_ports {hdmired[1]}]
-#set_property -dict {PACKAGE_PIN AA4  IOSTANDARD LVCMOS33} [get_ports {hdmired[2]}]
-#set_property -dict {PACKAGE_PIN AA5  IOSTANDARD LVCMOS33} [get_ports {hdmired[3]}]
-#set_property -dict {PACKAGE_PIN AB5  IOSTANDARD LVCMOS33} [get_ports {hdmired[4]}]
-#set_property -dict {PACKAGE_PIN Y6   IOSTANDARD LVCMOS33} [get_ports {hdmired[5]}]
-#set_property -dict {PACKAGE_PIN AA6  IOSTANDARD LVCMOS33} [get_ports {hdmired[6]}]
-#set_property -dict {PACKAGE_PIN AB6  IOSTANDARD LVCMOS33} [get_ports {hdmired[7]}]
-#
-#set_property -dict {PACKAGE_PIN Y1   IOSTANDARD LVCMOS33} [get_ports {hdmigreen[0]}]
-#set_property -dict {PACKAGE_PIN Y3   IOSTANDARD LVCMOS33} [get_ports {hdmigreen[1]}]
-#set_property -dict {PACKAGE_PIN W4   IOSTANDARD LVCMOS33} [get_ports {hdmigreen[2]}]
-#set_property -dict {PACKAGE_PIN W5   IOSTANDARD LVCMOS33} [get_ports {hdmigreen[3]}]
-#set_property -dict {PACKAGE_PIN V7   IOSTANDARD LVCMOS33} [get_ports {hdmigreen[4]}]
-#set_property -dict {PACKAGE_PIN V8   IOSTANDARD LVCMOS33} [get_ports {hdmigreen[5]}]
-#set_property -dict {PACKAGE_PIN AB1  IOSTANDARD LVCMOS33} [get_ports {hdmigreen[6]}]
-#set_property -dict {PACKAGE_PIN W6   IOSTANDARD LVCMOS33} [get_ports {hdmigreen[7]}]
-#
-#set_property -dict {PACKAGE_PIN T6   IOSTANDARD LVCMOS33} [get_ports {hdmiblue[0]}]
-#set_property -dict {PACKAGE_PIN U1   IOSTANDARD LVCMOS33} [get_ports {hdmiblue[1]}]
-#set_property -dict {PACKAGE_PIN U5   IOSTANDARD LVCMOS33} [get_ports {hdmiblue[2]}]
-#set_property -dict {PACKAGE_PIN U6   IOSTANDARD LVCMOS33} [get_ports {hdmiblue[3]}]
-#set_property -dict {PACKAGE_PIN U2   IOSTANDARD LVCMOS33} [get_ports {hdmiblue[4]}]
-#set_property -dict {PACKAGE_PIN U3   IOSTANDARD LVCMOS33} [get_ports {hdmiblue[5]}]
-#set_property -dict {PACKAGE_PIN V4   IOSTANDARD LVCMOS33} [get_ports {hdmiblue[6]}]
-#set_property -dict {PACKAGE_PIN V2   IOSTANDARD LVCMOS33} [get_ports {hdmiblue[7]}]
-#
-#set_property -dict {PACKAGE_PIN R4   IOSTANDARD LVCMOS33} [get_ports hdmi_hsync]
-#set_property -dict {PACKAGE_PIN R6   IOSTANDARD LVCMOS33} [get_ports hdmi_vsync]
-#set_property -dict {PACKAGE_PIN R2   IOSTANDARD LVCMOS33} [get_ports hdmi_de]
-#set_property -dict {PACKAGE_PIN Y2   IOSTANDARD LVCMOS33} [get_ports hdmi_clk]
-#
-#set_property -dict {PACKAGE_PIN T3   IOSTANDARD LVCMOS33} [get_ports hdmi_scl]
-#set_property -dict {PACKAGE_PIN U7   IOSTANDARD LVCMOS33} [get_ports hdmi_sda]
-#set_property -dict {PACKAGE_PIN Y9   IOSTANDARD LVCMOS33} [get_ports hdmi_int]
-#set_property -dict {PACKAGE_PIN AA1  IOSTANDARD LVCMOS33} [get_ports hdmi_spdif]
-
-#set_property -dict {PACKAGE_PIN AA8  IOSTANDARD LVCMOS33} [get_ports hdmi_spdif_out]
-
-## TPD12S016 companion chip for ADV7511
-#set_property -dict {PACKAGE_PIN Y8   IOSTANDARD LVCMOS33} [get_ports hpd_a]
-
-#set_property -dict {PACKAGE_PIN M15  IOSTANDARD LVCMOS33} [get_ports ct_hpd]
-#set_property -dict {PACKAGE_PIN AB8  IOSTANDARD LVCMOS33} [get_ports ls_oe]
 
 ## Micro SD Connector (this is the slot at the bottom side of the case under the cover)
 set_property -dict {PACKAGE_PIN B15  IOSTANDARD LVCMOS33} [get_ports SD_RESET]
