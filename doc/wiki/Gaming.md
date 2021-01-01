@@ -28,6 +28,26 @@ LOAD ""
 
 Sometimes, the 48k version will not run at all. Then you need the 128k version of the game. An example for such a game is ELITE.
 
+#### Speed
+
+By default, the ZX Spectrum runs at 3.5 MHz. Some games, such as Boulder Dash are too slow on the original machine. You can speed up the CPU before loading a game like this:
+
+```
+.tapein <your-game's-tape-file.tap>
+OUT 64571, 11
+OUT 64827, <speed>
+LOAD ""
+```
+
+It is important in this case, that the `.tapein` command comes first. Use these numbers to set the `<speed>` you want:
+
+```
+1    =  3.5 MHz
+65   =  7.0 MHz
+129  = 14.0 MHz
+193  = 28.0 MHz
+```
+
 ### ULAplus
 
 ULAplus just looks great in games! Switch it on, when offered in the game's startup menu and do proactively search the web for ULAplus games.
@@ -42,6 +62,6 @@ ULAplus is an enhanced ULA for the ZX Spectrum. It can be implemented as a plug-
 
 * 300 legal ULAplus games: https://sourcesolutions.itch.io/ulaplus10
 
-* Some really great ULAplus games such as Rick Dangerous and R-Type with unclear copyright status: http://abrimaal.pro-e.pl/zx/ulaplus.htm
+* Some really great ULAplus games such as Action Force, Arkanoid, Bomb Jack, Rick Dangerous and R-Type with unclear copyright status: http://abrimaal.pro-e.pl/zx/ulaplus.htm
 
 * The source for "everything" with partially unclear copyright status: https://worldofspectrum.org/

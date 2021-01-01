@@ -11,7 +11,7 @@ Follow these steps to get started:
    
 2. [Choose](#2-choose-the-right-core-and-install-it) the right core and [install](#1-choose-the-right-core-and-install-it) the ZX-Uno @ MEGA65 Core on your machine.
 
-3. [Run a bunch of tests](#3-run-a-bunch-of-tests-to-check-if-everything-works) to check if everything works
+3. [Run a bunch of experiments](#3-run-a-bunch-of-experiments)
 
 4. Learn more about the [[Keyboard Mapping]]
 
@@ -42,7 +42,7 @@ Additionally we will deliberately download some 48k games that need a manual swi
   
    a) [Rick Dangerous](http://abrimaal.pro-e.pl/zx/rick-dangerous.tap.zip), ULAPplus version, runs directly from NMI menu<br>
    b) [Commando](http://abrimaal.pro-e.pl/zx/commando.zip), ULAplus version, needs a manual switch to 48k mode<br>
-   c) [Boulder Dash](https://www.worldofspectrum.org//pub/sinclair/games/b/BoulderDash.tap.zip), standard version, runs directly from NMI menu
+   c) [Boulder Dash](https://www.worldofspectrum.org//pub/sinclair/games/b/BoulderDash.tap.zip), standard version, is very slow, needs a speed-up
 
 6. Copy the following downloads into the `demos` folder. 
 
@@ -63,9 +63,9 @@ an FPGA JTag connection.
 | Your MEGA65                 | Model           | Core File&nbsp;&nbsp;`.cor` | Bitstream&nbsp;&nbsp;`.bit`
 |:----------------------------|:----------------|:----------------------------|:------------------
 | [[/assets/mega65-r2.jpg]]   | MEGA65&nbsp;R2  | [zxuno08.cor](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R2/zxuno08.cor)| [zxuno08.bit](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R2/zxuno08.bit)
-| [[/assets/mega65-r3.jpg]]   | MEGA65&nbsp;R3  | Core                        | Bit
+| [[/assets/mega65-r3.jpg]]   | MEGA65&nbsp;R3  | [unchecked.cor](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R3/unchecked.cor)| [unchecked.bit](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R3/unchecked.bit)
 
-## 3. Run a bunch of tests to check if everything works
+## 3. Run a bunch of experiments
 
 Boot up the core, either using the <kbd>No Scroll</kbd> mechanism or by using the `M65` command line tool. You should see a light gray screen with the following copyright message displayed in black: `(c) 1982 Sinclair Research Ltd`
 
@@ -176,3 +176,22 @@ Commando is a perfect example of a 48k game, that needs manual intervention. Fol
     Turn on <kbd>Caps Lock</kbd>, if you want to use the joystick emulation via cursor keys.
 
 13. Press <kbd>s</kbd> to start the game.
+
+### Boulder Dash: Speeding-up a game
+
+Please look at the tutorial steps above to learn how to navigate through the ESXDOS menu and how to enter the `OUT` command.
+
+1. Start Boulder Dash via the ESXDOS menu after having pressed <kbd>Esc</kbd>. You will notice that the game is very slow and not a lot of fun to play. This is actually the original speed of the game as it was back in the days.
+
+2. Reset the machine so that you are back to the start screen / copyright screen.
+
+3. Enter the following commands:
+
+```
+.tapein /zx/games/boulder1.tap
+OUT 64571, 11
+OUT 64827, 65
+LOAD ""
+```
+
+4. The CPU is now running at 7.0 MHz instead of the ZX Spectrum's standard 3.5 MHz. The game is now a lot of more fun to play.
