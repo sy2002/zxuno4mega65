@@ -55,7 +55,11 @@ port (
    joy_2_down_n   : in std_logic;
    joy_2_left_n   : in std_logic;
    joy_2_right_n  : in std_logic;
-   joy_2_fire_n   : in std_logic
+   joy_2_fire_n   : in std_logic;
+   
+   -- 3.5mm analog audio jack
+   pwm_l          : out std_logic;
+   pwm_r          : out std_logic
    
       
    -- HDMI via ADV7511
@@ -123,6 +127,9 @@ signal j2_right_n       : std_logic;
 signal j2_fire_n        : std_logic;
 signal joy_null_n       : std_logic;
 
+signal uno_audio_left   : std_logic;
+signal uno_audio_right  : std_logic;
+
 begin
             
    -- fixed inputs to the ZX Uno
@@ -141,6 +148,10 @@ begin
    j2_right_n   <= joy_2_right_n;
    j2_fire_n    <= joy_2_fire_n;   
    joy_null_n   <= '1';
+   
+   -- 3.5 analog audio jack
+   pwm_l        <= uno_audio_left;
+   pwm_r        <= uno_audio_right;
    
    clk_generator : entity work.clk
    port map
@@ -184,8 +195,8 @@ begin
             
       -- audio
       ear                  => ear_int,  -- unknown, has something todo with "PZX_PLAYER", what is "PZX_PLAYER"?
-      audio_out_left       => open,
-      audio_out_right      => open,
+      audio_out_left       => uno_audio_left,
+      audio_out_right      => uno_audio_right,
       
       -- UART
       uart_rx              => UART_RXD,

@@ -128,6 +128,10 @@ set_property -dict {PACKAGE_PIN F21 IOSTANDARD LVCMOS33} [get_ports joy_2_left_n
 set_property -dict {PACKAGE_PIN C15 IOSTANDARD LVCMOS33} [get_ports joy_2_right_n]
 set_property -dict {PACKAGE_PIN F15 IOSTANDARD LVCMOS33} [get_ports joy_2_fire_n]
 
+# PWM Audio
+set_property -dict {PACKAGE_PIN L6 IOSTANDARD LVCMOS33} [get_ports pwm_l]
+set_property -dict {PACKAGE_PIN F4 IOSTANDARD LVCMOS33} [get_ports pwm_r]
+
 ## HyperRAM (standard)
 #set_property -dict {PACKAGE_PIN D22 IOSTANDARD LVCMOS33 PULLUP FALSE SLEW FAST DRIVE 16} [get_ports hr_clk_p]
 #set_property -dict {PACKAGE_PIN A21 IOSTANDARD LVCMOS33 PULLUP FALSE SLEW FAST DRIVE 16} [get_ports {hr_d[0]}]
