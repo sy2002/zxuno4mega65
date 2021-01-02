@@ -15,7 +15,7 @@ ZX-Uno @ MEGA65 is licensed under GPL v3,
 see [AUTHORS](AUTHORS) for more details.
 
 Special thanks to Miguel for creating ZX Uno and to Andrew Owen,
-Detlef Hastik (Deft) and Paul Gardner-Stephen or supporting me during my
+Detlef Hastik (Deft) and Paul Gardner-Stephen for supporting me during my
 porting adventure.
 
 **Please head to the [Wiki](https://github.com/sy2002/zxuno4mega65/wiki),
