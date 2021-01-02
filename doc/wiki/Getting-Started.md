@@ -60,10 +60,10 @@ Pick your model in the table below. Download the `.cor` file, if you'd like to i
 *Chapter 12 Data Transfer and Debugging Tools* or Vivado's `Hardware Manager` to directly upload the bitstream (`.bit`) using
 an FPGA JTag connection.
 
-| Your MEGA65                 | Model           | Core File&nbsp;&nbsp;`.cor` | Bitstream&nbsp;&nbsp;`.bit`
-|:----------------------------|:----------------|:----------------------------|:------------------
-| [[/assets/mega65-r2.jpg]]   | MEGA65&nbsp;R2  | [zxuno08.cor](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R2/zxuno08.cor)| [zxuno08.bit](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R2/zxuno08.bit)
-| [[/assets/mega65-r3.jpg]]   | MEGA65&nbsp;R3  | [unchecked.cor](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R3/unchecked.cor)| [unchecked.bit](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R3/unchecked.bit)
+| Your MEGA65                 | Model             | Core File&nbsp;&nbsp;`.cor` | Bitstream&nbsp;&nbsp;`.bit`
+|:----------------------------|:------------------|:----------------------------|:------------------
+| [[/assets/mega65-r2.jpg]]   | Pre&#8209;series&nbsp;R2 | [r2zxu08.cor](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R2/r2zxu08.cor)| [r2zxu08.bit](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R2/r2zxu08.bit)
+| [[/assets/mega65-r3.jpg]]   | DevKit&nbsp;R3    | [r3zxu08.cor](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R3/r3zxu08.cor)| [r3zxu08.bit](https://github.com/sy2002/zxuno4mega65/raw/master/bin/R3/r3zxu08.bit)
 
 ## 3. Run a bunch of experiments
 
@@ -107,6 +107,8 @@ Now press <kbd>r</kbd> and press <kbd>Enter</kbd>. The screen fills with some ni
    Try also the <kbd>Space</kbd> bar: It will trigger the fire button of the emulated joystick.
 
 7. Deactivate <kbd>Caps Lock</kbd>.
+
+8. **In any game: Choose "Sinclair" or "Interface 2" as joystick type.**
 
 ### Rick Dangerous: Playing an ULAplus game with joystick
 
@@ -159,7 +161,7 @@ Commando is a perfect example of a 48k game, that needs manual intervention. Fol
 
 5. Press <kbd>Shift</kbd>+<kbd>o</kbd>. You should see `OUT` and a blinking cursor and the letter `L`.
 
-6. Enter `32765, 48` and press <kbd>Return</kbd>
+6. Enter `32765, 48`. You should now have this on your screen: `OUT 32765, 48`. Press <kbd>Return</kbd>.
 
 7. You should see something like: `0 OK, 0:1`
 

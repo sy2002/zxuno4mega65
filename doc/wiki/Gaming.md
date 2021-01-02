@@ -1,6 +1,6 @@
 ### Joystick
 
-* In games, choose "Sinclair" or "Interface 2" as joystick type.
+* **In games, choose "Sinclair" or "Interface 2" as joystick type.**
 * You can plug your joystick into port #1 or port #2. It does not matter, as long as you play with one joystick.
 * You can emulate a joystick with your cursor keys plus <kbd>Space</kbd> as fire when you switch on <kbd>Scroll Lock</kbd>.
 * Learn how to play with two [[Joysticks]] and more [[here|Joysticks]].
