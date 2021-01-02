@@ -1,5 +1,12 @@
 ## Currently ZX-Uno @ MEGA65 has not been released, yet
 
+The current state is meant to be released as V0.8. It is stable and feature rich. Thanks to ESXDOS and SD card support, loading software is easy. You can play a ton of classic ZX Spectrum games with it, including AY-3-8910 sound. Also most demos and application programs are working. And you can program in 48k BASIC.
+
+* This core supports the MEGA65 **R2** and **R3**.
+* It uses **VGA** for video output and the **3.5mm audio jack** for audio output. No HDMI.
+* Insert the SD card that you will prepare below into the **internal** SD card slot of the MEGA65 (the one in the bottom tray):
+  This is currently the only SD card slot, that this core supports.
+
 ### Here is a list, what already works:
 
 * The ZX-Uno core runs flawlessly (CPU, ULA incl. ULAplus, RAM, ROM, ...)
@@ -16,3 +23,10 @@
 
 * HDMI
 * Mouse
+* External SD-Card slot of MEGA65
+* Attaching a real tape player via EAR
+* MIDI
+* UART
+* PZX Player
+* PENTAGON 512k Support
+* Expansion port

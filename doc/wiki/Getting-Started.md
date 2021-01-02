@@ -195,3 +195,15 @@ LOAD ""
 ```
 
 4. The CPU is now running at 7.0 MHz instead of the ZX Spectrum's standard 3.5 MHz. The game is now a lot of more fun to play.
+
+### Using ESXDOS
+
+You can use the following commands in 48k BASIC. Always write them as shown here, with a trailing `.` (dot):
+
+* `.ls`: Browse the current directly
+* `.cd`: Change directory
+* `.tapein`: Mount `.tap` file. Run it without parameters to learn more.
+* Browse the `/BIN` folder to discover more commands
+
+Here is an [outdated manual](http://www.benophetinternet.nl/hobby/vanmezelf/ESXDOS%20manual.pdf) for ESXDOS.
+There does not seem to be anything newer nor seems to be an official manual by ESXDOS' creators.
