@@ -18,5 +18,5 @@ Special thanks to Miguel for creating ZX Uno and to Andrew Owen,
 Detlef Hastik (Deft) and Paul Gardner-Stephen for supporting me during my
 porting adventure.
 
-**Please head to the [Wiki](https://github.com/sy2002/zxuno4mega65/wiki),
-you will find all relevant information there.**
+**Please head to the [Getting Started](https://github.com/sy2002/zxuno4mega65/wiki/Getting-Started)
+tutorial, you will find all relevant information there.**
