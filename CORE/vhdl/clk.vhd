@@ -3,8 +3,9 @@
 --
 -- Clock Generator using the Xilinx specific MMCME2_ADV:
 --
---   @TODO YOURCORE expects 54 MHz
+-- Converts the 100 MHz clock of the MEGA65 to the 28 MHz system clock of the ZX-Uno
 --
+-- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 -- MiSTer2MEGA65 done by sy2002 and MJoergen in 2022 and licensed under GPL v3
 -------------------------------------------------------------------------------------------------------------
 
@@ -54,10 +55,10 @@ begin
          CLKIN1_PERIOD        => 10.0,       -- INPUT @ 100 MHz
          REF_JITTER1          => 0.010,
          DIVCLK_DIVIDE        => 1,
-         CLKFBOUT_MULT_F      => 6.750,      -- 675 MHz
+         CLKFBOUT_MULT_F      => 7.000,      -- scale to 700 Mhz because this divided by 25 = 28 MHz
          CLKFBOUT_PHASE       => 0.000,
          CLKFBOUT_USE_FINE_PS => FALSE,
-         CLKOUT0_DIVIDE_F     => 12.500,     -- 54 MHz
+         CLKOUT0_DIVIDE_F     => 25.0,       -- 700 MHz / 25.0 = 28 MHz
          CLKOUT0_PHASE        => 0.000,
          CLKOUT0_DUTY_CYCLE   => 0.500,
          CLKOUT0_USE_FINE_PS  => FALSE

@@ -3,6 +3,7 @@
 --
 -- Wrapper for the MiSTer core that runs exclusively in the core's clock domanin
 --
+-- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 -- MiSTer2MEGA65 done by sy2002 and MJoergen in 2022 and licensed under GPL v3
 ----------------------------------------------------------------------------------
 
@@ -62,7 +63,18 @@ entity main is
       pot1_x_i                : in  std_logic_vector(7 downto 0);
       pot1_y_i                : in  std_logic_vector(7 downto 0);
       pot2_x_i                : in  std_logic_vector(7 downto 0);
-      pot2_y_i                : in  std_logic_vector(7 downto 0)
+      pot2_y_i                : in  std_logic_vector(7 downto 0);
+      
+      --------------------------------------------------------------------------------------------------------
+      -- Bypass M2M's SD card handling because the ZX-Uno core does this by itself
+      --------------------------------------------------------------------------------------------------------
+   
+      -- SD Card (internal/bottom)
+      sd_int_reset_o          : out std_logic;
+      sd_int_clk_o            : out std_logic;
+      sd_int_mosi_o           : out std_logic;
+      sd_int_miso_i           : in  std_logic;
+      sd_int_cd_i             : in  std_logic       
    );
 end entity main;
 
@@ -71,72 +83,137 @@ architecture synthesis of main is
 -- @TODO: Remove these demo core signals
 signal keyboard_n          : std_logic_vector(79 downto 0);
 
+signal psram_address    : std_logic_vector(20 downto 0);
+signal psram_data       : std_logic_vector(7 downto 0);
+signal psram_we_n       : std_logic;
+
+signal vga_red_int      : std_logic_vector(5 downto 0);
+signal vga_green_int    : std_logic_vector(5 downto 0);
+signal vga_blue_int     : std_logic_vector(5 downto 0);
+signal vga_hs_int       : std_logic;
+signal vga_vs_int       : std_logic;
+
+signal dummy_zero       : std_logic;
+signal dummy_one        : std_logic;
+
+signal uno_audio_left   : std_logic_vector(8 downto 0);
+signal uno_audio_right  : std_logic_vector(8 downto 0);
+
 begin
+   -- fixed inputs to the ZX Uno
+   dummy_zero     <= '0';
+   dummy_one      <= '1';
 
-   -- @TODO: Add the actual MiSTer core here
-   -- The demo core's purpose is to show a test image and to make sure, that the MiSTer2MEGA65 framework
-   -- can be synthesized and run stand-alone without an actual MiSTer core being there, yet
-   i_democore : entity work.democore
+   -- Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
+   -- Adjusted so that it works on the MEGA65 by sy2002
+   zxuno_wrapper : entity work.tld_zxuno_a100t
+   port map
+   (
+      clk28mhz             => clk_main_i,
+      reset_n              => not reset_soft_i,
+
+      -- VGA
+      r                    => vga_red_int,
+      g                    => vga_green_int,
+      b                    => vga_blue_int,
+      hsync                => vga_hs_int,
+      vsync                => vga_vs_int,
+      
+      -- MEGA65 smart keyboard controller
+      kb_io0               => open,
+      kb_io1               => open,
+      kb_io2               => dummy_zero,
+      
+      -- Joysticks      
+      joy1up               => joy_1_up_n_i,
+      joy1down             => joy_1_down_n_i,
+      joy1left             => joy_1_left_n_i,
+      joy1right            => joy_1_right_n_i,
+      joy1fire1            => joy_1_fire_n_i,   
+      joy1fire2            => dummy_one,
+   
+      joy2up               => joy_2_up_n_i,
+      joy2down             => joy_2_down_n_i,
+      joy2left             => joy_2_left_n_i,
+      joy2right            => joy_2_right_n_i,
+      joy2fire1            => joy_2_fire_n_i,   
+      joy2fire2            => dummy_one,
+
+      -- audio
+      ear                  => dummy_zero,
+      audio_out_left       => uno_audio_left,
+      audio_out_right      => uno_audio_right,
+      
+      -- UART
+      uart_rx              => dummy_zero,
+      uart_tx              => open,
+      uart_rts             => open,
+            
+      -- SRAM: we don't have SRAM, so connect to pseudo SRAM component
+      sram_addr            => psram_address,
+      sram_data            => psram_data,
+      sram_we_n            => psram_we_n,
+      sram_ub              => open,
+
+      -- SD Card
+      sd_cs_n              => sd_int_reset_o,
+      sd_clk               => sd_int_clk_o,
+      sd_mosi              => sd_int_mosi_o,
+      sd_miso              => sd_int_miso_i,
+           
+      -- flash
+      flash_cs_n           => open,
+      flash_mosi           => open, 
+      flash_miso           => dummy_zero      
+   );
+   
+   -- The ZX-Uno only outputs 18-bits-per-pixel color info, we need to transform to 24bpp
+   video_red_o       <= vga_red_int & "00";
+   video_green_o     <= vga_green_int & "00";
+   video_blue_o      <= vga_blue_int & "00";
+   
+   video_ce_o        <= '1';
+   video_ce_ovl_o    <= '1';    
+
+   -- @TODO: This is a temporary solution taken from the C64 core which is
+   -- very probably not a great fit for the ZX-Uno
+   --
+   -- The M2M framework needs the signals vga_hblank_o, vga_vblank_o
+   -- This shortens the hsync pulse width to 4.82 us, still with a period of 63.94 us.
+   -- This also crops the signal to 384x270 via the vs_hblank and vs_vblank signals.
+   i_video_sync : entity work.video_sync
       port map (
-         clk_main_i           => clk_main_i,
-
-         reset_i              => reset_soft_i or reset_hard_i,       -- long and short press of reset button mean the same
-         pause_i              => pause_i,
-
-         ball_col_rgb_i       => x"EE4020",                          -- ball color (RGB): orange
-         paddle_speed_i       => x"1",                               -- paddle speed is about 50 pixels / sec (due to 50 Hz)
-
-         keyboard_n_i         => keyboard_n,                         -- move the paddle with the cursor left/right keys...
-         joy_up_n_i           => joy_1_up_n_i,                       -- ... or move the paddle with a joystick in port #1
-         joy_down_n_i         => joy_1_down_n_i,
-         joy_left_n_i         => joy_1_left_n_i,
-         joy_right_n_i        => joy_1_right_n_i,
-         joy_fire_n_i         => joy_1_fire_n_i,
-
-         vga_ce_o             => video_ce_o,
-         vga_red_o            => video_red_o,
-         vga_green_o          => video_green_o,
-         vga_blue_o           => video_blue_o,
-         vga_vs_o             => video_vs_o,
-         vga_hs_o             => video_hs_o,
-         vga_hblank_o         => video_hblank_o,
-         vga_vblank_o         => video_vblank_o,
-
-         audio_left_o         => audio_left_o,
-         audio_right_o        => audio_right_o
-      ); -- i_democore
-
-   -- On video_ce_o and video_ce_ovl_o: You have an important @TODO when porting a core:
-   -- video_ce_o: You need to make sure that video_ce_o divides clk_main_i such that it transforms clk_main_i
-   --             into the pixelclock of the core (means: the core's native output resolution pre-scandoubler)
-   -- video_ce_ovl_o: Clock enable for the OSM overlay and for sampling the core's (retro) output in a way that
-   --             it is displayed correctly on a "modern" analog input device: Make sure that video_ce_ovl_o
-   --             transforms clk_main_o into the post-scandoubler pixelclock that is valid for the target
-   --             resolution specified by VGA_DX/VGA_DY (globals.vhd)
-   -- video_retro15kHz_o: '1', if the output from the core (post-scandoubler) in the retro 15 kHz analog RGB mode.
-   --             Hint: Scandoubler off does not automatically mean retro 15 kHz on.
-   video_ce_ovl_o <= video_ce_o;
-
-   -- @TODO: Keyboard mapping and keyboard behavior
-   -- Each core is treating the keyboard in a different way: Some need low-active "matrices", some
-   -- might need small high-active keyboard memories, etc. This is why the MiSTer2MEGA65 framework
-   -- lets you define literally everything and only provides a minimal abstraction layer to the keyboard.
-   -- You need to adjust keyboard.vhd to your needs
-   i_keyboard : entity work.keyboard
-      port map (
-         clk_main_i           => clk_main_i,
-
-         -- Interface to the MEGA65 keyboard
-         key_num_i            => kb_key_num_i,
-         key_pressed_n_i      => kb_key_pressed_n_i,
-
-         -- @TODO: Create the kind of keyboard output that your core needs
-         -- "example_n_o" is a low active register and used by the demo core:
-         --    bit 0: Space
-         --    bit 1: Return
-         --    bit 2: Run/Stop
-         example_n_o          => keyboard_n
-      ); -- i_keyboard
+         clk32     => clk_main_i,
+         pause     => '0',
+         hsync     => vga_hs_int,
+         vsync     => vga_vs_int,
+         ntsc      => '0',
+         wide      => '0',
+         hsync_out => video_hs_o,
+         vsync_out => video_vs_o,
+         hblank    => video_hblank_o,
+         vblank    => video_vblank_o
+      ); -- i_video_sync   
+           
+   -- emulate the SRAM that ZX-Uno needs via 512kB of BRAM
+   pseudo_sram : entity work.zxbram
+   generic map
+   (
+      ADDR_WIDTH  => 19, -- 2^19 bytes = 512kB
+      DATA_WIDTH  => 8   -- 8 bits
+   )
+   port map
+   (
+      clk         => clk_main_i,
+      address     => psram_address(18 downto 0),
+      data        => psram_data,
+      we_n        => psram_we_n
+   );
+  
+  -- @TODO Currently it is rather unclear what kind of audio the ZX Uno creates
+  -- Double-check and if necessary do conversions
+   audio_left_o   <= signed(uno_audio_left  & "0000000");
+   audio_right_o  <= signed(uno_audio_right & "0000000");
 
 end architecture synthesis;
 

@@ -15,7 +15,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity bram is
+entity zxbram is
 generic (
    ADDR_WIDTH  : integer;
    DATA_WIDTH  : integer
@@ -26,9 +26,9 @@ port (
    data        : inout std_logic_vector(DATA_WIDTH - 1 downto 0);
    we_n        : in std_logic
 );
-end bram;
+end zxbram;
 
-architecture beh of bram is
+architecture beh of zxbram is
 
 constant RAM_DEPTH : integer := 2**ADDR_WIDTH - 96 * 1024;
 type RAM is array (0 to RAM_DEPTH - 1) of std_logic_vector(DATA_WIDTH - 1 downto 0);

@@ -214,7 +214,7 @@ constant WELCOME_ACTIVE    : boolean := true;
 
 -- shall the welcome screen also be shown after the core is reset?
 -- (only relevant if WELCOME_ACTIVE is true)
-constant WELCOME_AT_RESET  : boolean := true;
+constant WELCOME_AT_RESET  : boolean := false;
 
 -- keyboard and joystick connection during reset and OSD
 constant KEYBOARD_AT_RESET : boolean := false;

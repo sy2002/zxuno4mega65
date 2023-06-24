@@ -42,8 +42,9 @@ module zxuno (
   
   // EAR and audio
   input wire ear_ext,
-  output wire audio_out_left,
-  output wire audio_out_right,
+
+  output wire [8:0] audio_out_left,
+  output wire [8:0] audio_out_right,
   
   //MEGA65 smart keyboard controller
   output wire kb_io0,              //clock to keyboard
