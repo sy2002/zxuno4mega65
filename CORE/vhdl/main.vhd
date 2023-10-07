@@ -172,28 +172,22 @@ begin
    video_green_o     <= vga_green_int & "00";
    video_blue_o      <= vga_blue_int & "00";
    
+   video_hs_o        <= not vga_hs_int;
+   video_vs_o        <= not vga_vs_int;
+   
+   -- @TODO: Use and adjust "blankinator" component from https://github.com/DremOSDeveloperTeam/AY-3-8500-MEGA65/blob/master/CORE/vhdl/main.vhd
+   -- For now, as we need to get this whole thing up and running again, VGA-only output does not need hblank/vblank
+   video_hblank_o    <= '0';
+   video_vblank_o    <= '0';
+    
+   -- video_ce_o: You need to make sure that video_ce_o divides clk_main_i such that it transforms clk_main_i
+   --             into the pixelclock of the core (means: the core's native output resolution pre-scandoubler)
+   -- video_ce_ovl_o: Clock enable for the OSM overlay and for sampling the core's (retro) output in a way that
+   --             it is displayed correctly on a "modern" analog input device: Make sure that video_ce_ovl_o
+   --             transforms clk_main_o into the post-scandoubler pixelclock that is valid for the target
+   --             resolution specified by VGA_DX/VGA_DY (globals.vhd)
    video_ce_o        <= '1';
    video_ce_ovl_o    <= '1';    
-
-   -- @TODO: This is a temporary solution taken from the C64 core which is
-   -- very probably not a great fit for the ZX-Uno
-   --
-   -- The M2M framework needs the signals vga_hblank_o, vga_vblank_o
-   -- This shortens the hsync pulse width to 4.82 us, still with a period of 63.94 us.
-   -- This also crops the signal to 384x270 via the vs_hblank and vs_vblank signals.
-   i_video_sync : entity work.video_sync
-      port map (
-         clk32     => clk_main_i,
-         pause     => '0',
-         hsync     => vga_hs_int,
-         vsync     => vga_vs_int,
-         ntsc      => '0',
-         wide      => '0',
-         hsync_out => video_hs_o,
-         vsync_out => video_vs_o,
-         hblank    => video_hblank_o,
-         vblank    => video_vblank_o
-      ); -- i_video_sync   
            
    -- emulate the SRAM that ZX-Uno needs via 512kB of BRAM
    pseudo_sram : entity work.zxbram
