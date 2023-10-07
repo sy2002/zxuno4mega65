@@ -110,7 +110,7 @@ begin
    port map
    (
       clk28mhz             => clk_main_i,
-      reset_n              => not reset_soft_i,
+      reset_n              => (not reset_soft_i) and (not reset_hard_i),
 
       -- VGA
       r                    => vga_red_int,
@@ -120,9 +120,8 @@ begin
       vsync                => vga_vs_int,
       
       -- MEGA65 smart keyboard controller
-      kb_io0               => open,
-      kb_io1               => open,
-      kb_io2               => dummy_zero,
+      key_num              => kb_key_num_i,
+      key_status_n         => kb_key_pressed_n_i,
       
       -- Joysticks      
       joy1up               => joy_1_up_n_i,

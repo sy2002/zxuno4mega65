@@ -30,10 +30,10 @@
 module m65_keyb(
     input wire clk,
     
-    //MEGA65 smart keyboard controller
-    output wire kb_io0,              //clock to keyboard
-    output wire kb_io1,              //data output to keyboard
-    input wire  kb_io2,              //data input from keyboard    
+    //M2M keyboard interface   
+   input wire [6:0] key_num,
+   input wire key_status_n,    
+        
     //---------------------------------
     input wire [7:0] rows,
     output wire [4:0] cols,
@@ -115,10 +115,9 @@ module m65_keyb(
     keyboard m65_keyboard (
         .clk(clk),
         
-        //interface to the MEGA65 keyboard controller   
-        .kio8(kb_io0),
-        .kio9(kb_io1),
-        .kio10(kb_io2),
+        //M2M keyboard interface   
+        .key_num(key_num),
+        .key_status_n(key_status_n),
         
         //interface to ZXUNO's internal logic
         .row_select(rows),

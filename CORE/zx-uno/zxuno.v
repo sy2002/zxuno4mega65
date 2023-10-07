@@ -46,10 +46,9 @@ module zxuno (
   output wire [8:0] audio_out_left,
   output wire [8:0] audio_out_right,
   
-  //MEGA65 smart keyboard controller
-  output wire kb_io0,              //clock to keyboard
-  output wire kb_io1,              //data output to keyboard
-  input wire  kb_io2,              //data input from keyboard
+  //M2M keyboard interface
+  input wire [6:0] key_num,
+  input wire key_status_n,    
  
   // MIDI
   output wire midi_out,
@@ -562,10 +561,9 @@ module zxuno (
   );
 
   m65_keyb el_teclado (
-    .clk(sysclk),        
-    .kb_io0(kb_io0),
-    .kb_io1(kb_io1),
-    .kb_io2(kb_io2),    
+    .clk(sysclk),
+    .key_num(key_num),
+    .key_status_n(key_status_n),
     .rows(kbdrow),
     .cols(kbdcol),
     .joy(kbd_joy), // Implementaci�n joystick en teclado numerico

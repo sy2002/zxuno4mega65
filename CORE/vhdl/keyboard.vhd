@@ -25,7 +25,7 @@
 -- shift key, which is always mapped to be the CAPS SHIFT.
 --
 -- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
--- MEGA65 port done by sy2002 in 2020 and licensed under GPL v3
+-- MEGA65 port done by sy2002 in 2020 & 2023 and licensed under GPL v3
 -- Keyboard mapping as defined by Andrew Owen in December 2020
 --------------------------------------------------------------------------------------
 
@@ -36,18 +36,17 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity keyboard is
 port (
-   clk         : in std_logic;         -- assumes a 28 MHz clock 
+   clk            : in std_logic;         -- assumes a 28 MHz clock 
        
-   -- interface to the MEGA65 keyboard controller       
-   kio8        : out std_logic;        -- clock to keyboard
-   kio9        : out std_logic;        -- data output to keyboard
-   kio10       : in std_logic;         -- data input from keyboard
+   -- M2M keyboard interface  
+   key_num        : in integer range 0 to 79;
+   key_status_n   : in std_logic;
       
    -- interface to ZXUNO's internal logic
-   row_select  : in std_logic_vector(7 downto 0);  -- query Spectrum's matrix
-   col_data    : out std_logic_vector(4 downto 0); -- return value of query
-   user_nmi    : out std_logic;                    -- NMI key (ESC) pressed
-   joystick    : out std_logic_vector(4 downto 0)  -- CAPS LOCK on: use cursor keys as joystick   
+   row_select     : in std_logic_vector(7 downto 0);  -- query Spectrum's matrix
+   col_data       : out std_logic_vector(4 downto 0); -- return value of query
+   user_nmi       : out std_logic;                    -- NMI key (ESC) pressed
+   joystick       : out std_logic_vector(4 downto 0)  -- CAPS LOCK on: use cursor keys as joystick   
 );
 end keyboard;
 
@@ -57,15 +56,7 @@ constant CLOCK_SPEED       : integer := 28000000;
 constant SEQ_SPEED         : integer := (CLOCK_SPEED / 1000) * 50; -- 50ms delay between sequence actions at 28 MHz
 constant SEQ_MAXLEN        : integer := 18;
 
-
-signal matrix_col          : std_logic_vector(7 downto 0);
-signal matrix_col_idx      : integer range 0 to 9 := 0;
-signal key_num             : integer range 0 to 79;
-signal key_status_n        : std_logic;
-
 -- Special key signalling: key_* is high, if special key is pressed during the current scan cycle
--- The "matrix_to_keynum" component is using registers to store the status during the scan cycle
-signal bucky_key           : std_logic_vector(6 downto 0);
 signal key_shift_left      : std_logic;
 signal key_shift_right     : std_logic;
 signal key_ctrl            : std_logic;
@@ -275,74 +266,31 @@ signal seq_active_next  : integer range 0 to SEQ_MAXLEN;
 signal seq_delay        : integer range 0 to SEQ_SPEED;
 signal seq_delay_start  : boolean;
 
+signal key_pressed_n : std_logic_vector(79 downto 0);
+
 begin
 
    -- ESC is the NMI key (e.g. for being used in ESXDOS)
    user_nmi          <= key_esc;
 
-   -- high if the special key is pressed during the current scan cycle
-   key_shift_left    <= bucky_key(0);
-   key_shift_right   <= bucky_key(1);
-   key_ctrl          <= bucky_key(2);
-   key_mega          <= bucky_key(3);
-   key_alt           <= bucky_key(4);
-   
-   -- special handling for "[" and "]" on the MEGA65 keyboard (see comments above)
-   key_seq           <= key_alt = '1' or (key_status_n = '0' and key_shift_left = '1' and (key_num = 45 or key_num = 50));
-
---   m65driver : entity work.mega65kbd_to_matrix
---   port map
---   (
---       ioclock          => clk,
-      
---       flopmotor        => '0',
---       flopled          => '0',
---       powerled         => '1',    
-       
---       kio8             => kio8,
---       kio9             => kio9,
---       kio10            => kio10,
-      
---       matrix_col       => matrix_col,
---       matrix_col_idx   => matrix_col_idx,
-       
---       capslock_out     => m65_capslock_n     
---   );
-   
---   m65matrix_to_keynum : entity work.matrix_to_keynum
---   generic map
---   (
---      scan_frequency    => 1000,
---      clock_frequency   => CLOCK_SPEED      
---   )
---   port map
---   (
---      clk               => clk,
---      reset_in          => '0',
-
---      matrix_col => matrix_col,
---      matrix_col_idx => matrix_col_idx,
-      
---      m65_key_num => key_num,
---      m65_key_status_n => key_status_n,
-      
---      suppress_key_glitches => '1',
---      suppress_key_retrigger => '0',
-      
---      bucky_key => bucky_key      
---   );
-   
-   matrix_col_idx_handler : process(clk)
+   keyboard_state : process(clk)
    begin
       if rising_edge(clk) then
-         if matrix_col_idx < 9 then
-           matrix_col_idx <= matrix_col_idx + 1;
-         else
-           matrix_col_idx <= 0;
-         end if;      
+         key_pressed_n(key_num) <= key_status_n;
       end if;
-   end process;      
+   end process;
    
+   -- high if the special key is pressed during the current scan cycle
+   key_shift_left    <= not key_pressed_n(15);
+   key_shift_right   <= not key_pressed_n(52);
+   key_ctrl          <= not key_pressed_n(58);
+   key_mega          <= not key_pressed_n(61);
+   key_alt           <= not key_pressed_n(66);
+   key_esc           <= not key_pressed_n(71);
+
+   -- special handling for "[" and "]" on the MEGA65 keyboard (see comments above)
+   key_seq           <= key_alt = '1' or (key_status_n = '0' and key_shift_left = '1' and (key_num = 45 or key_num = 50));
+  
    -- fill the matrix registers that will be read by the ZX Uno
    -- support two ZX Uno matrix entries per pressed MEGA key for the end user's convenience
    write_matrix : process(clk)
@@ -360,9 +308,6 @@ begin
          --------------------------------------------------------------------------------------
          -- Handle keys that are not part of the Spectrum's matrix
          --------------------------------------------------------------------------------------     
-         if key_num = 71 then
-            key_esc <= not key_status_n;
-         end if;
          
          -- if CAPS LOCK is on, then handle cursor keys and space as joystick
          if m65_capslock_n = '0' and (key_num = joy_up   or key_num = joy_down  or 
