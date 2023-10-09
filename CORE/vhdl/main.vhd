@@ -107,7 +107,7 @@ begin
 
    -- Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
    -- Adjusted so that it works on the MEGA65 by sy2002
-   zxuno_wrapper : entity work.tld_zxuno_a100t
+   i_zxuno_wrapper : entity work.tld_zxuno_a100t
    port map
    (
       clk28mhz             => clk_main_i,
@@ -176,6 +176,17 @@ begin
    video_hs_o        <= not vga_hs_int;
    video_vs_o        <= not vga_vs_int;
    
+   i_blank_generator : entity work.blank_gen
+   port map
+   (
+      clk_i          => clk_main_i,
+      clk_en_i       => vga_clk_en_int,
+      hsync_i        => not vga_hs_int,
+      vsync_i        => not vga_vs_int,
+      hblank_o       => video_hblank_o,
+      vblank_o       => video_vblank_o    
+   );
+   
    -- @TODO: Use and adjust "blankinator" component from https://github.com/DremOSDeveloperTeam/AY-3-8500-MEGA65/blob/master/CORE/vhdl/main.vhd
    -- For now, as we need to get this whole thing up and running again, VGA-only output does not need hblank/vblank
    video_hblank_o    <= '0';
@@ -191,7 +202,7 @@ begin
    video_ce_ovl_o    <= '1';    
            
    -- emulate the SRAM that ZX-Uno needs via 512kB of BRAM
-   pseudo_sram : entity work.zxbram
+   i_pseudo_sram : entity work.zxbram
    generic map
    (
       ADDR_WIDTH  => 19, -- 2^19 bytes = 512kB
