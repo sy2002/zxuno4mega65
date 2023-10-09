@@ -210,7 +210,7 @@ constant RESET_COUNTER     : natural := 100;
 constant OPTM_PAUSE        : boolean := false;
 
 -- show the welcome screen in general
-constant WELCOME_ACTIVE    : boolean := true;
+constant WELCOME_ACTIVE    : boolean := false;
 
 -- shall the welcome screen also be shown after the core is reset?
 -- (only relevant if WELCOME_ACTIVE is true)
@@ -365,11 +365,11 @@ constant OPTM_ITEMS        : string :=
    " Back to main menu\n"   &
 
    "\n"                     &
-   " Drives\n"              &
+   " XYZ\n"                 &
    "\n"                     &
-   " Drive X:%s\n"          &
-   " Drive Y:%s\n"          &
-   " Drive Z:%s\n"          &
+   " ABC\n"                 &
+   " DEF\n"                 &
+   " GHI\n"                 &
    "\n"                     &
    " Another Headline\n"    &
    "\n"                     &
@@ -386,12 +386,10 @@ constant OPTM_ITEMS        : string :=
 -- single-select items and therefore also drive mount items need to have unique identifiers
 constant OPTM_G_Demo_A     : integer := 1;
 constant OPTM_G_HDMI       : integer := 2;
-constant OPTM_G_Drive_X    : integer := 3;
-constant OPTM_G_Drive_Y    : integer := 4;
-constant OPTM_G_Drive_Z    : integer := 5;
-constant OPTM_G_CRT        : integer := 6;
-constant OPTM_G_Zoom       : integer := 7;
-constant OPTM_G_Audio      : integer := 8;
+constant OPTM_G_DELIT      : integer := 3;
+constant OPTM_G_CRT        : integer := 4;
+constant OPTM_G_Zoom       : integer := 5;
+constant OPTM_G_Audio      : integer := 6;
 
 -- !!! DO NOT TOUCH !!!
 type OPTM_GTYPE is array (0 to OPTM_SIZE - 1) of integer range 0 to 2**OPTM_GTC- 1;
@@ -421,11 +419,12 @@ constant OPTM_GROUPS       : OPTM_GTYPE := ( OPTM_G_TEXT + OPTM_G_HEADLINE,     
                                                                                        -- HDMI submenu block: END
 
                                              OPTM_G_LINE,                              -- Line
-                                             OPTM_G_TEXT + OPTM_G_HEADLINE,            -- Headline "Drives"
+                                             OPTM_G_TEXT + OPTM_G_HEADLINE,
                                              OPTM_G_LINE,                              -- Line
-                                             OPTM_G_Drive_X + OPTM_G_MOUNT_DRV,        -- Drive X
-                                             OPTM_G_Drive_Y + OPTM_G_MOUNT_DRV,        -- Drive Y
-                                             OPTM_G_Drive_Z + OPTM_G_MOUNT_DRV,        -- Drive Z
+                                             OPTM_G_DELIT,
+                                             OPTM_G_DELIT,
+                                             OPTM_G_DELIT,                                             
+
                                              OPTM_G_LINE,                              -- Line
                                              OPTM_G_TEXT + OPTM_G_HEADLINE,            -- Headline "Another Headline"
                                              OPTM_G_LINE,                              -- Line

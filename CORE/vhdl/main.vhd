@@ -92,6 +92,7 @@ signal vga_green_int    : std_logic_vector(5 downto 0);
 signal vga_blue_int     : std_logic_vector(5 downto 0);
 signal vga_hs_int       : std_logic;
 signal vga_vs_int       : std_logic;
+signal vga_clk_en_int   : std_logic;
 
 signal dummy_zero       : std_logic;
 signal dummy_one        : std_logic;
@@ -118,6 +119,7 @@ begin
       b                    => vga_blue_int,
       hsync                => vga_hs_int,
       vsync                => vga_vs_int,
+      vga_clk_en           => vga_clk_en_int,
       
       -- MEGA65 smart keyboard controller
       key_num              => kb_key_num_i,
@@ -185,7 +187,7 @@ begin
    --             it is displayed correctly on a "modern" analog input device: Make sure that video_ce_ovl_o
    --             transforms clk_main_o into the post-scandoubler pixelclock that is valid for the target
    --             resolution specified by VGA_DX/VGA_DY (globals.vhd)
-   video_ce_o        <= '1';
+   video_ce_o        <= vga_clk_en_int;
    video_ce_ovl_o    <= '1';    
            
    -- emulate the SRAM that ZX-Uno needs via 512kB of BRAM

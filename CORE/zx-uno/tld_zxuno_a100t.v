@@ -32,8 +32,9 @@ module tld_zxuno_a100t (
    output wire [5:0] b,
    output wire hsync,
    output wire vsync,
-   input wire ear,
+   output wire vga_clk_en,
    
+   input wire ear,
    output wire [8:0] audio_out_left,
    output wire [8:0] audio_out_right,   
    
@@ -91,6 +92,8 @@ module tld_zxuno_a100t (
    wire hsync_pal, vsync_pal, csync_pal;
    wire vga_enable, scanlines_enable;
    wire clk14en_tovga;
+   
+   assign vga_clk_en = clk14en_tovga;
    
    zxuno #(.FPGA_MODEL(3'b111), .MASTERCLK(28000000)) la_maquina (
     .sysclk(clk28mhz),
