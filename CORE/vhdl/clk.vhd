@@ -23,21 +23,15 @@ entity clk is
       sys_clk_i       : in  std_logic;   -- expects 100 MHz
       sys_rstn_i      : in  std_logic;   -- Asynchronous, asserted low
 
-      main_clk_o      : out std_logic;   -- main's @TODO 54 MHz main clock
+      main_clk_o      : out std_logic;   -- ZX-Uno's 28 MHz main clock
       main_rst_o      : out std_logic    -- main's reset, synchronized
    );
 end entity clk;
 
 architecture rtl of clk is
 
-signal clkfb1             : std_logic;
-signal clkfb1_mmcm        : std_logic;
-signal clkfb2             : std_logic;
-signal clkfb2_mmcm        : std_logic;
-signal clkfb3             : std_logic;
-signal clkfb3_mmcm        : std_logic;
+signal main_clk_fb_mmcm   : std_logic;
 signal main_clk_mmcm      : std_logic;
-
 signal main_locked        : std_logic;
 
 begin
@@ -65,10 +59,10 @@ begin
       )
       port map (
          -- Output clocks
-         CLKFBOUT            => clkfb3_mmcm,
+         CLKFBOUT            => main_clk_fb_mmcm,
          CLKOUT0             => main_clk_mmcm,
          -- Input clock control
-         CLKFBIN             => clkfb3,
+         CLKFBIN             => main_clk_fb_mmcm,
          CLKIN1              => sys_clk_i,
          CLKIN2              => '0',
          -- Tied to always select the primary input clock
@@ -97,12 +91,6 @@ begin
    -------------------------------------------------------------------------------------
    -- Output buffering
    -------------------------------------------------------------------------------------
-
-   clkfb3_bufg : BUFG
-      port map (
-         I => clkfb3_mmcm,
-         O => clkfb3
-      );
 
    main_clk_bufg : BUFG
       port map (
