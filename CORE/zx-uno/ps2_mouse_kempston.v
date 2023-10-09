@@ -91,6 +91,7 @@ module ps2_mouse_kempston (
         end
     end        
 
+/*
     ps2_port lectura_de_raton (
         .clk(clk),
         .enable_rcv(~ps2busy),
@@ -103,7 +104,7 @@ module ps2_mouse_kempston (
         .released(),
         .extended()
     );
-
+*/
     ps2mouse_to_kmouse traductor_raton (
         .clk(clk),
         .rst_n(rst_n),

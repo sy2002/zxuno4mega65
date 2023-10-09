@@ -299,9 +299,9 @@ begin
 
    -- Use On-Screen-Menu selections to configure several audio and video settings
    -- Video and audio mode control
-   qnice_dvi_o                <= '0';                                         -- 0=HDMI (with sound), 1=DVI (no sound)
-   qnice_scandoubler_o        <= '0';                                         -- no scandoubler
-   qnice_audio_mute_o         <= '0';                                         -- audio is not muted
+   qnice_dvi_o                <= '0';  -- 0=HDMI (with sound), 1=DVI (no sound)
+   qnice_scandoubler_o        <= '0';  -- ZX-Uno uses a built-in scandoubler and outputs PAL 576p @ 50 Hz
+   qnice_audio_mute_o         <= '0';  -- audio is not muted
    qnice_audio_filter_o       <= qnice_osm_control_i(C_MENU_IMPROVE_AUDIO);   -- 0 = raw audio, 1 = use filters from globals.vhd
    qnice_zoom_crop_o          <= qnice_osm_control_i(C_MENU_HDMI_ZOOM);       -- 0 = no zoom/crop
    

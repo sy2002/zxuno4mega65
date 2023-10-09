@@ -176,22 +176,20 @@ begin
    video_hs_o        <= not vga_hs_int;
    video_vs_o        <= not vga_vs_int;
    
+   video_hblank_o    <= '0';
+   video_vblank_o    <= '0';
+   
    i_blank_generator : entity work.blank_gen
    port map
    (
       clk_i          => clk_main_i,
       clk_en_i       => vga_clk_en_int,
-      hsync_i        => not vga_hs_int,
-      vsync_i        => not vga_vs_int,
-      hblank_o       => video_hblank_o,
-      vblank_o       => video_vblank_o    
+      hsync_i        => video_hs_o,
+      vsync_i        => video_vs_o,
+      hblank_o       => open,
+      vblank_o       => open    
    );
-   
-   -- @TODO: Use and adjust "blankinator" component from https://github.com/DremOSDeveloperTeam/AY-3-8500-MEGA65/blob/master/CORE/vhdl/main.vhd
-   -- For now, as we need to get this whole thing up and running again, VGA-only output does not need hblank/vblank
-   video_hblank_o    <= '0';
-   video_vblank_o    <= '0';
-    
+  
    -- video_ce_o: You need to make sure that video_ce_o divides clk_main_i such that it transforms clk_main_i
    --             into the pixelclock of the core (means: the core's native output resolution pre-scandoubler)
    -- video_ce_ovl_o: Clock enable for the OSM overlay and for sampling the core's (retro) output in a way that
@@ -199,7 +197,7 @@ begin
    --             transforms clk_main_o into the post-scandoubler pixelclock that is valid for the target
    --             resolution specified by VGA_DX/VGA_DY (globals.vhd)
    video_ce_o        <= vga_clk_en_int;
-   video_ce_ovl_o    <= '1';    
+   video_ce_ovl_o    <= vga_clk_en_int;    
            
    -- emulate the SRAM that ZX-Uno needs via 512kB of BRAM
    i_pseudo_sram : entity work.zxbram

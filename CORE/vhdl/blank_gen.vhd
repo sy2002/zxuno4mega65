@@ -32,7 +32,7 @@ end blank_gen;
 
 architecture beh of blank_gen is
 
-constant H_PIXELS      : integer := 720;
+constant H_PIXELS      : integer := 360;
 constant H_FRONT_PORCH : integer := 17;
 constant H_BACK_PORCH  : integer := 63;
 constant H_PULSE       : integer := 64;
