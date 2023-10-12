@@ -84,7 +84,8 @@ architecture synthesis of main is
 signal keyboard_n          : std_logic_vector(79 downto 0);
 
 signal psram_address    : std_logic_vector(20 downto 0);
-signal psram_data       : std_logic_vector(7 downto 0);
+signal psram_data_in    : std_logic_vector(7 downto 0);
+signal psram_data_out   : std_logic_vector(7 downto 0);
 signal psram_we_n       : std_logic;
 
 signal vga_red_int      : std_logic_vector(5 downto 0);
@@ -152,7 +153,8 @@ begin
             
       -- SRAM: we don't have SRAM, so connect to pseudo SRAM component
       sram_addr            => psram_address,
-      sram_data            => psram_data,
+      sram_data_in         => psram_data_in,
+      sram_data_out        => psram_data_out,
       sram_we_n            => psram_we_n,
       sram_ub              => open,
 
@@ -210,7 +212,8 @@ begin
    (
       clk         => clk_main_i,
       address     => psram_address(18 downto 0),
-      data        => psram_data,
+      data_in     => psram_data_out,
+      data_out    => psram_data_in,
       we_n        => psram_we_n
    );
   

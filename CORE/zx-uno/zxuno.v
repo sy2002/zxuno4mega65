@@ -63,7 +63,8 @@ module zxuno (
   
   // SRAM
   output wire [20:0] sram_addr,
-  inout wire [7:0] sram_data,
+  input wire [7:0] sram_data_in,
+  output wire [7:0] sram_data_out,
   output wire sram_we_n,
 
   // Flash SPI
@@ -556,7 +557,8 @@ module zxuno (
   
   // Interface con la SRAM
     .sram_addr(sram_addr),
-    .sram_data(sram_data),
+    .sram_data_in(sram_data_in),
+    .sram_data_out(sram_data_out),
     .sram_we_n(sram_we_n)
   );
 

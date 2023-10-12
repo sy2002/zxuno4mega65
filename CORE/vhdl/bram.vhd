@@ -23,7 +23,8 @@ generic (
 port (
    clk         : in std_logic;
    address     : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
-   data        : inout std_logic_vector(DATA_WIDTH - 1 downto 0);
+   data_in     : in std_logic_vector(DATA_WIDTH - 1 downto 0);
+   data_out    : out std_logic_vector(DATA_WIDTH - 1 downto 0);
    we_n        : in std_logic
 );
 end zxbram;
@@ -34,19 +35,17 @@ constant RAM_DEPTH : integer := 2**ADDR_WIDTH - 96 * 1024;
 type RAM is array (0 to RAM_DEPTH - 1) of std_logic_vector(DATA_WIDTH - 1 downto 0);
 
 signal   mem         : RAM;
-signal   data_out    : std_logic_vector (DATA_WIDTH - 1 downto 0);
 signal   address_int : integer;
   
 begin
 
-   data <= data_out when we_n = '1' else (others => 'Z');
    address_int <= to_integer(unsigned(address));
 
    mem_read_write : process(clk)
    begin
       if rising_edge(clk) then
          if we_n = '0' then
-            mem(address_int) <= data;
+            mem(address_int) <= data_in;
          end if;
          
          data_out <= mem(address_int);

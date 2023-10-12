@@ -71,7 +71,8 @@ module tld_zxuno_a100t (
    //output wire stdnb,
    
    output wire [20:0] sram_addr,
-   inout wire [7:0] sram_data,
+   input wire [7:0] sram_data_in,
+   output wire [7:0] sram_data_out,
    output wire sram_we_n,
    output wire sram_ub,
    
@@ -121,7 +122,8 @@ module tld_zxuno_a100t (
     .uart_rts(uart_rts),
 
     .sram_addr(sram_addr),
-    .sram_data(sram_data),
+    .sram_data_in(sram_data_in),
+    .sram_data_out(sram_data_out),
     .sram_we_n(sram_we_n),
     
     .flash_cs_n(flash_cs_n),

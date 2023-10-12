@@ -81,7 +81,8 @@ module new_memory (
 
    // Interface con la SRAM
    output wire [20:0] sram_addr,
-   inout wire [7:0] sram_data,
+   input wire [7:0] sram_data_in,
+   output wire [7:0] sram_data_out,
    output wire sram_we_n
    );
 
@@ -470,7 +471,8 @@ module new_memory (
       .write_data_pzx(write_data_pzx),
       
       .a(sram_addr),  // Interface con la SRAM real
-      .d(sram_data),
+      .din(sram_data_in),
+      .dout(sram_data_out),
       .we_n(sram_we_n)
       );
 
@@ -530,7 +532,8 @@ module sram_and_mirror (
     output wire [7:0] data_to_pzx,
     
     output wire [20:0] a,    // SRAM addr bus
-    inout wire [7:0] d,      // SRAM bidirectional data bus
+    input wire [7:0] din,    // SRAM bidirectional data bus
+    output wire [7:0] dout,  // SRAM bidirectional data bus
     output wire we_n         // SRAM WE enable
     );
     
@@ -568,16 +571,16 @@ module sram_and_mirror (
 `ifdef PZX_PLAYER_OPTION
     assign a =    (enable_pzx)? pzx_addr : a2;
     assign we_n = (enable_pzx)? ~write_data_pzx : we2_n & we2_n_dly;  // pulso de escritura ligeramente ensenchado
-    assign dout2 = (a2[20:16] == 5'b00001 && a2[14] == 1'b1)? data_from_bram : d;
-    assign data_to_pzx = d;
-    assign d = (we2_n_dly == 1'b0 && write_data_pzx == 1'b0)? din2 :  // dejo medio ciclo de reloj a Z antes de poner el dato
+    assign dout2 = (a2[20:16] == 5'b00001 && a2[14] == 1'b1)? data_from_bram : din;
+    assign data_to_pzx = din;
+    assign dout = (we2_n_dly == 1'b0 && write_data_pzx == 1'b0)? din2 :  // dejo medio ciclo de reloj a Z antes de poner el dato
                (enable_pzx == 1'b1 && write_data_pzx == 1'b1)? data_from_pzx :
-               8'hZZ;
+               din2;
 `else
     assign a = a2;
     assign we_n = we2_n & we2_n_dly;
-    assign dout2 = (a2[20:16] == 5'b00001 && a2[14] == 1'b1)? data_from_bram : d;
+    assign dout2 = (a2[20:16] == 5'b00001 && a2[14] == 1'b1)? data_from_bram : din;
     assign data_to_pzx = 8'h00;
-    assign d = (we2_n_dly == 1'b0)? din2 : 8'hZZ;
+    assign dout = (we2_n_dly == 1'b0)? din2 : din2;
 `endif               
 endmodule
