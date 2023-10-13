@@ -207,7 +207,7 @@ module new_memory (
    wire [2:0] banco_ram = bank128[2:0];
    wire [1:0] banco_extendido_512k = bank128[7:6];
    wire vrampage = bank128[3];
-   wire [1:0] banco_rom = {bankplus3[2] & (~disable_romsel1f), bank128[4] & (~disable_romsel7f)};
+(* MARK_DEBUG = "TRUE" *) wire [1:0] banco_rom = {bankplus3[2] & (~disable_romsel1f), bank128[4] & (~disable_romsel7f)};
    wire amstrad_allram_page_mode = bankplus3[0];
    wire [1:0] plus3_memory_arrangement = bankplus3[2:1];
    
@@ -249,7 +249,7 @@ module new_memory (
          ioreqbank = 1'b0;
    end
 
-   reg [20:0] addr_port2;
+(* MARK_DEBUG = "TRUE" *) reg [20:0] addr_port2;
 (* MARK_DEBUG = "TRUE" *) reg oe_memory_n;
 (* MARK_DEBUG = "TRUE" *) reg oe_bootrom_n;
    reg we2_n;
