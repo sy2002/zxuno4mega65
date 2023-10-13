@@ -260,6 +260,17 @@ architecture rtl of T80 is
 	signal XYbit_undoc          : std_logic;
 	signal DOR                  : std_logic_vector(127 downto 0);
 
+   attribute mark_debug : string;
+   attribute mark_debug of A       : signal is "true";
+   attribute mark_debug of DI      : signal is "true";
+   attribute mark_debug of DO      : signal is "true";
+   attribute mark_debug of PC      : signal is "true";
+   attribute mark_debug of DInst   : signal is "true";
+   attribute mark_debug of IR      : signal is "true";
+   attribute mark_debug of RESET_n : signal is "true";
+   attribute mark_debug of Write   : signal is "true";
+   attribute mark_debug of IORQ    : signal is "true";
+
 begin
 
 	REG <= IntE_FF2 & IntE_FF1 & IStatus & DOR & std_logic_vector(PC) & std_logic_vector(SP) & std_logic_vector(R) & I & Fp & Ap & F & ACC when Alternate = '0'

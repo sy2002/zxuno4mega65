@@ -30,10 +30,10 @@ module new_memory (
    input wire rst_n,
    
    // Interface con la CPU
-   input wire [15:0] a,
-   input wire [7:0] din,  // proveniente del bus de datos de salida de la CPU
-   output reg [7:0] dout, // hacia el bus de datos de entrada de la CPU
-   output reg oe,         // el dato es valido
+(* MARK_DEBUG = "TRUE" *) input wire [15:0] a,
+(* MARK_DEBUG = "TRUE" *) input wire [7:0] din,  // proveniente del bus de datos de salida de la CPU
+(* MARK_DEBUG = "TRUE" *) output reg [7:0] dout, // hacia el bus de datos de entrada de la CPU
+(* MARK_DEBUG = "TRUE" *) output reg oe,         // el dato es valido
    input wire mreq_n,
    input wire iorq_n,
    input wire rd_n,
@@ -42,7 +42,7 @@ module new_memory (
    input wire rfsh_n,
    input wire busak_n,
    output wire enable_nmi_n,
-   input wire page_configrom_active,
+(* MARK_DEBUG = "TRUE" *) input wire page_configrom_active,
 
    // Interface con la ULA
    input wire [13:0] vramaddr,
@@ -59,10 +59,10 @@ module new_memory (
    input wire [7:0] din_external,
 
    // Interface para registros ZXUNO
-   input wire [7:0] addr,
-   input wire ior,
-   input wire iow,
-   output wire in_boot_mode,
+(* MARK_DEBUG = "TRUE" *) input wire [7:0] addr,
+(* MARK_DEBUG = "TRUE" *) input wire ior,
+(* MARK_DEBUG = "TRUE" *) input wire iow,
+(* MARK_DEBUG = "TRUE" *) output wire in_boot_mode,
    
    // Interface con modulo de habilitacion de opciones
    input wire disable_7ffd,
@@ -88,7 +88,7 @@ module new_memory (
 
 `include "config.vh"
 
-   reg initial_boot_mode = 1'b1;
+(* MARK_DEBUG = "TRUE" *) reg initial_boot_mode = 1'b1;
    reg divmmc_is_enabled = 1'b0;
    reg divmmc_nmi_is_disabled = 1'b0;
    reg issue2_keyboard = 1'b0;
@@ -250,8 +250,8 @@ module new_memory (
    end
 
    reg [20:0] addr_port2;
-   reg oe_memory_n;
-   reg oe_bootrom_n;
+(* MARK_DEBUG = "TRUE" *) reg oe_memory_n;
+(* MARK_DEBUG = "TRUE" *) reg oe_bootrom_n;
    reg we2_n;
    reg ram_busy;
    assign enable_pzx = ~ram_busy;

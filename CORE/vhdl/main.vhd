@@ -101,6 +101,18 @@ signal dummy_one        : std_logic;
 signal uno_audio_left   : std_logic_vector(8 downto 0);
 signal uno_audio_right  : std_logic_vector(8 downto 0);
 
+attribute mark_debug : string;
+attribute mark_debug of psram_address  : signal is "true";
+attribute mark_debug of psram_data_out : signal is "true";
+attribute mark_debug of psram_data_in  : signal is "true";
+attribute mark_debug of psram_we_n     : signal is "true";
+attribute mark_debug of vga_red_int    : signal is "true";
+attribute mark_debug of vga_green_int  : signal is "true";
+attribute mark_debug of vga_blue_int   : signal is "true";
+attribute mark_debug of vga_hs_int     : signal is "true";
+attribute mark_debug of vga_vs_int     : signal is "true";
+attribute mark_debug of vga_clk_en_int : signal is "true";
+
 begin
    -- fixed inputs to the ZX Uno
    dummy_zero     <= '0';

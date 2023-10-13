@@ -26,25 +26,25 @@
 module flash_and_sd (
    input wire clk,         //
    input wire [15:0] a,    //
-   input wire iorq_n,      // Señales de control de E/S estándar
+(* MARK_DEBUG = "TRUE" *)   input wire iorq_n,      // Señales de control de E/S estándar
    input wire rd_n,        // para manejar los puertos ZXMMC y DIVMMC
    input wire wr_n,        //
    input wire [7:0] addr,  // numero de registro almacenado en puerto ZXUNOADDR. Este módulo atiende a $02 y $03
-   input wire ior,         // lectura a un registro ZXUNO
-   input wire iow,         // escritura a un registro ZXUNO
+(* MARK_DEBUG = "TRUE" *)   input wire ior,         // lectura a un registro ZXUNO
+(* MARK_DEBUG = "TRUE" *)   input wire iow,         // escritura a un registro ZXUNO
    input wire [7:0] din,   // del bus de datos de salida de la CPU
    output wire [7:0] dout, // al bus de datos de entrada de la CPU
-   output wire oe,         // el dato en dout es válido
-   output wire wait_n,     // pausa para la CPU. Mejora estabilidad
+(* MARK_DEBUG = "TRUE" *)   output wire oe,         // el dato en dout es válido
+(* MARK_DEBUG = "TRUE" *)   output wire wait_n,     // pausa para la CPU. Mejora estabilidad
    
-   input wire in_boot_mode,// Esta interfaz sólo es válida en modo boot
-   output wire flash_cs_n, //
+(* MARK_DEBUG = "TRUE" *)   input wire in_boot_mode,// Esta interfaz sólo es válida en modo boot
+(* MARK_DEBUG = "TRUE" *)   output wire flash_cs_n, //
    output wire flash_clk,  // Interface SPI con la Flash
    output wire flash_di,   //
    input wire flash_do,    //
    
    input wire disable_spisd,
-   output wire sd_cs_n,    //
+(* MARK_DEBUG = "TRUE" *)   output wire sd_cs_n,    //
    output wire sd_clk,     // Interface SPI con la SD/MMC
    output wire sd_mosi,    // 
    input wire sd_miso      //
