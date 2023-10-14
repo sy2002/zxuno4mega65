@@ -173,8 +173,8 @@ begin
    video_green_o     <= vga_green_int & "00";
    video_blue_o      <= vga_blue_int & "00";
    
-   video_hs_o        <= vga_hs_int;
-   video_vs_o        <= vga_vs_int;
+   video_hs_o        <= not vga_hs_int;
+   video_vs_o        <= not vga_vs_int;
    
    i_blank_generator : entity work.blank_gen
    port map
