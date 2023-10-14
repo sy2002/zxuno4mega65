@@ -34,12 +34,12 @@ architecture beh of blank_gen is
 
 constant H_PIXELS      : integer := 360;
 constant H_FRONT_PORCH : integer := 17;
-constant H_BACK_PORCH  : integer := 63;
+constant H_BACK_PORCH  : integer := 7;
 constant H_PULSE       : integer := 64;
 
 constant V_PIXELS      : integer := 576;
-constant V_FRONT_PORCH : integer := 5;
-constant V_BACK_PORCH  : integer := 39;
+constant V_FRONT_PORCH : integer := 4;
+constant V_BACK_PORCH  : integer := 40;
 constant V_PULSE       : integer := 5;
 
  signal h_counter      : integer range 0 to 1023 := 0;
