@@ -178,9 +178,6 @@ begin
    video_hs_o        <= not vga_hs_int;
    video_vs_o        <= not vga_vs_int;
    
-   video_hblank_o    <= '0';
-   video_vblank_o    <= '0';
-   
    i_blank_generator : entity work.blank_gen
    port map
    (
@@ -188,8 +185,8 @@ begin
       clk_en_i       => vga_clk_en_int,
       hsync_i        => video_hs_o,
       vsync_i        => video_vs_o,
-      hblank_o       => open,
-      vblank_o       => open    
+      hblank_o       => video_hblank_o,
+      vblank_o       => video_vblank_o    
    );
   
    -- video_ce_o: You need to make sure that video_ce_o divides clk_main_i such that it transforms clk_main_i

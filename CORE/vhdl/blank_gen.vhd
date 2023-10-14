@@ -34,18 +34,19 @@ architecture beh of blank_gen is
 
 constant H_PIXELS      : integer := 360;
 constant H_FRONT_PORCH : integer := 17;
-constant H_BACK_PORCH  : integer := 63;
+constant H_BACK_PORCH  : integer := 7;
 constant H_PULSE       : integer := 64;
 
 constant V_PIXELS      : integer := 576;
-constant V_FRONT_PORCH : integer := 5;
-constant V_BACK_PORCH  : integer := 39;
+constant V_FRONT_PORCH : integer := 4;
+constant V_BACK_PORCH  : integer := 40;
 constant V_PULSE       : integer := 5;
 
- signal h_counter : integer range 0 to 1023 := 0;
- signal v_counter : integer range 0 to 1023 := 0;
- signal prev_hsync: std_logic := '0';
- signal prev_vsync: std_logic := '0';
+ signal h_counter      : integer range 0 to 1023 := 0;
+ signal v_counter      : integer range 0 to 1023 := 0;
+ signal v_reset        : std_logic := '0';
+ signal prev_hsync     : std_logic := '0';
+ signal prev_vsync     : std_logic := '0';
 
 begin
     p_blank_generator : process(clk_i)
@@ -61,29 +62,35 @@ begin
                 h_counter <= 0;
                 
                -- Detect rising edge of VSync
-               if prev_vsync = '0' and vsync_i = '1' then
+               if v_reset = '1' then
+                   v_reset   <= '0';
                    v_counter <= 0;
                else
-                  v_counter <= v_counter + 1;
+                   v_counter <= v_counter + 1;
                end if;
             else
-                h_counter <= h_counter + 1;
+               h_counter <= h_counter + 1;
+            end if;
+
+            -- Detect rising edge of VSync
+            if prev_vsync = '0' and vsync_i = '1' then
+                v_reset <= '1';
             end if;
 
             -- Generate HBlank
-            if h_counter <=  H_BACK_PORCH + H_PULSE or
-               h_counter >=  H_BACK_PORCH + H_PULSE + H_PIXELS then
-                hblank_o <= '1';
+            if h_counter <   H_PULSE + H_BACK_PORCH or
+               h_counter >=  H_PULSE + H_BACK_PORCH + H_PIXELS then
+                  hblank_o <= '1';
             else
-                hblank_o <= '0';
+                  hblank_o <= '0';
             end if;
 
             -- Generate VBlank
-            if v_counter <= V_BACK_PORCH + V_PULSE or
-               v_counter >= V_BACK_PORCH + V_PULSE + V_PIXELS then
-                vblank_o <= '1';
+            if v_counter <  V_PULSE + V_BACK_PORCH or
+               v_counter >= V_PULSE + V_BACK_PORCH + V_PIXELS then
+                  vblank_o <= '1';
             else
-                vblank_o <= '0';
+                  vblank_o <= '0';
             end if;
          end if;
       end if;
