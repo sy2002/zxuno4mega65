@@ -32,22 +32,24 @@ end blank_gen;
 
 architecture beh of blank_gen is
 
+-- About these values: See comment "Video timings adjusted by sy2002 in October 2023"
+-- in zx-uno/vga_scandoubler.v
 constant H_PIXELS      : integer := 360;
-constant H_FRONT_PORCH : integer := 17;
-constant H_BACK_PORCH  : integer := 7;
-constant H_PULSE       : integer := 64;
+constant H_FRONT_PORCH : integer := 32;
+constant H_BACK_PORCH  : integer := 32;
+constant H_PULSE       : integer := 32;
 
 constant V_PIXELS      : integer := 576;
-constant V_FRONT_PORCH : integer := 4;
-constant V_BACK_PORCH  : integer := 40;
+constant V_FRONT_PORCH : integer := 5;
+constant V_BACK_PORCH  : integer := 39;
 constant V_PULSE       : integer := 5;
 
- signal h_counter      : integer range 0 to 1023 := 0;
- signal v_counter      : integer range 0 to 1023 := 0;
- signal v_reset        : std_logic := '0';
- signal prev_hsync     : std_logic := '0';
- signal prev_vsync     : std_logic := '0';
-
+signal h_counter       : integer range 0 to 1023 := 0;
+signal v_counter       : integer range 0 to 1023 := 0;
+signal v_reset         : std_logic := '0';
+signal prev_hsync      : std_logic := '0';
+signal prev_vsync      : std_logic := '0';
+ 
 begin
     p_blank_generator : process(clk_i)
     begin

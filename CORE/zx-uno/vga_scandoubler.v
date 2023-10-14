@@ -41,22 +41,44 @@ module vga_scandoubler (
   output reg hsync,
   output reg vsync
   );
- 
-  parameter [31:0] CLKVIDEO = 12000;
- 
-  // http://www.epanorama.net/faq/vga2rgb/calc.html
-  // SVGA 800x600
-  // HSYNC = 3.36us  VSYNC = 114.32us
+
+  /* Video timings adjusted by sy2002 in October 2023
   
-  parameter [63:0] HSYNC_COUNT = (CLKVIDEO * 3360 * 2)/1000000;
-  parameter [63:0] VSYNC_COUNT = (CLKVIDEO * 114320 * 2)/1000000;
+     Pre-scandoubler:
+        Distance between two HSync: 912 pixel-clock cycles
+        HPulse width: 64
+        
+     Post-scandoubler: PAL 576p
+        912/2=456 pixels=360+32+32+32
+         360 HPixels
+         32 HPulse
+         32/32 horizontal Front/back porch
+        PAL=625 lines=576+5+5+39
+         576 VPixels
+         5 VPulse
+         5/39
+         
+     Using this calculator:
+     http://www.epanorama.net/faq/vga2rgb/calc.html
+     
+     Leads to:
+        2.29 us horizontal sync pulse length
+        162.86 us vertical sync pulse length
+        30.7 kHz horizontal sync frequency
+        49.12 Hz vertical sync frequency
+  */       
+  
+  parameter [31:0] CLKVIDEO = 14000;
+    
+  parameter [63:0] HSYNC_COUNT = (CLKVIDEO * 2290   * 2)/1000000;
+  parameter [63:0] VSYNC_COUNT = (CLKVIDEO * 162860 * 2)/1000000;
  
   reg [10:0] addrvideo = 11'd0, addrvga = 11'b00000000000;
   reg [9:0] totalhor = 10'd0;
 
   wire [2:0] rout, gout, bout;
-  // Memoria de doble puerto que guarda la información de dos scans
-  // Cada scan puede ser de hasta 1024 puntos, incluidos aquí los
+  // Memoria de doble puerto que guarda la informaciï¿½n de dos scans
+  // Cada scan puede ser de hasta 1024 puntos, incluidos aquï¿½ los
   // puntos en negro que se pintan durante el HBlank
 
   vgascanline_dport memscan (
@@ -80,7 +102,7 @@ module vga_scandoubler (
   
   // Voy alternativamente escribiendo en una mitad o en otra del scan buffer
   // Cambio de mitad cada vez que encuentro un pulso de sincronismo horizontal
-  // En "totalhor" mido el número de ciclos de reloj que hay en un scan
+  // En "totalhor" mido el nï¿½mero de ciclos de reloj que hay en un scan
   reg hsync_ext_n_prev = 1'b1;
   always @(posedge clk) begin
     if (clk14en == 1'b1) begin
@@ -96,11 +118,11 @@ module vga_scandoubler (
  
   // Recorro el scanbuffer al doble de velocidad, generando direcciones para
   // el scan buffer. Cada vez que el video original ha terminado una linea,
-  // cambio de mitad de buffer. Cuando termino de recorrerlo pero aún no
+  // cambio de mitad de buffer. Cuando termino de recorrerlo pero aï¿½n no
   // estoy en un retrazo horizontal, simplemente vuelvo a recorrer el scan buffer
   // desde el mismo origen
   // Cada vez que termino de recorrer el scan buffer basculo "scaneffect" que
-  // uso después para mostrar los píxeles a su brillo nominal, o con su brillo
+  // uso despuï¿½s para mostrar los pï¿½xeles a su brillo nominal, o con su brillo
   // reducido para un efecto chachi de scanlines en la VGA
  
   reg hsync_ext_n_prev2 = 1'b1;
@@ -118,7 +140,7 @@ module vga_scandoubler (
         addrvga <= addrvga + 11'd1;
   end
 
-  // El HSYNC de la VGA está bajo sólo durante HSYNC_COUNT ciclos a partir del comienzo
+  // El HSYNC de la VGA estï¿½ bajo sï¿½lo durante HSYNC_COUNT ciclos a partir del comienzo
   // del barrido de un scanline
   reg hsync_vga, vsync_vga;
     
@@ -129,8 +151,8 @@ module vga_scandoubler (
        hsync_vga = 1'b1;
   end
  
-  // El VSYNC de la VGA está bajo sólo durante VSYNC_COUNT ciclos a partir del flanco de
-  // bajada de la señal de sincronismo vertical original
+  // El VSYNC de la VGA estï¿½ bajo sï¿½lo durante VSYNC_COUNT ciclos a partir del flanco de
+  // bajada de la seï¿½al de sincronismo vertical original
   reg [15:0] cntvsync = 16'hFFFF;
   initial vsync_vga = 1'b1;
   always @(posedge clk) begin
