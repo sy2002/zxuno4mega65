@@ -1,16 +1,10 @@
---------------------------------------------------------------------------------------
--- ZX-Uno port for MEGA65
+----------------------------------------------------------------------------------
+-- MiSTer2MEGA65 Framework
 --
--- Generate HBlank and VBlank from HSync and VSync. Assumes ZX-Uno's very specific
--- PAL 576 @ 50 Hz output signal, i.e. the constants for front porch, back porch and
--- pulse are fine tunes to the ZX-Uno.
+-- HBlank and VBlank generator
 --
--- Expects positive polarity for the inputs and outputs positive polarity.
---
--- The machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
--- MEGA65 port done by sy2002 in 2020 & 2023 and licensed under GPL v3
---------------------------------------------------------------------------------------
-
+-- MiSTer2MEGA65 done by sy2002 and MJoergen in 2023 and licensed under GPL v3
+----------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -20,11 +14,31 @@ library work;
 use work.video_modes_pkg.all;
 
 entity blank_gen is
+   generic (
+      H_PIXELS        : integer;
+      H_FRONT_PORCH   : integer;
+      H_BACK_PORCH    : integer;
+      H_PULSE         : integer;
+      V_PIXELS        : integer;
+      V_FRONT_PORCH   : integer;
+      V_BACK_PORCH    : integer;
+      V_PULSE         : integer      
+   );
    port (
       clk_i           : in std_logic;
       clk_en_i        : in std_logic;
+      
+      red_i           : in std_logic_vector(7 downto 0);
+      green_i         : in std_logic_vector(7 downto 0);
+      blue_i          : in std_logic_vector(7 downto 0);
       hsync_i         : in std_logic;
       vsync_i         : in std_logic;
+      
+      red_o           : out std_logic_vector(7 downto 0);
+      green_o         : out std_logic_vector(7 downto 0);
+      blue_o          : out std_logic_vector(7 downto 0);
+      hsync_o         : out std_logic;      
+      vsync_o         : out std_logic;      
       hblank_o        : out std_logic;
       vblank_o        : out std_logic
    );
@@ -32,17 +46,16 @@ end blank_gen;
 
 architecture beh of blank_gen is
 
--- About these values: See comment "Video timings adjusted by sy2002 in October 2023"
--- in zx-uno/vga_scandoubler.v
-constant H_PIXELS      : integer := 360;
-constant H_FRONT_PORCH : integer := 32;
-constant H_BACK_PORCH  : integer := 32;
-constant H_PULSE       : integer := 32;
+type stage_t is record
+   red         : std_logic_vector(7 downto 0);
+   green       : std_logic_vector(7 downto 0);
+   blue        : std_logic_vector(7 downto 0);
+   hsync       : std_logic;
+   vsync       : std_logic;
+end record stage_t;
 
-constant V_PIXELS      : integer := 576;
-constant V_FRONT_PORCH : integer := 5;
-constant V_BACK_PORCH  : integer := 39;
-constant V_PULSE       : integer := 5;
+signal stage1          : stage_t;
+signal stage2          : stage_t;
 
 signal h_counter       : integer range 0 to 1023 := 0;
 signal v_counter       : integer range 0 to 1023 := 0;
@@ -51,18 +64,33 @@ signal prev_hsync      : std_logic := '0';
 signal prev_vsync      : std_logic := '0';
  
 begin
-    p_blank_generator : process(clk_i)
-    begin
-        if rising_edge(clk_i) then
+
+   red_o    <= stage2.red;
+   green_o  <= stage2.green;
+   blue_o   <= stage2.blue;
+   hsync_o  <= stage2.hsync;
+   vsync_o  <= stage2.vsync;
+
+   p_blank_generator : process(clk_i)
+   begin
+      if rising_edge(clk_i) then
          if clk_en_i = '1' then
 
-            prev_hsync <= hsync_i;
-            prev_vsync <= vsync_i;
-         
+            -- delay RGBHV by two clock cycles to compensate for the
+            -- latency of the HBlank/VBlank generation
+            stage1.red     <= red_i;
+            stage1.green   <= green_i;
+            stage1.blue    <= blue_i;
+            stage1.hsync   <= hsync_i;
+            stage1.vsync   <= vsync_i;
+            stage2         <= stage1;
+
             -- Detect rising edge of HSync
+            prev_hsync <= hsync_i;
+            prev_vsync <= vsync_i;            
             if prev_hsync = '0' and hsync_i = '1' then
-                h_counter <= 0;
-                
+               h_counter <= 0;
+
                -- Detect rising edge of VSync
                if v_reset = '1' then
                    v_reset   <= '0';
@@ -87,7 +115,7 @@ begin
                   hblank_o <= '0';
             end if;
 
-            -- Generate VBlank
+               -- Generate VBlank
             if v_counter <  V_PULSE + V_BACK_PORCH or
                v_counter >= V_PULSE + V_BACK_PORCH + V_PIXELS then
                   vblank_o <= '1';
@@ -96,6 +124,6 @@ begin
             end if;
          end if;
       end if;
-    end process;
-
+   end process;
+   
 end beh;

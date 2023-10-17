@@ -170,25 +170,46 @@ begin
       flash_miso           => dummy_zero      
    );
    
-   -- The ZX-Uno only outputs 18-bits-per-pixel color info, we need to transform to 24bpp
-   video_red_o       <= vga_red_int & "00";
-   video_green_o     <= vga_green_int & "00";
-   video_blue_o      <= vga_blue_int & "00";
-   
-   video_hs_o        <= not vga_hs_int;
-   video_vs_o        <= not vga_vs_int;
-   
+   -- The ZX-Uno scandoubler regenerates the rather quirky original ZX Spectrum resolution
+   -- into something more useable, but it does not output HBlank and VBlank (both of them
+   -- are needed by the M2M framework).
+   -- See comment "Video timings adjusted by sy2002 in October 2023" in "zx-uno/vga_scandoubler.v"
+   -- to learn more about the generics used for i_blank_generator 
    i_blank_generator : entity work.blank_gen
+   generic map
+   (
+      H_PIXELS       => 360,
+      H_FRONT_PORCH  => 32,
+      H_BACK_PORCH   => 32,
+      H_PULSE        => 32,
+      V_PIXELS       => 576,
+      V_FRONT_PORCH  => 5,
+      V_BACK_PORCH   => 39,
+      V_PULSE        => 5
+   )
    port map
    (
       clk_i          => clk_main_i,
       clk_en_i       => vga_clk_en_int,
-      hsync_i        => video_hs_o,
-      vsync_i        => video_vs_o,
+   
+      -- The ZX-Uno only outputs 18-bits-per-pixel color info, we need to transform to 24bpp         
+      red_i          => vga_red_int   & vga_red_int(1 downto 0),
+      green_i        => vga_green_int & vga_green_int(1 downto 0),
+      blue_i         => vga_blue_int  & vga_blue_int(1 downto 0),
+      
+      -- The ZX-Uno core outputs negative polarity, M2M expects positive polarity
+      hsync_i        => not vga_hs_int,
+      vsync_i        => not vga_vs_int,
+      
+      red_o          => video_red_o,
+      green_o        => video_green_o,
+      blue_o         => video_blue_o,
+      hsync_o        => video_hs_o,      
+      vsync_o        => video_vs_o,
       hblank_o       => video_hblank_o,
-      vblank_o       => video_vblank_o    
+      vblank_o       => video_vblank_o
    );
-  
+
    -- video_ce_o: You need to make sure that video_ce_o divides clk_main_i such that it transforms clk_main_i
    --             into the pixelclock of the core (means: the core's native output resolution pre-scandoubler)
    -- video_ce_ovl_o: Clock enable for the OSM overlay and for sampling the core's (retro) output in a way that
@@ -196,7 +217,7 @@ begin
    --             transforms clk_main_o into the post-scandoubler pixelclock that is valid for the target
    --             resolution specified by VGA_DX/VGA_DY (globals.vhd)
    video_ce_o        <= vga_clk_en_int;
-   video_ce_ovl_o    <= vga_clk_en_int;    
+   video_ce_ovl_o    <= '1';    
            
    -- emulate the SRAM that ZX-Uno needs via 512kB of BRAM
    i_pseudo_sram : entity work.zxbram

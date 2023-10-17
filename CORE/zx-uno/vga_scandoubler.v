@@ -52,11 +52,11 @@ module vga_scandoubler (
         912/2=456 pixels=360+32+32+32
          360 HPixels
          32 HPulse
-         32/32 horizontal Front/back porch
+         32/32 horizontal front/back porch
         PAL=625 lines=576+5+5+39
          576 VPixels
          5 VPulse
-         5/39
+         5/39 vertical front/back porch
          
      Using this calculator:
      http://www.epanorama.net/faq/vga2rgb/calc.html
