@@ -98,8 +98,8 @@ signal vga_clk_en_int   : std_logic;
 signal dummy_zero       : std_logic;
 signal dummy_one        : std_logic;
 
-signal uno_audio_left   : std_logic_vector(8 downto 0);
-signal uno_audio_right  : std_logic_vector(8 downto 0);
+signal uno_audio_left   : std_logic_vector(10 downto 0);
+signal uno_audio_right  : std_logic_vector(10 downto 0);
 
 begin
    -- fixed inputs to the ZX Uno
@@ -235,10 +235,9 @@ begin
       we_n        => psram_we_n
    );
   
-  -- @TODO Currently it is rather unclear what kind of audio the ZX Uno creates
-  -- Double-check and if necessary do conversions
-   audio_left_o   <= signed(uno_audio_left  & "0000000");
-   audio_right_o  <= signed(uno_audio_right & "0000000");
+   -- ZX Uno outputs signed 11-bit: Convert to signed 16-bit
+   audio_left_o   <= signed(uno_audio_left  & uno_audio_left(10 downto 6));
+   audio_right_o  <= signed(uno_audio_right & uno_audio_right(10 downto 6));
 
 end architecture synthesis;
 

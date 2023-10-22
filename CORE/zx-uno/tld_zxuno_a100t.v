@@ -35,8 +35,10 @@ module tld_zxuno_a100t (
    output wire vga_clk_en,
    
    input wire ear,
-   output wire [8:0] audio_out_left,
-   output wire [8:0] audio_out_right,   
+   
+   // modified by sy2002 to output a signed 11-bit signal as M2M expects a 16-bit signed signal
+   output wire [10:0] audio_out_left,
+   output wire [10:0] audio_out_right,   
    
    //M2M keyboard interface
    input wire [6:0] key_num,

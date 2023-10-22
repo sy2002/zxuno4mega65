@@ -105,8 +105,9 @@ module panner_and_mixer (
   input wire [15:0] midi_right,
  
   // --- OUTPUTs ---
-  output wire [8:0] output_left,
-  output wire [8:0] output_right
+  // modified by sy2002 to output a signed 11-bit signal as M2M expects a 16-bit signed signal
+  output wire [10:0] output_left,
+  output wire [10:0] output_right
   );
 
 `include "config.vh"
@@ -200,8 +201,8 @@ module panner_and_mixer (
     right <= mixright[10:2];
   end
 
-  assign output_left = left;
-  assign output_right = right;
+  assign output_left  = mixleft;
+  assign output_right = mixright;
 
 //   // DACs
 //	dac audio_dac_left (

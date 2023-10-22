@@ -1,45 +1,59 @@
-Version 1.0.0 - June 21, 2023
+Version 1.0 - MONTH, DAY, 2023
+==============================
+
+This version introduces HDMI support (audio and video) to the core and it
+allows you to use both SD card slots, while the slot on the back side of the
+MEGA65 takes precedence over the bottom slot in case two cards are inserted.
+
+Other than that, is feature-wise identical to Version 0.8, but it no longer
+supports the older R2 MEGA65 prototypes (if you have an R2, you can still use
+Version 0.8).
+
+This core is compatible with the R3 (DevKits) and R3A versions of the
+MEGA65. If you received your MEGA65 before November 2023, you very likely
+have an R3 or R3A model, making this core suitable for your device.
+
+Version 0.8 - January 2, 2021
 =============================
 
-Commodore 64 for MEGA65 version 5 is based on this version 1.0.0 of the MiSTer2MEGA65 framework.
+Version 0.8 is stable and feature rich. Thanks to ESXDOS and SD card support,
+loading software is easy. You can play a ton of classic ZX Spectrum games with
+it, including AY-3-8910 sound. Also most demos and application programs are
+working. And you can program in 48k BASIC.
 
-Version 0.9.1 - January 28, 2023
-================================
+* This core supports the MEGA65 **R2** and **R3/R3A**.
+* It uses **VGA** for video output and the **3.5mm audio jack** 
+  for audio output. No HDMI.
+* Insert the SD card that you will prepare below into the **internal** SD card
+  slot of the MEGA65 (the one in the bottom tray):
+  This is currently the only SD card slot, that this core supports.
 
-Works with more HDMI monitors, frame grabbers, HDMI switches, etc.
+### Getting Started
 
-MiSTer2MEGA65 was not compliant to section 4.2.7 of the HDMI specification
-version 1.4b: It did not assert the +5V power signal. Now it does assert the
-+5 power signal via the FPGA pin `ct_hpd`.
+The ZX-Uno is not for the faint at heart, so make sure that you go to the
+[ZX-Uno for MEGA65 Wiki](https://github.com/sy2002/zxuno4mega65/wiki/Getting-Started)
+and work through all steps of the tutorial.
+ 
+### Here is a list, what works:
 
-Version 0.9.0 - January 9, 2023
-===============================
+* The ZX-Uno core runs flawlessly (CPU, ULA incl. ULAplus, RAM, ROM, ...)
+* 48k BASIC
+* VGA output
+* Audio via the 3.5mm analog audio jack
+* Keyboard using a convenient mapping
+* Joysticks
+* Ability to emulate a joystick via cursor keys. By default, a Sinclair
+  joystick is emulated.
+* SD-Cards via ESXDOS, but only via the **internal** SD card slot
 
-After being in development since April 5, 2021 while being in a constant
-"alpha state" with continuous changes and refactorings, Version 0.9.0 is the
-**first stable version of the MiSTer2MEGA65 (M2M) framework**.
+### Not working yet:
 
-The first production quality core that is based on M2M is the
-[Commodore 64 for MEGA65](https://github.com/MJoergen/C64MEGA65/tree/M2M-V0.9).
-Additionally there is a work-in-progress
-[Apple II core](https://github.com/lydon42/Apple-II_MEGA65/tree/progress)
-based on M2M. The main reason why we are currently using "Version 0.9"
-(0.9.x) for the M2M framework instead of "Version 1.0" is that there is not
-enough documentation available, yet. If you have a look at the
-[MiSTer2MEGA65 Wiki](https://github.com/sy2002/MiSTer2MEGA65/wiki)
-then you will notice, that there are many gaps in the documentation.
-
-This should not discourage you from using the MiSTer2MEGA65 framework right
-now to port MiSTer cores and other cores to the MEGA65. You can use the
-source code of the
-[Commodore 64 for MEGA65](https://github.com/MJoergen/C64MEGA65/tree/M2M-V0.9)
-as your "user's manual" and "reference handbook" for the M2M framework;
-additionally to the existing
-[Wiki pages](https://github.com/sy2002/MiSTer2MEGA65/wiki).
-For being able to actually use the C64 core's source code as your
-documentation of how to use the M2M framework, we added a tag called
-`M2M-V0.9` to the GitHub repository of the
-[Commodore 64 for MEGA65](https://github.com/MJoergen/C64MEGA65/tree/M2M-V0.9).
-The tag is necessary, because Version 4 of the C64 core was based on an
-earlier version of the M2M framwork and only from the tag `M2M-V0.9` on the
-C64 core is aligned with Version 0.9 of M2M.
+* HDMI
+* Mouse
+* External SD-Card slot of MEGA65
+* Attaching a real tape player via EAR
+* MIDI
+* UART
+* PZX Player
+* PENTAGON 512k Support
+* Expansion port

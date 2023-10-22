@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------------------
 -- MiSTer2MEGA65 Framework
 --
--- Configuration data for the Shell
+-- ZX-Uno for MEGA65: Configuration data for the Shell
 --
 -- MiSTer2MEGA65 done by sy2002 and MJoergen in 2023 and licensed under GPL v3
 ----------------------------------------------------------------------------------
@@ -35,16 +35,20 @@ constant CHR_LINE_5  : string := CHR_LINE_1 & CHR_LINE_1 & CHR_LINE_1 & CHR_LINE
 constant CHR_LINE_10 : string := CHR_LINE_5 & CHR_LINE_5;
 constant CHR_LINE_50 : string := CHR_LINE_10 & CHR_LINE_10 & CHR_LINE_10 & CHR_LINE_10 & CHR_LINE_10;
 
+-- Quote character
+constant CHR_QUOTE   : character := character'val(34);
+
 --------------------------------------------------------------------------------------------------------------------
 -- Welcome and Help Screens (Selectors 0x1000 .. 0x1FFF)
 --------------------------------------------------------------------------------------------------------------------
 
--- define the amount of WHS array elements: between 1 and 16
+-- define the amount of WHS array elements: between 2 and 16
+-- ZX-Uno: record zero is always for the welcome screen, we do not use a welcome screen 
 constant WHS_RECORDS   : natural := 2;
 
 -- define the maximum amount of pages per WHS array element: between 1 and 256
 -- (this is necessary because Vivado does not support unconstrained arrays in a record)
-constant WHS_MAX_PAGES : natural := 3;
+constant WHS_MAX_PAGES : natural := 2; -- ZX-Uno: Minimum is 2, otherwise Vivado does not recognize the type
 
  -- !!! DO NOT TOUCH !!!
 constant SEL_WHS           : std_logic_vector(15 downto 0) := x"1000";
@@ -74,108 +78,68 @@ type WHS_RECORD_ARRAY_TYPE is array (0 to WHS_RECORDS - 1) of WHS_RECORD_TYPE;
 -- Within a selector's address range, address 0 is the beginning of the string itself, while address 0xFFF of the 4k
 -- window contains the amount of pages, so each zero-terminated string can be up to 4095 bytes = 4094 characters long.
 
-constant SCR_WELCOME : string :=
+-- ZX-Uno core: Removed the string for the "Welcome Screen", because we are not using a welcome screen
 
-   "Name of the Demo Core Version 1.0\n" &
-   "MiSTer port done by Demo Author in 2022\n\n" &
+-- ZX-Uno core: Help menu consists of only one page of help
+constant HELP : string :=
 
-   -- We are not insisting. But it would be nice if you gave us credit for MiSTer2MEGA65 by leaving these lines in
-   "Powered by MiSTer2MEGA65 Version [WIP],\n" &
-   "done by sy2002 and MJoergen in 2022\n" &
+   "\n ZX-Uno for MEGA65 Version 1.0\n\n" &
 
-   "\n\nEdit config.vhd to modify welcome screen.\n\n" &
-   "You can for example show the keyboard map.\n" &
-   "Look at this example for the Demo core:\n\n\n" &
+   " Ported in 2021, 2023 by sy2002 & MJoergen\n" &
+   " Powered by MiSTer2MEGA65\n\n" &
 
-   "    Key                Demo core\n" &
-   "    " & CHR_LINE_10 & CHR_LINE_10 & CHR_LINE_10 & CHR_LINE_1 & CHR_LINE_1 & "\n" &
-   "    Left Cursor        Paddle left\n" &
-   "    Right Cursor       Paddle right\n" &
-   "    Space              Start game\n" &
-   "    Help               Options menu\n\n\n" &
+   " You need to walk through the " & CHR_QUOTE & "Getting\n" &
+   " Started" & CHR_QUOTE & " Tutorial that you find here:\n" &
+   " https://github.com/sy2002/zxuno4mega65\n" &
+   " (Scrolling down shows link to tutorial.)\n\n" &
 
-   "\n\n    Press Space to continue.\n\n\n";
-
-constant HELP_1 : string :=
-
-   "\n Demo Core for MEGA65 Version 1\n\n" &
-
-   " MiSTer port 2022 by YOU\n" &
-   " Powered by MiSTer2MEGA65\n\n\n" &
-
-   " Lorem ipsum dolor sit amet, consetetur\n" &
-   " sadipscing elitr, sed diam nonumy eirmod\n" &
-   " Mpor invidunt ut labore et dolore magna\n" &
-   " aliquyam erat, sed diam voluptua. At vero\n" &
-   " eos et accusam et justo duo.\n\n" &
-
-   " Dolores et ea rebum. Stet clita kasd gube\n" &
-   " gren, no sea takimata sanctus est Lorem ip\n" &
-   " Sed diam nonumy eirmod tempor invidunt ut\n" &
-   " labore et dolore magna aliquyam era\n\n" &
-
-   " Cursor right to learn more.       (1 of 3)\n" &
-   " Press Space to close the help screen.";
-
-constant HELP_2 : string :=
-
-   "\n Demo Core for MEGA65 Version 1\n\n" &
-
-   " XYZ ABCDEFGH:\n\n" &
-
-   " 1. ABCD EFGH\n" &
-   " 2. IJK LM NOPQ RSTUVWXYZ\n" &
-   " 3. 10 20 30 40 50\n\n" &
-
-   " a) Dolores et ea rebum\n" &
-   " b) Takimata sanctus est\n" &
-   " c) Tempor Invidunt ut\n" &
-   " d) Sed Diam Nonumy eirmod te\n" &
-   " e) Awesome\n\n" &
-
-   " Ut wisi enim ad minim veniam, quis nostru\n" &
-   " exerci tation ullamcorper suscipit lobor\n" &
-   " tis nisl ut aliquip ex ea commodo.\n\n" &
-
-   " Crsr left: Prev  Crsr right: Next (2 of 3)\n" &
-   " Press Space to close the help screen.";
-
-constant HELP_3 : string :=
-
-   "\n Help Screens\n\n" &
-
-   " You can have 255 screens per help topic.\n\n" &
-
-   " 15 topics overall.\n" &
-   " 1 menu item per topic.\n\n\n\n" &
-
-   " Cursor left to go back.           (3 of 3)\n" &
+   " Make sure that your SD card is FAT32\n" &
+   " formatted and is not larger than 32 GB!\n\n" &
+   
+   " ESC           Start file browser\n\n" &
+   " Caps Lock ON  Cursor keys and Space are\n" &
+   "               emulating a Sinclair P1\n" &
+   "               joystick aka Interface 2\n\n" &
+   
+   " Caps Lock OFF Cursor keys and Space are\n" &
+   "               behaving normally\n\n" &
+   
+   " Joystick in port #1 or #2 acts as\n" &
+   " Sinclair P1 (Zx " & CHR_QUOTE & "right" & CHR_QUOTE & " joy. port). Read\n" &
+   " Wiki article " & CHR_QUOTE & "Joysticks" & CHR_QUOTE & " for details.\n\n" &
+   
+   " Sinclair ZX Spectrum 128 is the default\n" & 
+   " in which the ZX-Uno core starts. Read the\n" &
+   " " & CHR_QUOTE & "Gaming" & CHR_QUOTE &" Wiki article to learn how the\n" &
+   " 48k mode fixes some crashing games.\n\n" &
+   
    " Press Space to close the help screen.";
 
 -- Concatenate all your Welcome and Help screens into one large string, so that during synthesis one large string ROM can be build.
-constant WHS_DATA : string := SCR_WELCOME & HELP_1 & HELP_2 & HELP_3;
+constant WHS_DATA : string := HELP;
 
 -- The WHS array needs the start address of each page. As a best practice: Just define some constants, that you can name for example
 -- just like you named the string constants and then add _START. Use the 'length attribute of VHDL to add up all previous strings
 -- so that the Synthesis tool can calculate the start addresses: Your first string starts at zero, your next one at the address which
 -- is equal to the length of the first one, your next one at the address which is equal to the sum of the previous ones, and so on.
-constant SCR_WELCOME_START : natural := 0;
-constant HELP_1_START      : natural := SCR_WELCOME'length;
-constant HELP_2_START      : natural := HELP_1_START + HELP_1'length;
-constant HELP_3_START      : natural := HELP_2_START + HELP_2'length;
+constant HELP_START        : natural := 0;
 
 -- Fill the WHS array with page start addresses and the length of each page.
 -- Make sure that array element 0 is always your Welcome page. If you don't use a welcome page, fill everything with zeros.
+--
+-- ZX-Uno:
+-- Minimum page size is two otherwise Vivado does not recognize the WHS_INDEX_TYPE, so even though
+-- we use only one page here, we need to add these trailing zeros
 constant WHS : WHS_RECORD_ARRAY_TYPE := (
    --- Welcome Screen
-   (page_count    => 1,
-    page_start    => (SCR_WELCOME_START,  0, 0),
-    page_length   => (SCR_WELCOME'length, 0, 0)),
+   (page_count    => 0,
+    page_start    => (0, 0),
+    page_length   => (0, 0)),
 
    --- Help pages
-   (page_count    => 3,
-    page_start    => (HELP_1_START,  HELP_2_START,  HELP_3_START),
-    page_length   => (HELP_1'length, HELP_2'length, HELP_3'length))
+   (page_count    => 1,
+    page_start    => (HELP_START,  0),
+    page_length   => (HELP'length, 0))
 );
 
 --------------------------------------------------------------------------------------------------------------------
@@ -188,8 +152,8 @@ constant SEL_CFG_FILE      : std_logic_vector(15 downto 0) := x"0101";
 
 -- START YOUR CONFIGURATION BELOW THIS LINE
 
-constant DIR_START         : string := "/m2m";
-constant CFG_FILE          : string := "/m2m/m2mcfg";
+constant DIR_START         : string := "/zx";
+constant CFG_FILE          : string := "/zx/zxunocfg";
 
 --------------------------------------------------------------------------------------------------------------------
 -- General configuration settings: Reset, Pause, OSD behavior, Ascal, etc. (Selector 0x0110)
@@ -268,7 +232,7 @@ constant SEL_CORENAME      : std_logic_vector(15 downto 0) := x"0200";
 
 -- Currently this is only used in the debug console. Use the welcome screen and the
 -- help system to display the name and version of your core to the end user
-constant CORENAME          : string := "M2M DEMO CORE V1.0";
+constant CORENAME          : string := "ZX-Uno for MEGA65 Version 1.0";
 
 --------------------------------------------------------------------------------------------------------------------
 -- "Help" menu / Options menu  (Selectors 0x0300 .. 0x0312): DO NOT TOUCH
@@ -329,7 +293,7 @@ constant OPTM_S_SAVING     : string := "<Saving>";          -- the internal writ
 --             Do use a lower case \n. If you forget one of them or if you use upper case, you will run into undefined behavior.
 --          2. Start each line that contains an actual menu item (multi- or single-select) with a Space character,
 --             otherwise you will experience visual glitches.
-constant OPTM_SIZE         : natural := 32;  -- amount of items including empty lines:
+constant OPTM_SIZE         : natural := 13;  -- amount of items including empty lines:
                                              -- needs to be equal to the number of lines in OPTM_ITEMS and amount of items in OPTM_GROUPS
                                              -- IMPORTANT: If SAVE_SETTINGS is true and OPTM_SIZE changes: Make sure to re-generate and
                                              -- and re-distribute the config file. You can make a new one using M2M/tools/make_config.sh
@@ -337,20 +301,13 @@ constant OPTM_SIZE         : natural := 32;  -- amount of items including empty 
 -- Net size of the Options menu on the screen in characters (excluding the frame, which is hardcoded to two characters)
 -- Without submenus: Use OPTM_SIZE as height, otherwise count how large the actually visible main menu is.
 constant OPTM_DX           : natural := 23;
-constant OPTM_DY           : natural := 24;
+constant OPTM_DY           : natural := 8;
 
 constant OPTM_ITEMS        : string :=
 
-   " Demo Headline A\n"     &
+   " ZX-Uno for MEGA65\n"   &
    "\n"                     &
-   " Item A.1\n"            &
-   " Item A.2\n"            &
-   " Item A.3\n"            &
-   " Item A.4\n"            &
-   "\n"                     &
-   " Demo Headline B\n"     &
-   "\n"                     &
-
+ 
    " HDMI: %s\n"            &    -- HDMI submenu
    " HDMI Settings\n"       &
    "\n"                     &
@@ -361,32 +318,11 @@ constant OPTM_ITEMS        : string :=
    "\n"                     &
    " Back to main menu\n"   &
 
-   "\n"                     &
-   " XYZ\n"                 &
-   "\n"                     &
-   " ABC\n"                 &
-   " DEF\n"                 &
-   " GHI\n"                 &
-   "\n"                     &
-   " Another Headline\n"    &
-   "\n"                     &
-   " HDMI: CRT emulation\n" &
-   " HDMI: Zoom-in\n"       &
-   " Audio improvements\n"  &
-   "\n"                     &
+   " About & Help\n"        &
    " Close Menu\n";
 
--- define your own constants here and choose meaningful names
--- make sure that your first group uses the value 1 (0 means "no menu item", such as text and line),
--- and be aware that you can only have a maximum of 254 groups (255 means "Close Menu");
--- also make sure that your group numbers are monotonic increasing (e.g. 1, 2, 3, 4, ...)
--- single-select items and therefore also drive mount items need to have unique identifiers
-constant OPTM_G_Demo_A     : integer := 1;
-constant OPTM_G_HDMI       : integer := 2;
-constant OPTM_G_DELIT      : integer := 3;
-constant OPTM_G_CRT        : integer := 4;
-constant OPTM_G_Zoom       : integer := 5;
-constant OPTM_G_Audio      : integer := 6;
+constant OPTM_G_HDMI          : integer := 1;
+constant OPTM_G_ABOUT_HELP    : integer := 2;
 
 -- !!! DO NOT TOUCH !!!
 type OPTM_GTYPE is array (0 to OPTM_SIZE - 1) of integer range 0 to 2**OPTM_GTC- 1;
@@ -394,42 +330,22 @@ type OPTM_GTYPE is array (0 to OPTM_SIZE - 1) of integer range 0 to 2**OPTM_GTC-
 -- define your menu groups: which menu items are belonging together to form a group?
 -- where are separator lines? which items should be selected by default?
 -- make sure that you have exactly the same amount of entries here than in OPTM_ITEMS and defined by OPTM_SIZE
-constant OPTM_GROUPS       : OPTM_GTYPE := ( OPTM_G_TEXT + OPTM_G_HEADLINE,            -- Headline "Demo Headline A"
-                                             OPTM_G_LINE,                              -- Line
-                                             OPTM_G_Demo_A + OPTM_G_START,             -- Item A.1, cursor start position
-                                             OPTM_G_Demo_A + OPTM_G_STDSEL,            -- Item A.2, selected by default
-                                             OPTM_G_Demo_A,                            -- Item A.3
-                                             OPTM_G_Demo_A,                            -- Item A.4
-                                             OPTM_G_LINE,                              -- Line
-                                             OPTM_G_TEXT + OPTM_G_HEADLINE,            -- Headline "Demo Headline B"
-                                             OPTM_G_LINE,                              -- Line
+constant OPTM_GROUPS       : OPTM_GTYPE := ( OPTM_G_TEXT + OPTM_G_HEADLINE,                        -- ZX-Uno for MEGA65 headline
+                                             OPTM_G_LINE,                                          -- Line
 
-                                             OPTM_G_SUBMENU,                           -- HDMI submenu block: START: "HDMI: %s"
-                                             OPTM_G_TEXT + OPTM_G_HEADLINE,            -- Headline "HDMI Settings"
-                                             OPTM_G_LINE,                              -- Line
-                                             OPTM_G_HDMI + OPTM_G_STDSEL,              -- 720p 50 Hz 16:9, selected by default
-                                             OPTM_G_HDMI,                              -- 720p 60 Hz 16:9
-                                             OPTM_G_HDMI,                              -- 576p 50 Hz 4:3
-                                             OPTM_G_HDMI,                              -- 576p 50 Hz 5:4
-                                             OPTM_G_LINE,                              -- open
-                                             OPTM_G_CLOSE + OPTM_G_SUBMENU,            -- Close submenu / back to main menu
-                                                                                       -- HDMI submenu block: END
+                                             OPTM_G_SUBMENU + OPTM_G_START,                        -- HDMI submenu block: START: "HDMI: %s"
+                                             OPTM_G_TEXT + OPTM_G_HEADLINE,                        -- Headline "HDMI Settings"
+                                             OPTM_G_LINE,                                          -- Line
+                                             OPTM_G_HDMI,                                          -- 720p 50 Hz 16:9, selected by default
+                                             OPTM_G_HDMI,                                          -- 720p 60 Hz 16:9
+                                             OPTM_G_HDMI + OPTM_G_STDSEL,                          -- 576p 50 Hz 4:3
+                                             OPTM_G_HDMI,                                          -- 576p 50 Hz 5:4
+                                             OPTM_G_LINE,                                          -- Line
+                                             OPTM_G_CLOSE + OPTM_G_SUBMENU,                        -- Close submenu / back to main menu
+                                                                                                   -- HDMI submenu block: END
 
-                                             OPTM_G_LINE,                              -- Line
-                                             OPTM_G_TEXT + OPTM_G_HEADLINE,
-                                             OPTM_G_LINE,                              -- Line
-                                             OPTM_G_DELIT,
-                                             OPTM_G_DELIT,
-                                             OPTM_G_DELIT,                                             
-
-                                             OPTM_G_LINE,                              -- Line
-                                             OPTM_G_TEXT + OPTM_G_HEADLINE,            -- Headline "Another Headline"
-                                             OPTM_G_LINE,                              -- Line
-                                             OPTM_G_CRT     + OPTM_G_SINGLESEL,        -- On/Off toggle ("Single Select")
-                                             OPTM_G_Zoom    + OPTM_G_SINGLESEL,        -- On/Off toggle ("Single Select")
-                                             OPTM_G_Audio   + OPTM_G_SINGLESEL,        -- On/Off toggle ("Single Select")
-                                             OPTM_G_LINE,                              -- Line
-                                             OPTM_G_CLOSE                              -- Close Menu
+                                             OPTM_G_ABOUT_HELP    + OPTM_G_HELP,                   -- About & Help
+                                             OPTM_G_CLOSE                                          -- Close menu
                                            );
 
 --------------------------------------------------------------------------------------------------------------------

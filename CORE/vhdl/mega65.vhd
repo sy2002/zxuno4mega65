@@ -180,13 +180,10 @@ signal main_rst               : std_logic;
 ---------------------------------------------------------------------------------------------
 
 -- Democore menu items
-constant C_MENU_HDMI_16_9_50  : natural := 12;
-constant C_MENU_HDMI_16_9_60  : natural := 13;
-constant C_MENU_HDMI_4_3_50   : natural := 14;
-constant C_MENU_HDMI_5_4_50   : natural := 15;
-constant C_MENU_CRT_EMULATION : natural := 27;
-constant C_MENU_HDMI_ZOOM     : natural := 28;
-constant C_MENU_IMPROVE_AUDIO : natural := 29;
+constant C_MENU_HDMI_16_9_50  : natural := 5;
+constant C_MENU_HDMI_16_9_60  : natural := 6;
+constant C_MENU_HDMI_4_3_50   : natural := 7;
+constant C_MENU_HDMI_5_4_50   : natural := 8;
 
 -- QNICE clock domain
 signal qnice_demo_vd_data_o   : std_logic_vector(15 downto 0);
@@ -302,8 +299,8 @@ begin
    qnice_dvi_o                <= '0';  -- 0=HDMI (with sound), 1=DVI (no sound)
    qnice_scandoubler_o        <= '0';  -- ZX-Uno uses a built-in scandoubler and outputs PAL 576p @ 50 Hz
    qnice_audio_mute_o         <= '0';  -- audio is not muted
-   qnice_audio_filter_o       <= qnice_osm_control_i(C_MENU_IMPROVE_AUDIO);   -- 0 = raw audio, 1 = use filters from globals.vhd
-   qnice_zoom_crop_o          <= qnice_osm_control_i(C_MENU_HDMI_ZOOM);       -- 0 = no zoom/crop
+   qnice_audio_filter_o       <= '0';  -- 0 = raw audio, 1 = use filters from globals.vhd
+   qnice_zoom_crop_o          <= '0';  -- 0 = no zoom/crop
    
    -- These two signals are often used as a pair (i.e. both '1'), particularly when
    -- you want to run old analog cathode ray tube monitors or TVs (via SCART)
@@ -324,7 +321,7 @@ begin
 
    -- If polyphase is '1' then the ascal filter mode is ignored and polyphase filters are used instead
    -- @TODO: Right now, the filters are hardcoded in the M2M framework, we need to make them changeable inside m2m-rom.asm
-   qnice_ascal_polyphase_o    <= qnice_osm_control_i(C_MENU_CRT_EMULATION);
+   qnice_ascal_polyphase_o    <= '0';
 
    -- ascal triple-buffering
    -- @TODO: Right now, the M2M framework only supports OFF, so do not touch until the framework is upgraded
