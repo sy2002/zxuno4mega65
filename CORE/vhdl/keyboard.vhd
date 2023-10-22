@@ -62,13 +62,11 @@ signal key_shift_right     : std_logic;
 signal key_ctrl            : std_logic;
 signal key_mega            : std_logic;
 signal key_alt             : std_logic;
-
--- Special keys that are not mapped to and not used in context of the Spectrum's matrix
 signal key_esc             : std_logic;
-signal m65_capslock_n      : std_logic;
+signal key_capslock        : std_logic;
 
--- CAPS LOCK on: use the cursor keys as joystick
-signal cursor_as_joystick  : boolean;
+-- Capslock is used to switch the cursor keys and space between normal and joystick emulation
+signal cursor_as_joystick  : boolean := false;
 
 -- [ (MS + :) and ] (MS + ;) need a special treatment, because they are the only keys, that are
 -- utilizing the sequencer without the need of the ALT key to be pressed.
@@ -287,6 +285,7 @@ begin
    key_mega          <= not key_pressed_n(61);
    key_alt           <= not key_pressed_n(66);
    key_esc           <= not key_pressed_n(71);
+   key_capslock      <= not key_pressed_n(72);
 
    -- special handling for "[" and "]" on the MEGA65 keyboard (see comments above)
    key_seq           <= key_alt = '1' or (key_status_n = '0' and key_shift_left = '1' and (key_num = 45 or key_num = 50));
@@ -306,12 +305,12 @@ begin
    begin
       if rising_edge(clk) then
          --------------------------------------------------------------------------------------
-         -- Handle keys that are not part of the Spectrum's matrix
+         -- Handle CAPS LOCK and the joystick emulation
          --------------------------------------------------------------------------------------     
          
          -- if CAPS LOCK is on, then handle cursor keys and space as joystick
-         if m65_capslock_n = '0' and (key_num = joy_up   or key_num = joy_down  or 
-                                      key_num = joy_left or key_num = joy_right or key_num = joy_fire) then
+         if key_capslock = '1' and (key_num = joy_up   or key_num = joy_down  or 
+                                    key_num = joy_left or key_num = joy_right or key_num = joy_fire) then
             cursor_as_joystick := true;
             case key_num is
                when joy_right => joystick(0) <= not key_status_n;
@@ -324,7 +323,7 @@ begin
          else
             cursor_as_joystick := false;
          end if;
-         if m65_capslock_n = '1' then
+         if key_capslock = '0' then
             joystick <= "00000";
          end if;         
                         
