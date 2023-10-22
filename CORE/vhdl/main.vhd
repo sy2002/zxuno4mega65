@@ -193,9 +193,9 @@ begin
       clk_en_i       => vga_clk_en_int,
    
       -- The ZX-Uno only outputs 18-bits-per-pixel color info, we need to transform to 24bpp         
-      red_i          => vga_red_int   & vga_red_int(1 downto 0),
-      green_i        => vga_green_int & vga_green_int(1 downto 0),
-      blue_i         => vga_blue_int  & vga_blue_int(1 downto 0),
+      red_i          => vga_red_int   & vga_red_int(5 downto 4),
+      green_i        => vga_green_int & vga_green_int(5 downto 4),
+      blue_i         => vga_blue_int  & vga_blue_int(5 downto 4),
       
       -- The ZX-Uno core outputs negative polarity, M2M expects positive polarity
       hsync_i        => not vga_hs_int,
@@ -236,8 +236,10 @@ begin
    );
   
    -- ZX Uno outputs signed 11-bit: Convert to signed 16-bit
-   audio_left_o   <= signed(uno_audio_left  & uno_audio_left(10 downto 6));
-   audio_right_o  <= signed(uno_audio_right & uno_audio_right(10 downto 6));
+   -- Use the higher portion of the original to fill the lower bits but do not use the sign bit while doing so,
+   -- as this might add distortion and DC offset.
+   audio_left_o   <= signed(uno_audio_left  & uno_audio_left(9 downto 5));
+   audio_right_o  <= signed(uno_audio_right & uno_audio_right(9 downto 5));
 
 end architecture synthesis;
 
