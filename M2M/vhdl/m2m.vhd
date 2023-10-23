@@ -240,16 +240,19 @@ begin
       kb_io0                  => kb_io0,
       kb_io1                  => kb_io1,
       kb_io2                  => kb_io2,
-      SD_RESET                => open,          -- Bypass M2M's SD card handling: ZX-Uno handles it directly
+
+      -- Bypass M2M's SD card handling: ZX-Uno handles it directly
+      SD_RESET                => open,
       SD_CLK                  => open,
       SD_MOSI                 => open,
       SD_MISO                 => '0',
       SD_CD                   => '0',
-      SD2_RESET               => SD2_RESET,
-      SD2_CLK                 => SD2_CLK,
-      SD2_MOSI                => SD2_MOSI,
-      SD2_MISO                => SD2_MISO,
-      SD2_CD                  => SD2_CD,
+      SD2_RESET               => open,
+      SD2_CLK                 => open,
+      SD2_MOSI                => open,
+      SD2_MISO                => '0',
+      SD2_CD                  => '0',
+
       pwm_l                   => pwm_l,
       pwm_r                   => pwm_r,
       joy_1_up_n              => joy_1_up_n,
@@ -497,7 +500,14 @@ begin
          sd_int_clk_o          => SD_CLK,
          sd_int_mosi_o         => SD_MOSI,
          sd_int_miso_i         => SD_MISO,
-         sd_int_cd_i           => SD_CD
+         sd_int_cd_i           => SD_CD,
+            
+         -- SD Card (external/back)
+         sd_ext_reset_o        => SD2_RESET,
+         sd_ext_clk_o          => SD2_CLK,
+         sd_ext_mosi_o         => SD2_MOSI,
+         sd_ext_miso_i         => SD2_MISO,
+         sd_ext_cd_i           => SD2_CD
       ); -- CORE
 
 end architecture synthesis;

@@ -1,10 +1,17 @@
-## NAME-OF-YOUR-PROJECT for MEGA65 (NAME-OF-THE-GITHUB-REPO)
+## ZX-Uno for MEGA65 (zxuno4mega65)
 ##
 ## Signal mapping for CORE-R3
 ##
-## This machine is based on EXACT GITHUB REPO NAME OF THE MiSTer REPO
+## This machine is based on Miguel Angel Rodriguez Jodars ZX-Uno (Artix version)
 ## Powered by MiSTer2MEGA65
-## MEGA65 port done by YOURNAME in YEAR and licensed under GPL v3
+## MEGA65 port done by sy2002 & MJoergen in 2020/21 and 2023 and licensed under GPL v3
+
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+## CAUTION WHEN PORTING THIS TO THE NEW R4/R5 ENABLED M2M:
+## The ZX-Uno does the SD card handling by itself and therefore we are bypassing M2M's SD card handling.
+## This leads for example to us commenting out M2M placement constraints and replacing them by our own.
+## So we will need to do this in the M2M code, too, after porting this to the new M2M framework.
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ################################
 ## TIMING CONSTRAINTS
@@ -80,16 +87,16 @@ create_pblock pblock_m65driver
 add_cells_to_pblock pblock_m65driver [get_cells [list M2M/i_framework/i_m2m_keyb/m65driver]]
 resize_pblock pblock_m65driver -add {SLICE_X0Y225:SLICE_X7Y243}
 
-# Place SD card controller in the middle between the left and right FPGA boundary because the output ports are at the opposide edges
-create_pblock pblock_sdcard
-add_cells_to_pblock pblock_sdcard [get_cells [list M2M/i_framework/QNICE_SOC/sd_card]]
-resize_pblock pblock_sdcard -add {SLICE_X67Y178:SLICE_X98Y193}
+# Bypass M2M's SD card handling because the ZX-Uno core does this by itself
+## Place SD card controller in the middle between the left and right FPGA boundary because the output ports are at the opposide edges
+#create_pblock pblock_sdcard
+#add_cells_to_pblock pblock_sdcard [get_cells [list M2M/i_framework/QNICE_SOC/sd_card]]
+#resize_pblock pblock_sdcard -add {SLICE_X67Y178:SLICE_X98Y193}
 
 # Place phase-shifted VGA output registers near the actual output buffers
 create_pblock pblock_vga
 add_cells_to_pblock pblock_vga [get_cells [list M2M/i_framework/i_av_pipeline/i_analog_pipeline/VGA_OUT_PHASE_SHIFTED.*]]
 resize_pblock pblock_vga -add SLICE_X0Y75:SLICE_X5Y99
-
 
 ################################
 ## Pin to signal mapping

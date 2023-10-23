@@ -1,10 +1,11 @@
-----------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 -- MiSTer2MEGA65 Framework
 --
+-- ZX-Uno for MEGA65:
 -- MEGA65 main file that contains the whole machine
 --
--- MiSTer2MEGA65 done by sy2002 and MJoergen in 2022 and licensed under GPL v3
-----------------------------------------------------------------------------------
+-- MiSTer2MEGA65 done by sy2002 and MJoergen in 2022, 2023 and licensed under GPL v3
+-------------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -23,8 +24,8 @@ port (
    RESET_M2M_N             : in  std_logic;              -- Debounced system reset in system clock domain
 
    -- Share clock and reset with the framework
-   main_clk_o              : out std_logic;              -- CORE's 54 MHz clock
-   main_rst_o              : out std_logic;              -- CORE's reset, synchronized
+   main_clk_o              : out std_logic;              -- ZX-Uno's 28 MHz system clock
+   main_rst_o              : out std_logic;              -- ZX-Uno's reset, synchronized
 
    --------------------------------------------------------------------------------------------------------
    -- QNICE Clock Domain
@@ -154,54 +155,58 @@ port (
    sd_int_clk_o            : out std_logic;
    sd_int_mosi_o           : out std_logic;
    sd_int_miso_i           : in  std_logic;
-   sd_int_cd_i             : in  std_logic 
+   sd_int_cd_i             : in  std_logic;
+   
+   -- SD Card (external/back)
+   sd_ext_reset_o          : out std_logic;
+   sd_ext_clk_o            : out std_logic;
+   sd_ext_mosi_o           : out std_logic;
+   sd_ext_miso_i           : in  std_logic;
+   sd_ext_cd_i             : in  std_logic
 );
 end entity MEGA65_Core;
 
 architecture synthesis of MEGA65_Core is
 
 ---------------------------------------------------------------------------------------------
--- Clocks and active high reset signals for each clock domain
+-- main_clk (ZX-Uno's core's clock)
 ---------------------------------------------------------------------------------------------
 
 signal main_clk               : std_logic;               -- Core main clock
 signal main_rst               : std_logic;
 
----------------------------------------------------------------------------------------------
--- main_clk (MiSTer core's clock)
----------------------------------------------------------------------------------------------
+-- Bypass M2M's SD card handling because the ZX-Uno core does this by itself
+signal reset_from_sdmux       : std_logic;
+signal sd_active_reset        : std_logic;
+signal sd_active_clk          : std_logic;
+signal sd_active_mosi         : std_logic;
+signal sd_active_miso         : std_logic;
 
 ---------------------------------------------------------------------------------------------
 -- qnice_clk
 ---------------------------------------------------------------------------------------------
 
----------------------------------------------------------------------------------------------
--- Democore & example stuff: Delete before starting to port your own core
----------------------------------------------------------------------------------------------
-
--- Democore menu items
+-- OSM menu items
 constant C_MENU_HDMI_16_9_50  : natural := 5;
 constant C_MENU_HDMI_16_9_60  : natural := 6;
 constant C_MENU_HDMI_4_3_50   : natural := 7;
 constant C_MENU_HDMI_5_4_50   : natural := 8;
 
--- QNICE clock domain
-signal qnice_demo_vd_data_o   : std_logic_vector(15 downto 0);
-signal qnice_demo_vd_ce       : std_logic;
-signal qnice_demo_vd_we       : std_logic;
-
 begin
 
-   -- MMCME2_ADV clock generators:
-   --   @TODO YOURCORE:       54 MHz
+   ---------------------------------------------------------------------------------------------
+   -- main_clk: ZX-Uno's core clock running at 28 MHz
+   ---------------------------------------------------------------------------------------------
+   
    clk_gen : entity work.clk
       port map (
          sys_clk_i         => CLK,             -- expects 100 MHz
          sys_rstn_i        => RESET_M2M_N,     -- Asynchronous, asserted low
-         main_clk_o        => main_clk,        -- CORE's 54 MHz clock
-         main_rst_o        => main_rst         -- CORE's reset, synchronized
+         main_clk_o        => main_clk,        -- ZX-Uno's 28 MHz clock
+         main_rst_o        => main_rst         -- ZX-Uno's reset, synchronized
       ); -- clk_gen
 
+   -- Share core clock and video clock with M2M
    main_clk_o  <= main_clk;
    main_rst_o  <= main_rst;
    video_clk_o <= main_clk;
@@ -212,24 +217,26 @@ begin
    ---------------------------------------------------------------------------------------------
 
    -- MEGA65's power led: By default, it is on and glows green when the MEGA65 is powered on.
+   -- We switch it to blue when a long reset is detected and as long as the user keeps pressing the reset button
    main_power_led_o     <= '1';
-   main_power_led_col_o <= x"00FF00";  -- 24-bit RGB value for the led
+   main_power_led_col_o <= x"0000FF" when main_reset_m2m_i else x"00FF00";
 
-   -- main.vhd contains the actual MiSTer core
+   -- MEGA65's drive led: For the time being, we switch it OFF   
+   main_drive_led_o     <= '0';
+   main_drive_led_col_o <= x"00FF00";  -- 24-bit RGB value for the led
+
+   -- ZX-Uno core
    i_main : entity work.main
-      generic map (
-         G_VDNUM              => C_VDNUM
-      )
       port map (
          clk_main_i           => main_clk,
-         reset_soft_i         => main_reset_core_i,
+         reset_soft_i         => main_reset_core_i or reset_from_sdmux,
          reset_hard_i         => main_reset_m2m_i,
          pause_i              => main_pause_core_i,
 
          clk_main_speed_i     => CORE_CLK_SPEED,
 
-         -- Video output
-         -- This is PAL 720x576 @ 50 Hz (pixel clock 27 MHz), but synchronized to main_clk (54 MHz).
+         -- Video output: The ZX-Uno outputs a slightly odd PAL signal
+         -- See comment "Video timings adjusted by sy2002 in October 2023" in "zx-uno/vga_scandoubler.v"
          video_ce_o           => video_ce_o,
          video_ce_ovl_o       => video_ce_ovl_o,
          video_red_o          => video_red_o,
@@ -269,14 +276,41 @@ begin
          --------------------------------------------------------------------------------------------------------
          -- Bypass M2M's SD card handling because the ZX-Uno core does this by itself
          --------------------------------------------------------------------------------------------------------
-      
-         -- SD Card (internal/bottom)
-         sd_int_reset_o       => sd_int_reset_o,
-         sd_int_clk_o         => sd_int_clk_o,
-         sd_int_mosi_o        => sd_int_mosi_o,
-         sd_int_miso_i        => sd_int_miso_i,
-         sd_int_cd_i          => sd_int_cd_i            
+
+         sd_reset_o           => sd_active_reset,
+         sd_clk_o             => sd_active_clk,
+         sd_mosi_o            => sd_active_mosi,
+         sd_miso_i            => sd_active_miso
    ); -- i_main
+   
+   -- SD Card multiplexer: Back slot takes precedence, any change in SD card config leads to a reset
+   i_zxuno_sdmux : entity work.zxuno_sdmux
+      port map (
+         clk_i                => main_clk,
+         
+         -- See @TODO above: currently we need to reset the machine if the SD card configuration changes
+         reset_core_o         => reset_from_sdmux,
+              
+         -- interface to bottom tray's SD card
+         sd_tray_detect_n_i   => sd_int_cd_i,
+         sd_tray_reset_o      => sd_int_reset_o,
+         sd_tray_clk_o        => sd_int_clk_o,
+         sd_tray_mosi_o       => sd_int_mosi_o,
+         sd_tray_miso_i       => sd_int_miso_i,
+         
+         -- interface to the SD card in the back slot
+         sd_back_detect_n_i   => sd_ext_cd_i,
+         sd_back_reset_o      => sd_ext_reset_o,
+         sd_back_clk_o        => sd_ext_clk_o,
+         sd_back_mosi_o       => sd_ext_mosi_o,
+         sd_back_miso_i       => sd_ext_miso_i,
+         
+         -- interface to the ZX-Uno core
+         sd_active_reset_i    => sd_active_reset,
+         sd_active_clk_i      => sd_active_clk,
+         sd_active_mosi_i     => sd_active_mosi,
+         sd_active_miso_o     => sd_active_miso 
+      ); -- i_zxuno-sdmux
 
    ---------------------------------------------------------------------------------------------
    -- Audio and video settings (QNICE clock domain)
@@ -340,10 +374,6 @@ begin
       qnice_dev_data_o     <= x"EEEE";
       qnice_dev_wait_o     <= '0';
 
-      -- Demo core specific: Delete before starting to port your core
-      qnice_demo_vd_ce     <= '0';
-      qnice_demo_vd_we     <= '0';
-
       case qnice_dev_id_i is
 
          -- @TODO YOUR RAMs or ROMs (e.g. for cartridges) or other devices here
@@ -357,28 +387,7 @@ begin
    -- Dual Clocks
    ---------------------------------------------------------------------------------------------
 
-   -- Put your dual-clock devices such as RAMs and ROMs here
-   --
-   -- Use the M2M framework's official RAM/ROM: dualport_2clk_ram
-   -- and make sure that the you configure the port that works with QNICE as a falling edge
-   -- by setting G_FALLING_A or G_FALLING_B (depending on which port you use) to true.
-
-   ---------------------------------------------------------------------------------------
-   -- Virtual drive handler
-   --
-   -- Only added for demo-purposes at this place, so that we can demonstrate the
-   -- firmware's ability to browse files and folders. It is very likely, that the
-   -- virtual drive handler needs to be placed somewhere else, for example inside
-   -- main.vhd. We advise to delete this before starting to port a core and re-adding
-   -- it later (and at the right place), if and when needed.
-   ---------------------------------------------------------------------------------------
-
-   -- @TODO:
-   -- a) In case that this is handled in main.vhd, you need to add the appropriate ports to i_main
-   -- b) You might want to change the drive led's color (just like the C64 core does) as long as
-   --    the cache is dirty (i.e. as long as the write process is not finished, yet)
-   main_drive_led_o     <= '0';
-   main_drive_led_col_o <= x"00FF00";  -- 24-bit RGB value for the led
+   -- <no dual clocks used at this moment>
 
 end architecture synthesis;
 

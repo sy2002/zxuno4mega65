@@ -15,9 +15,6 @@ library work;
 use work.video_modes_pkg.all;
 
 entity main is
-   generic (
-      G_VDNUM                 : natural                     -- amount of virtual drives
-   );
    port (
       clk_main_i              : in  std_logic;
       reset_soft_i            : in  std_logic;
@@ -69,12 +66,10 @@ entity main is
       -- Bypass M2M's SD card handling because the ZX-Uno core does this by itself
       --------------------------------------------------------------------------------------------------------
    
-      -- SD Card (internal/bottom)
-      sd_int_reset_o          : out std_logic;
-      sd_int_clk_o            : out std_logic;
-      sd_int_mosi_o           : out std_logic;
-      sd_int_miso_i           : in  std_logic;
-      sd_int_cd_i             : in  std_logic       
+      sd_reset_o              : out std_logic;
+      sd_clk_o                : out std_logic;
+      sd_mosi_o               : out std_logic;
+      sd_miso_i               : in  std_logic    
    );
 end entity main;
 
@@ -159,10 +154,10 @@ begin
       sram_ub              => open,
 
       -- SD Card
-      sd_cs_n              => sd_int_reset_o,
-      sd_clk               => sd_int_clk_o,
-      sd_mosi              => sd_int_mosi_o,
-      sd_miso              => sd_int_miso_i,
+      sd_cs_n              => sd_reset_o,
+      sd_clk               => sd_clk_o,
+      sd_mosi              => sd_mosi_o,
+      sd_miso              => sd_miso_i,
            
       -- flash
       flash_cs_n           => open,
@@ -201,6 +196,7 @@ begin
       hsync_i        => not vga_hs_int,
       vsync_i        => not vga_vs_int,
       
+      -- Signals for the M2M framework
       red_o          => video_red_o,
       green_o        => video_green_o,
       blue_o         => video_blue_o,
