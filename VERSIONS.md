@@ -1,11 +1,11 @@
-Version 1.0 - MONTH, DAY, 2023
-==============================
+Version 1.0 - October, 24, 2023
+===============================
 
 This version introduces HDMI support (audio and video) to the core and it
 allows you to use both SD card slots, while the slot on the back side of the
 MEGA65 takes precedence over the bottom slot in case two cards are inserted.
 
-Other than that, is feature-wise identical to Version 0.8, but it no longer
+Other than that, it is feature-wise identical to Version 0.8, but it no longer
 supports the older R2 MEGA65 prototypes (if you have an R2, you can still use
 Version 0.8).
 
