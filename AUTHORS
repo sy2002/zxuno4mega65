@@ -1,9 +1,10 @@
 ZX-Uno @ MEGA65: ZX Spectrum Core aka zxuno4mega65
 
 done in 2020/21 by sy2002
+ported to the MiSTer2MEGA65 framework in 2023 by sy2002 & MJoergen
 
-www.sy2002.de
-github.com/sy2002
+sy2002:   github.com/sy2002   and www.sy2002.de
+MJoergen: github.com/MJoergen
 
 zxuno4mega65 is licensed under the terms of GNU/GPL v3, for more information please read the file LICENSE
 Parts of zxuno4mega65 are licensed under other Free-software licenses as described in the source code
@@ -14,22 +15,46 @@ ZX-Uno:
   done by Miguel Angel Rodriguez Jodars
   Original website: https://zxuno.speccy.org/index_e.shtml
 
-Other than Miguel's and my own work, zxuno4mega65 uses:
+Other than Miguel's and our own work, zxuno4mega65 uses:
 
   * T80(c) core: Z80 CPU based on Daniel Wallner's work, improved by MikeJ and Sorgelig
     https://opencores.org/projects/t80
   
-  * Various MEGA65 drivers taken from the MEGA65 VHDL source by Paul Gardner-Stephen
-    https://github.com/MEGA65/mega65-core
-  
   * ESXDOS: Firmware for the DivIDE/DivMMC interface by papaya dezign
     http://www.esxdos.org/
-
-  * SOXZ: MEGA65 specific ZX-Uno bootloader by Andrew Owen
 
   * Spectrum 48k rubber keyboard image by Andrew Owen, taken from the macOS version of the FUSE emulator
     http://fuse-emulator.sourceforge.net/
     
+  * MiSTer2MEGA65 by The MiSTer2MEGA65 Development Team
+    https://github.com/sy2002/MiSTer2MEGA65
+
+  * QNICE Co-Processor and System-on-a-Chip for file operations and on-screen-menu by The QNICE Development Team
+    https://github.com/sy2002/QNICE-FPGA
+
+  * Various MEGA65 drivers taken from the MEGA65 VHDL source by Paul Gardner-Stephen
+    https://github.com/MEGA65/mega65-core
+
+  * VGA Timing Generator, done by Scott Larson
+    https://www.digikey.com/eewiki/pages/viewpage.action?pageId=15925278
+
+  * VGA to HDMI converter IP core, done by Adam Barnes
+    https://github.com/amb5l/tyto_project
+
+  * AVALON SCALER used for scaling to 720p for HDMI, done by temlib.org
+    http://temlib.org/site/?page_id=10
+
+  * HyperRAM controller, done by MJoergen
+    https://mjoergen.github.io/HyperRAM/
+
   * Debouncer: I/O debouncing used for the joysticks, done by Scott Larson
     https://www.digikey.com/eewiki/pages/viewpage.action?pageId=4980758
-    
+
+  * Anikki-16x16 font, archived and provided by k80w
+    https://github.com/k80w/consolefonts
+
+  * PSF font to text file converter nafe-0.1 by Corvus Corax
+    https://sourceforge.net/projects/nafe/
+
+  * PSF font to C include file converter psftools-1.1.1 by John Elliott
+    https://www.seasip.info/Unix/PSF/
