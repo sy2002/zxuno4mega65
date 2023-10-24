@@ -44,6 +44,7 @@ through the tutorial.
 
 ### List of not, yet working features
 
+* On-Screen-Menu (aka "Help" menu or OSM) settings are not saved
 * Mouse
 * Attaching a real tape player via EAR
 * MIDI

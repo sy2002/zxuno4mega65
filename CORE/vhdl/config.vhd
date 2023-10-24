@@ -200,7 +200,15 @@ constant ASCAL_MODE        : natural := 0;   -- see ascal.vhd for the meaning of
 -- the length of OPTM_SIZE bytes. If the first byte of the file has the value 0xFF then it
 -- is considered as "default", i.e. the menu items specified by OPTM_G_STDSEL are selected.
 -- If the file does not exists, then settings are not saved and OPTM_G_STDSEL always denotes the standard settings.
-constant SAVE_SETTINGS     : boolean := true;
+--
+-- ZX-Uno: Since the ZX-Uno core is handling the SD card by itself and since therefore the SD card
+-- signals are not routed to the QNICE but directly to the ZX-Uno, we can accelerate the startup
+-- of the core by skipping the attempt to mount an SD card (including the waiting time workaround for
+-- general SD card stabilization).
+-- @TODO: In a later version of the ZX-Uno core and/or the M2M framework we should come up with
+-- a smarter solution that first provides the SD card signals to the QNICE and then when QNICE
+-- is done reading the settings "hands over" the SD card signals to the ZX-Uno
+constant SAVE_SETTINGS     : boolean := false;
 
 -- Delay in ms between the last write request to a virtual drive from the core and the start of the
 -- cache flushing (i.e. writing to the SD card). Since every new write from the core invalidates the cache,
