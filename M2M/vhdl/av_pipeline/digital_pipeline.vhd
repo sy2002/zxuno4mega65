@@ -265,7 +265,7 @@ begin
    -- Digital output (HDMI) - Video part
    ---------------------------------------------------------------------------------------------
 
-   reset_na <= not (video_rst_i or hdmi_rst_i or hr_rst_i);
+   reset_na <= not (video_rst_i or hr_rst_i);
 
    i_ascal : entity work.ascal
       generic map (

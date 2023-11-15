@@ -83,7 +83,7 @@ type WHS_RECORD_ARRAY_TYPE is array (0 to WHS_RECORDS - 1) of WHS_RECORD_TYPE;
 -- ZX-Uno core: Help menu consists of only one page of help
 constant HELP : string :=
 
-   "\n ZX-Uno for MEGA65 Version 1.0\n\n" &
+   "\n ZX-Uno for MEGA65 Version 1.1\n\n" &
 
    " Ported in 2021, 2023 by sy2002 & MJoergen\n" &
    " Powered by MiSTer2MEGA65\n\n" &
@@ -240,7 +240,7 @@ constant SEL_CORENAME      : std_logic_vector(15 downto 0) := x"0200";
 
 -- Currently this is only used in the debug console. Use the welcome screen and the
 -- help system to display the name and version of your core to the end user
-constant CORENAME          : string := "ZX-Uno for MEGA65 Version 1.0";
+constant CORENAME          : string := "ZX-Uno for MEGA65 Version 1.1";
 
 --------------------------------------------------------------------------------------------------------------------
 -- "Help" menu / Options menu  (Selectors 0x0300 .. 0x0312): DO NOT TOUCH

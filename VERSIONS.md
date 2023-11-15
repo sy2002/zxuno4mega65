@@ -1,5 +1,12 @@
-Version 1.0 - October, 24, 2023
+Version 1.1 - November 15, 2023
 ===============================
+
+Improved HDMI compatibility by fixing an edge case where nothing but vertical
+colored lines were shown on screen.
+(Fixed GitHub issue https://github.com/sy2002/zxuno4mega65/issues/17)
+
+Version 1.0 - October 24, 2023
+==============================
 
 This version introduces HDMI support (audio and video) to the core and it
 allows you to use both SD card slots, while the slot on the back side of the
