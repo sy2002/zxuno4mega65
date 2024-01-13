@@ -1,3 +1,9 @@
+Version 1.2 - MONTH DAY, 2024
+=============================
+
+The purpose of this release is to support the new 2024 batches
+of the MEGA65 (aka "R6").
+
 Version 1.1 - November 15, 2023
 ===============================
 
