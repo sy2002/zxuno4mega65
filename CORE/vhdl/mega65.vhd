@@ -215,7 +215,7 @@ port (
    cart_a_o                : out unsigned(15 downto 0);
    cart_data_oe_o          : out std_logic; -- 0 : tristate (i.e. input), 1 : output
    cart_d_i                : in  unsigned( 7 downto 0);
-   cart_d_o                : out unsigned( 7 downto 0)
+   cart_d_o                : out unsigned( 7 downto 0);
 
    --------------------------------------------------------------------------------------------------------
    -- Bypass M2M's SD card handling because the ZX-Uno core does this by itself
@@ -322,7 +322,6 @@ begin
    clk_gen : entity work.clk
    port map (
       sys_clk_i         => CLK,             -- expects 100 MHz
-      sys_rstn_i        => RESET_M2M_N,     -- Asynchronous, asserted low
       main_clk_o        => main_clk,        -- ZX-Uno's 28 MHz clock
       main_rst_o        => main_rst         -- ZX-Uno's reset, synchronized
    ); -- clk_gen
@@ -444,10 +443,7 @@ begin
    -- while in the 4:3 mode we are outputting a 5:4 image. This is kind of odd, but it seemed that our 4/3 aspect ratio
    -- adjusted image looks best on a 5:4 monitor and the other way round.
    -- Not sure if this will stay forever or if we will come up with a better naming convention.
-   qnice_video_mode_o <= C_VIDEO_SVGA_800_60   when qnice_osm_control_i(C_MENU_SVGA_800_60)    = '1' else
-                         C_VIDEO_HDMI_720_5994 when qnice_osm_control_i(C_MENU_HDMI_720_5994)  = '1' else
-                         C_VIDEO_HDMI_640_60   when qnice_osm_control_i(C_MENU_HDMI_640_60)    = '1' else
-                         C_VIDEO_HDMI_5_4_50   when qnice_osm_control_i(C_MENU_HDMI_5_4_50)    = '1' else
+   qnice_video_mode_o <= C_VIDEO_HDMI_5_4_50   when qnice_osm_control_i(C_MENU_HDMI_5_4_50)    = '1' else
                          C_VIDEO_HDMI_4_3_50   when qnice_osm_control_i(C_MENU_HDMI_4_3_50)    = '1' else
                          C_VIDEO_HDMI_16_9_60  when qnice_osm_control_i(C_MENU_HDMI_16_9_60)   = '1' else
                          C_VIDEO_HDMI_16_9_50;
