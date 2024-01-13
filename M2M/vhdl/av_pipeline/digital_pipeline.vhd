@@ -21,6 +21,7 @@ use xpm.vcomponents.all;
 entity digital_pipeline is
    generic (
       G_VIDEO_MODE_VECTOR    : video_modes_vector;   -- Desired video format of HDMI output.
+      G_AUDIO_CLOCK_RATE     : natural;
       G_VGA_DX               : natural;              -- Actual format of video from Core (in pixels).
       G_VGA_DY               : natural;
       G_FONT_FILE            : string;
@@ -39,7 +40,7 @@ entity digital_pipeline is
       video_vs_i               : in  std_logic;
       video_hblank_i           : in  std_logic;
       video_vblank_i           : in  std_logic;
-      audio_clk_i              : in  std_logic;  -- 30 MHz
+      audio_clk_i              : in  std_logic;  -- 12.288 MHz
       audio_rst_i              : in  std_logic;
       audio_left_i             : in  signed(15 downto 0); -- Signed PCM format
       audio_right_i            : in  signed(15 downto 0); -- Signed PCM format
@@ -55,7 +56,7 @@ entity digital_pipeline is
 
       -- Connect to QNICE and Video RAM
       hdmi_dvi_i               : in  std_logic;
-      hdmi_video_mode_i        : in  natural range 0 to 3;
+      hdmi_video_mode_i        : in  video_mode_type;
       hdmi_crop_mode_i         : in  std_logic;
       hdmi_osm_cfg_scaling_i   : in  natural range 0 to 8;
       hdmi_osm_cfg_enable_i    : in  std_logic;
@@ -175,7 +176,14 @@ begin
    sys_info_hdmi_o(47 downto 32) <=
       std_logic_vector(to_unsigned((G_VGA_DX/G_FONT_DX) * 256 + (G_VGA_DY/G_FONT_DY), 16));
 
-   hdmi_video_mode <= G_VIDEO_MODE_VECTOR(hdmi_video_mode_i);
+   hdmi_video_mode <= G_VIDEO_MODE_VECTOR(6) when hdmi_video_mode_i = C_VIDEO_SVGA_800_60   else
+                      G_VIDEO_MODE_VECTOR(5) when hdmi_video_mode_i = C_VIDEO_HDMI_720_5994 else
+                      G_VIDEO_MODE_VECTOR(4) when hdmi_video_mode_i = C_VIDEO_HDMI_640_60   else
+                      G_VIDEO_MODE_VECTOR(3) when hdmi_video_mode_i = C_VIDEO_HDMI_5_4_50   else
+                      G_VIDEO_MODE_VECTOR(2) when hdmi_video_mode_i = C_VIDEO_HDMI_4_3_50   else
+                      G_VIDEO_MODE_VECTOR(1) when hdmi_video_mode_i = C_VIDEO_HDMI_16_9_60  else
+                      G_VIDEO_MODE_VECTOR(0);                      -- C_VIDEO_HDMI_16_9_50
+
    hdmi_htotal     <= hdmi_video_mode.H_PIXELS + hdmi_video_mode.H_FP + hdmi_video_mode.H_PULSE + hdmi_video_mode.H_BP;
    hdmi_hsstart    <= hdmi_video_mode.H_PIXELS + hdmi_video_mode.H_FP;
    hdmi_hsend      <= hdmi_video_mode.H_PIXELS + hdmi_video_mode.H_FP + hdmi_video_mode.H_PULSE;
@@ -189,36 +197,51 @@ begin
    assert G_VIDEO_MODE_VECTOR(1).H_PIXELS >= G_VIDEO_MODE_VECTOR(1).V_PIXELS*4/3;
    assert G_VIDEO_MODE_VECTOR(2).H_PIXELS <= G_VIDEO_MODE_VECTOR(2).V_PIXELS*4/3;
    assert G_VIDEO_MODE_VECTOR(3).H_PIXELS <= G_VIDEO_MODE_VECTOR(3).V_PIXELS*4/3;
+   assert G_VIDEO_MODE_VECTOR(4).H_PIXELS <= G_VIDEO_MODE_VECTOR(4).V_PIXELS*4/3;
+   assert G_VIDEO_MODE_VECTOR(5).H_PIXELS <= G_VIDEO_MODE_VECTOR(5).V_PIXELS*4/3;
+   assert G_VIDEO_MODE_VECTOR(6).H_PIXELS <= G_VIDEO_MODE_VECTOR(6).V_PIXELS*4/3;
 
    -- In HDMI 4:3 mode, ignore crop (zoom-in).
    -- We are using constants here to avoid that large networks are synthesized.
    hdmi_hmin <= 0                                                                         when hdmi_crop_mode_i = '1' else
-                (G_VIDEO_MODE_VECTOR(0).H_PIXELS-G_VIDEO_MODE_VECTOR(0).V_PIXELS*4/3)/2   when hdmi_video_mode_i = 0 else
-                (G_VIDEO_MODE_VECTOR(1).H_PIXELS-G_VIDEO_MODE_VECTOR(1).V_PIXELS*4/3)/2   when hdmi_video_mode_i = 1 else
-                0                                                                         when hdmi_video_mode_i = 2 else
-                0                                                                         when hdmi_video_mode_i = 3 else
-                0;
+                (G_VIDEO_MODE_VECTOR(0).H_PIXELS-G_VIDEO_MODE_VECTOR(0).V_PIXELS*4/3)/2   when hdmi_video_mode_i = C_VIDEO_HDMI_16_9_50  else
+                (G_VIDEO_MODE_VECTOR(1).H_PIXELS-G_VIDEO_MODE_VECTOR(1).V_PIXELS*4/3)/2   when hdmi_video_mode_i = C_VIDEO_HDMI_16_9_60  else
+                0                                                                         when hdmi_video_mode_i = C_VIDEO_HDMI_4_3_50   else
+                0                                                                         when hdmi_video_mode_i = C_VIDEO_HDMI_5_4_50   else
+                0                                                                         when hdmi_video_mode_i = C_VIDEO_HDMI_640_60   else
+                0                                                                         when hdmi_video_mode_i = C_VIDEO_HDMI_720_5994 else
+                0                                                                         when hdmi_video_mode_i = C_VIDEO_SVGA_800_60   else
+                0; -- Not used
 
    hdmi_hmax <= hdmi_video_mode.H_PIXELS-1                                                when hdmi_crop_mode_i = '1' else
-                (G_VIDEO_MODE_VECTOR(0).H_PIXELS+G_VIDEO_MODE_VECTOR(0).V_PIXELS*4/3)/2-1 when hdmi_video_mode_i = 0 else
-                (G_VIDEO_MODE_VECTOR(1).H_PIXELS+G_VIDEO_MODE_VECTOR(1).V_PIXELS*4/3)/2-1 when hdmi_video_mode_i = 1 else
-                hdmi_video_mode.H_PIXELS-1                                                when hdmi_video_mode_i = 2 else
-                hdmi_video_mode.H_PIXELS-1                                                when hdmi_video_mode_i = 3 else
-                0;
+                (G_VIDEO_MODE_VECTOR(0).H_PIXELS+G_VIDEO_MODE_VECTOR(0).V_PIXELS*4/3)/2-1 when hdmi_video_mode_i = C_VIDEO_HDMI_16_9_50  else
+                (G_VIDEO_MODE_VECTOR(1).H_PIXELS+G_VIDEO_MODE_VECTOR(1).V_PIXELS*4/3)/2-1 when hdmi_video_mode_i = C_VIDEO_HDMI_16_9_60  else
+                hdmi_video_mode.H_PIXELS-1                                                when hdmi_video_mode_i = C_VIDEO_HDMI_4_3_50   else
+                hdmi_video_mode.H_PIXELS-1                                                when hdmi_video_mode_i = C_VIDEO_HDMI_5_4_50   else
+                hdmi_video_mode.H_PIXELS-1                                                when hdmi_video_mode_i = C_VIDEO_HDMI_640_60   else
+                hdmi_video_mode.H_PIXELS-1                                                when hdmi_video_mode_i = C_VIDEO_HDMI_720_5994 else
+                hdmi_video_mode.H_PIXELS-1                                                when hdmi_video_mode_i = C_VIDEO_SVGA_800_60   else
+                hdmi_video_mode.H_PIXELS-1; -- Not used
 
    hdmi_vmin <= 0                                                                         when hdmi_crop_mode_i = '1' else
-                0                                                                         when hdmi_video_mode_i = 0 else
-                0                                                                         when hdmi_video_mode_i = 1 else
-                0                                                                         when hdmi_video_mode_i = 2 else
-                (G_VIDEO_MODE_VECTOR(3).V_PIXELS-G_VIDEO_MODE_VECTOR(3).H_PIXELS*3/4)/2   when hdmi_video_mode_i = 3 else
-                0;
+                0                                                                         when hdmi_video_mode_i = C_VIDEO_HDMI_16_9_50  else
+                0                                                                         when hdmi_video_mode_i = C_VIDEO_HDMI_16_9_60  else
+                0                                                                         when hdmi_video_mode_i = C_VIDEO_HDMI_4_3_50   else
+                (G_VIDEO_MODE_VECTOR(3).V_PIXELS-G_VIDEO_MODE_VECTOR(3).H_PIXELS*3/4)/2   when hdmi_video_mode_i = C_VIDEO_HDMI_5_4_50   else
+                0                                                                         when hdmi_video_mode_i = C_VIDEO_HDMI_640_60   else
+                0                                                                         when hdmi_video_mode_i = C_VIDEO_HDMI_720_5994 else
+                0                                                                         when hdmi_video_mode_i = C_VIDEO_SVGA_800_60   else
+                0; -- Not used
 
    hdmi_vmax <= hdmi_video_mode.V_PIXELS-1                                                when hdmi_crop_mode_i = '1' else
-                hdmi_video_mode.V_PIXELS-1                                                when hdmi_video_mode_i = 0 else
-                hdmi_video_mode.V_PIXELS-1                                                when hdmi_video_mode_i = 1 else
-                hdmi_video_mode.V_PIXELS-1                                                when hdmi_video_mode_i = 2 else
-                (G_VIDEO_MODE_VECTOR(3).V_PIXELS+G_VIDEO_MODE_VECTOR(3).H_PIXELS*3/4)/2   when hdmi_video_mode_i = 3 else
-                hdmi_video_mode.V_PIXELS-1;
+                hdmi_video_mode.V_PIXELS-1                                                when hdmi_video_mode_i = C_VIDEO_HDMI_16_9_50  else
+                hdmi_video_mode.V_PIXELS-1                                                when hdmi_video_mode_i = C_VIDEO_HDMI_16_9_60  else
+                hdmi_video_mode.V_PIXELS-1                                                when hdmi_video_mode_i = C_VIDEO_HDMI_4_3_50   else
+                (G_VIDEO_MODE_VECTOR(3).V_PIXELS+G_VIDEO_MODE_VECTOR(3).H_PIXELS*3/4)/2   when hdmi_video_mode_i = C_VIDEO_HDMI_5_4_50   else
+                hdmi_video_mode.V_PIXELS-1                                                when hdmi_video_mode_i = C_VIDEO_HDMI_640_60   else
+                hdmi_video_mode.V_PIXELS-1                                                when hdmi_video_mode_i = C_VIDEO_HDMI_720_5994 else
+                hdmi_video_mode.V_PIXELS-1                                                when hdmi_video_mode_i = C_VIDEO_SVGA_800_60   else
+                hdmi_video_mode.V_PIXELS-1; -- Not used
 
    -- Deprecated. Will be removed in future release
    -- The purpose is to right-shift the position of the OSM
@@ -234,7 +257,7 @@ begin
    i_clk_synthetic_enable : entity work.clk_synthetic_enable
       port map (
          clk_i       => audio_clk_i,
-         src_speed_i => 30_000_000,
+         src_speed_i => G_AUDIO_CLOCK_RATE,
          dst_speed_i => HDMI_PCM_SAMPLING,
          enable_o    => audio_pcm_clken
       ); -- i_clk_synthetic_enable
@@ -289,7 +312,7 @@ begin
          IHRES     => 1024,         -- Maximum horizontal input resolution. (Also here no parameter for vertical.)
          N_DW      => C_AVM_DATA_SIZE,
          N_AW      => C_AVM_ADDRESS_SIZE,
-         N_BURST   => 256           -- 256 bytes per burst
+         N_BURST   => 128           -- 128 bytes per burst
       )
       port map (
          -- Input video

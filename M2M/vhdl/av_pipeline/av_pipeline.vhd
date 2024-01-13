@@ -22,7 +22,7 @@ use xpm.vcomponents.all;
 entity av_pipeline is
    generic (
       G_VIDEO_MODE_VECTOR     : video_modes_vector;   -- Desired video format of HDMI output.
-      G_AUDIO_CLOCK_RATE      : natural := 30_000_000;
+      G_AUDIO_CLOCK_RATE      : natural;
       G_VGA_DX                : natural;              -- Actual format of video from Core (in pixels).
       G_VGA_DY                : natural;
       G_FONT_FILE             : string;
@@ -42,7 +42,7 @@ entity av_pipeline is
       video_hs_i              : in  std_logic;
       video_hblank_i          : in  std_logic;
       video_vblank_i          : in  std_logic;
-      audio_clk_i             : in  std_logic; -- 30 MHz
+      audio_clk_i             : in  std_logic; -- 12.288 MHz
       audio_rst_i             : in  std_logic;
       audio_left_i            : in  std_logic_vector(15 downto 0);
       audio_right_i           : in  std_logic_vector(15 downto 0);
@@ -60,7 +60,7 @@ entity av_pipeline is
       qnice_zoom_crop_i       : in  std_logic;
       qnice_audio_filter_i    : in  std_logic;
       qnice_audio_mute_i      : in  std_logic;
-      qnice_video_mode_i      : in  std_logic_vector( 1 downto 0);
+      qnice_video_mode_i      : in  std_logic_vector( 3 downto 0);
       qnice_dvi_i             : in  std_logic;
       qnice_poly_clk_i        : in  std_logic;
       qnice_poly_dw_i         : in  std_logic_vector( 9 downto 0);
@@ -108,7 +108,7 @@ entity av_pipeline is
       hr_high_o               : out std_logic; -- Core is too fast
       hr_low_o                : out std_logic; -- Core is too slow
 
-      -- I/O to VGA output
+      -- I/O to Analog output (VGA + 3.5mm audio jack)
       VGA_RED                 : out std_logic_vector( 7 downto 0);
       VGA_GREEN               : out std_logic_vector( 7 downto 0);
       VGA_BLUE                : out std_logic_vector( 7 downto 0);
@@ -117,12 +117,12 @@ entity av_pipeline is
       vdac_clk                : out std_logic;
       vdac_sync_n             : out std_logic;
       vdac_blank_n            : out std_logic;
+      audio_clk_o             : out std_logic;
+      audio_reset_o           : out std_logic;
+      audio_left_o            : out signed(15 downto 0);
+      audio_right_o           : out signed(15 downto 0);
 
-      -- I/O to 3.5mm analog audio jack
-      pwm_l                   : out std_logic;
-      pwm_r                   : out std_logic;
-
-      -- I/O to Digital Video (HDMI)
+      -- I/O to Digital output (HDMI)
       hdmi_clk_i              : in  std_logic;
       hdmi_rst_i              : in  std_logic;
       tmds_clk_i              : in  std_logic;
@@ -200,7 +200,7 @@ signal hdmi_osm_cfg_dxdy      : std_logic_vector(15 downto 0);
 signal hdmi_osm_vram_addr     : std_logic_vector(15 downto 0);
 signal hdmi_osm_vram_data     : std_logic_vector(15 downto 0);
 
-signal hdmi_video_mode        : std_logic_vector(1 downto 0);
+signal hdmi_video_mode        : std_logic_vector(3 downto 0);
 signal hdmi_zoom_crop         : std_logic;
 
 -- QNICE On Screen Menu selections
@@ -432,8 +432,6 @@ begin
          vdac_clk_o              => vdac_clk,
          vdac_syncn_o            => vdac_sync_n,
          vdac_blankn_o           => vdac_blank_n,
-         pwm_l_o                 => pwm_l,
-         pwm_r_o                 => pwm_r,
 
          -- Connect to QNICE and Video RAM
          video_osm_cfg_scaling_i => first_nonzero_bit(video_osm_cfg_scaling),
@@ -484,23 +482,23 @@ begin
    -- Clock domain crossing: QNICE to HDMI
    i_qnice2hdmi: xpm_cdc_array_single
       generic map (
-         WIDTH => 45
+         WIDTH => 47
       )
       port map (
          src_clk                => qnice_clk_i,
          src_in(15 downto 0)    => qnice_osm_cfg_xy_i,
          src_in(31 downto 16)   => qnice_osm_cfg_dxdy_i,
          src_in(32)             => qnice_osm_cfg_enable_i,
-         src_in(34 downto 33)   => qnice_video_mode_i,
-         src_in(35)             => qnice_zoom_crop_i,
-         src_in(44 downto 36)   => qnice_osm_cfg_scaling_i,
+         src_in(36 downto 33)   => qnice_video_mode_i,
+         src_in(37)             => qnice_zoom_crop_i,
+         src_in(46 downto 38)   => qnice_osm_cfg_scaling_i,
          dest_clk               => hdmi_clk_i,
          dest_out(15 downto 0)  => hdmi_osm_cfg_xy,
          dest_out(31 downto 16) => hdmi_osm_cfg_dxdy,
          dest_out(32)           => hdmi_osm_cfg_enable,
-         dest_out(34 downto 33) => hdmi_video_mode,
-         dest_out(35)           => hdmi_zoom_crop,
-         dest_out(44 downto 36) => hdmi_osm_cfg_scaling
+         dest_out(36 downto 33) => hdmi_video_mode,
+         dest_out(37)           => hdmi_zoom_crop,
+         dest_out(46 downto 38) => hdmi_osm_cfg_scaling
       ); -- i_qnice2hdmi
 
 
@@ -530,6 +528,7 @@ begin
    i_digital_pipeline : entity work.digital_pipeline
       generic map (
          G_VIDEO_MODE_VECTOR => G_VIDEO_MODE_VECTOR,
+         G_AUDIO_CLOCK_RATE  => G_AUDIO_CLOCK_RATE,
          G_VGA_DX            => G_VGA_DX,
          G_VGA_DY            => G_VGA_DY,
          G_FONT_FILE         => G_FONT_FILE,
@@ -552,8 +551,8 @@ begin
          video_vdmax_o            => video_vdmax,
          audio_clk_i              => audio_clk_i,
          audio_rst_i              => audio_rst_i,
-         audio_left_i             => signed(audio_left_i),
-         audio_right_i            => signed(audio_right_i),
+         audio_left_i             => signed(audio_left),
+         audio_right_i            => signed(audio_right),
 
          -- Digital output (HDMI)
          hdmi_clk_i               => hdmi_clk_i,
@@ -566,7 +565,7 @@ begin
 
          -- Connect to QNICE and Video RAM
          hdmi_dvi_i               => qnice_dvi_i, -- proper clock domain crossing for this very signal happens inside vga_to_hdmi.vhd
-         hdmi_video_mode_i        => to_integer(unsigned(hdmi_video_mode)),
+         hdmi_video_mode_i        => slv_to_video_mode(hdmi_video_mode),
          hdmi_crop_mode_i         => hdmi_zoom_crop,
          hdmi_osm_cfg_scaling_i   => first_nonzero_bit(hdmi_osm_cfg_scaling),
          hdmi_osm_cfg_enable_i    => hdmi_osm_cfg_enable,
@@ -662,6 +661,11 @@ begin
          b_q_o          => hdmi_osm_vram_data
       ); -- i_osm_vram_hdmi
 
+
+   audio_clk_o   <= audio_clk_i;
+   audio_reset_o <= audio_rst_i;
+   audio_left_o  <= signed(audio_left);
+   audio_right_o <= signed(audio_right);
 
 end architecture synthesis;
 

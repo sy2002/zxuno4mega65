@@ -11,7 +11,6 @@ entity democore_video is
    );
    port (
       clk_main_i     : in  std_logic;
-      reset_i        : in  std_logic;
 
       -- Ball's RGB color value
       ball_col_rgb_i : in  std_logic_vector(23 downto 0);
@@ -108,8 +107,8 @@ architecture synthesis of democore_video is
    signal video_vs       : std_logic;
    signal video_hblank   : std_logic;
    signal video_vblank   : std_logic;
-   signal video_pixel_x  : integer range 0 to G_VIDEO_MODE.H_PIXELS - 1;
-   signal video_pixel_y  : integer range 0 to G_VIDEO_MODE.V_PIXELS - 1;
+   signal video_pixel_x  : integer range 0 to 2047;
+   signal video_pixel_y  : integer range 0 to 2047;
    signal video_rgb      : std_logic_vector(23 downto 0);
 
 begin

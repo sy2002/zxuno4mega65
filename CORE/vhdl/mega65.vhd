@@ -14,19 +14,16 @@ use ieee.numeric_std.all;
 library work;
 use work.globals.all;
 use work.types_pkg.all;
+use work.video_modes_pkg.all;
 
 library xpm;
 use xpm.vcomponents.all;
 
 entity MEGA65_Core is
+generic (
+   G_BOARD : string                                         -- Which platform are we running on.
+);
 port (
-   CLK                     : in  std_logic;              -- 100 MHz clock
-   RESET_M2M_N             : in  std_logic;              -- Debounced system reset in system clock domain
-
-   -- Share clock and reset with the framework
-   main_clk_o              : out std_logic;              -- ZX-Uno's 28 MHz system clock
-   main_rst_o              : out std_logic;              -- ZX-Uno's reset, synchronized
-
    --------------------------------------------------------------------------------------------------------
    -- QNICE Clock Domain
    --------------------------------------------------------------------------------------------------------
@@ -37,7 +34,8 @@ port (
 
    -- Video and audio mode control
    qnice_dvi_o             : out std_logic;              -- 0=HDMI (with sound), 1=DVI (no sound)
-   qnice_video_mode_o      : out natural range 0 to 3;   -- HDMI 1280x720 @ 50 Hz resolution = mode 0, 1280x720 @ 60 Hz resolution = mode 1, PAL 576p in 4:3 and 5:4 are modes 2 and 3
+   qnice_video_mode_o      : out video_mode_type;        -- Defined in video_modes_pkg.vhd
+   qnice_osm_cfg_scaling_o : out std_logic_vector(8 downto 0);
    qnice_scandoubler_o     : out std_logic;              -- 0 = no scandoubler, 1 = scandoubler
    qnice_audio_mute_o      : out std_logic;
    qnice_audio_filter_o    : out std_logic;
@@ -47,7 +45,6 @@ port (
    qnice_ascal_triplebuf_o : out std_logic;
    qnice_retro15kHz_o      : out std_logic;              -- 0 = normal frequency, 1 = retro 15 kHz frequency
    qnice_csync_o           : out std_logic;              -- 0 = normal HS/VS, 1 = Composite Sync  
-   qnice_osm_cfg_scaling_o : out std_logic_vector(8 downto 0);
 
    -- Flip joystick ports
    qnice_flip_joyports_o   : out std_logic;
@@ -68,18 +65,27 @@ port (
    qnice_dev_wait_o        : out std_logic;
 
    --------------------------------------------------------------------------------------------------------
-   -- Core Clock Domain
+   -- HyperRAM Clock Domain
    --------------------------------------------------------------------------------------------------------
 
-   -- M2M's reset manager provides 2 signals:
-   --    m2m:   Reset the whole machine: Core and Framework
-   --    core:  Only reset the core
-   main_reset_m2m_i        : in  std_logic;
-   main_reset_core_i       : in  std_logic;
+   hr_clk_i                : in  std_logic;
+   hr_rst_i                : in  std_logic;
+   hr_core_write_o         : out std_logic;
+   hr_core_read_o          : out std_logic;
+   hr_core_address_o       : out std_logic_vector(31 downto 0);
+   hr_core_writedata_o     : out std_logic_vector(15 downto 0);
+   hr_core_byteenable_o    : out std_logic_vector( 1 downto 0);
+   hr_core_burstcount_o    : out std_logic_vector( 7 downto 0);
+   hr_core_readdata_i      : in  std_logic_vector(15 downto 0);
+   hr_core_readdatavalid_i : in  std_logic;
+   hr_core_waitrequest_i   : in  std_logic;
+   hr_high_i               : in  std_logic;  -- Core is too fast
+   hr_low_i                : in  std_logic;  -- Core is too slow
 
-   main_pause_core_i       : in  std_logic;
+   --------------------------------------------------------------------------------------------------------
+   -- Video Clock Domain
+   --------------------------------------------------------------------------------------------------------
 
-   -- Video output
    video_clk_o             : out std_logic;
    video_rst_o             : out std_logic;
    video_ce_o              : out std_logic;
@@ -92,35 +98,23 @@ port (
    video_hblank_o          : out std_logic;
    video_vblank_o          : out std_logic;
 
-   -- Audio output (Signed PCM)
-   main_audio_left_o       : out signed(15 downto 0);
-   main_audio_right_o      : out signed(15 downto 0);
+   --------------------------------------------------------------------------------------------------------
+   -- Core Clock Domain
+   --------------------------------------------------------------------------------------------------------
 
-   -- M2M Keyboard interface (incl. drive led)
-   main_kb_key_num_i       : in  integer range 0 to 79;  -- cycles through all MEGA65 keys
-   main_kb_key_pressed_n_i : in  std_logic;              -- low active: debounced feedback: is kb_key_num_i pressed right now?
-   main_power_led_o        : out std_logic;
-   main_power_led_col_o    : out std_logic_vector(23 downto 0);
-   main_drive_led_o        : out std_logic;
-   main_drive_led_col_o    : out std_logic_vector(23 downto 0);
+   CLK                     : in  std_logic;              -- 100 MHz clock
 
-   -- Joysticks input
-   main_joy_1_up_n_i       : in  std_logic;
-   main_joy_1_down_n_i     : in  std_logic;
-   main_joy_1_left_n_i     : in  std_logic;
-   main_joy_1_right_n_i    : in  std_logic;
-   main_joy_1_fire_n_i     : in  std_logic;
+   -- Share clock and reset with the framework
+   main_clk_o              : out std_logic;              -- CORE's 54 MHz clock
+   main_rst_o              : out std_logic;              -- CORE's reset, synchronized
 
-   main_joy_2_up_n_i       : in  std_logic;
-   main_joy_2_down_n_i     : in  std_logic;
-   main_joy_2_left_n_i     : in  std_logic;
-   main_joy_2_right_n_i    : in  std_logic;
-   main_joy_2_fire_n_i     : in  std_logic;
+   -- M2M's reset manager provides 2 signals:
+   --    m2m:   Reset the whole machine: Core and Framework
+   --    core:  Only reset the core
+   main_reset_m2m_i        : in  std_logic;
+   main_reset_core_i       : in  std_logic;
 
-   main_pot1_x_i           : in  std_logic_vector(7 downto 0);
-   main_pot1_y_i           : in  std_logic_vector(7 downto 0);
-   main_pot2_x_i           : in  std_logic_vector(7 downto 0);
-   main_pot2_y_i           : in  std_logic_vector(7 downto 0);
+   main_pause_core_i       : in  std_logic;
 
    -- On-Screen-Menu selections
    main_osm_control_i      : in  std_logic_vector(255 downto 0);
@@ -128,24 +122,101 @@ port (
    -- QNICE general purpose register converted to main clock domain
    main_qnice_gp_reg_i     : in  std_logic_vector(255 downto 0);
 
-   --------------------------------------------------------------------------------------------------------
-   -- Provide HyperRAM to core (in HyperRAM clock domain)
-   --------------------------------------------------------------------------------------------------------
+   -- Audio output (Signed PCM)
+   main_audio_left_o       : out signed(15 downto 0);
+   main_audio_right_o      : out signed(15 downto 0);
 
-   hr_clk_i                : in  std_logic;
-   hr_rst_i                : in  std_logic;
-   hr_core_write_o         : out std_logic := '0';
-   hr_core_read_o          : out std_logic := '0';
-   hr_core_address_o       : out std_logic_vector(31 downto 0) := (others => '0');
-   hr_core_writedata_o     : out std_logic_vector(15 downto 0) := (others => '0');
-   hr_core_byteenable_o    : out std_logic_vector( 1 downto 0) := (others => '0');
-   hr_core_burstcount_o    : out std_logic_vector( 7 downto 0) := (others => '0');
-   hr_core_readdata_i      : in  std_logic_vector(15 downto 0);
-   hr_core_readdatavalid_i : in  std_logic;
-   hr_core_waitrequest_i   : in  std_logic;
-   hr_high_i               : in  std_logic;  -- Core is too fast
-   hr_low_i                : in  std_logic;  -- Core is too slow
-   
+   -- M2M Keyboard interface (incl. power led and drive led)
+   main_kb_key_num_i       : in  integer range 0 to 79;  -- cycles through all MEGA65 keys
+   main_kb_key_pressed_n_i : in  std_logic;              -- low active: debounced feedback: is kb_key_num_i pressed right now?
+   main_power_led_o        : out std_logic;
+   main_power_led_col_o    : out std_logic_vector(23 downto 0);
+   main_drive_led_o        : out std_logic;
+   main_drive_led_col_o    : out std_logic_vector(23 downto 0);
+
+   -- Joysticks and paddles input
+   main_joy_1_up_n_i       : in  std_logic;
+   main_joy_1_down_n_i     : in  std_logic;
+   main_joy_1_left_n_i     : in  std_logic;
+   main_joy_1_right_n_i    : in  std_logic;
+   main_joy_1_fire_n_i     : in  std_logic;
+   main_joy_1_up_n_o       : out std_logic;
+   main_joy_1_down_n_o     : out std_logic;
+   main_joy_1_left_n_o     : out std_logic;
+   main_joy_1_right_n_o    : out std_logic;
+   main_joy_1_fire_n_o     : out std_logic;
+   main_joy_2_up_n_i       : in  std_logic;
+   main_joy_2_down_n_i     : in  std_logic;
+   main_joy_2_left_n_i     : in  std_logic;
+   main_joy_2_right_n_i    : in  std_logic;
+   main_joy_2_fire_n_i     : in  std_logic;
+   main_joy_2_up_n_o       : out std_logic;
+   main_joy_2_down_n_o     : out std_logic;
+   main_joy_2_left_n_o     : out std_logic;
+   main_joy_2_right_n_o    : out std_logic;
+   main_joy_2_fire_n_o     : out std_logic;
+
+   main_pot1_x_i           : in  std_logic_vector(7 downto 0);
+   main_pot1_y_i           : in  std_logic_vector(7 downto 0);
+   main_pot2_x_i           : in  std_logic_vector(7 downto 0);
+   main_pot2_y_i           : in  std_logic_vector(7 downto 0);
+   main_rtc_i              : in  std_logic_vector(64 downto 0);
+
+   -- CBM-488/IEC serial port
+   iec_reset_n_o           : out std_logic;
+   iec_atn_n_o             : out std_logic;
+   iec_clk_en_o            : out std_logic;
+   iec_clk_n_i             : in  std_logic;
+   iec_clk_n_o             : out std_logic;
+   iec_data_en_o           : out std_logic;
+   iec_data_n_i            : in  std_logic;
+   iec_data_n_o            : out std_logic;
+   iec_srq_en_o            : out std_logic;
+   iec_srq_n_i             : in  std_logic;
+   iec_srq_n_o             : out std_logic;
+
+   -- C64 Expansion Port (aka Cartridge Port)
+   cart_en_o               : out std_logic;  -- Enable port, active high
+   cart_phi2_o             : out std_logic;
+   cart_dotclock_o         : out std_logic;
+   cart_dma_i              : in  std_logic;
+   cart_reset_oe_o         : out std_logic;
+   cart_reset_i            : in  std_logic;
+   cart_reset_o            : out std_logic;
+   cart_game_oe_o          : out std_logic;
+   cart_game_i             : in  std_logic;
+   cart_game_o             : out std_logic;
+   cart_exrom_oe_o         : out std_logic;
+   cart_exrom_i            : in  std_logic;
+   cart_exrom_o            : out std_logic;
+   cart_nmi_oe_o           : out std_logic;
+   cart_nmi_i              : in  std_logic;
+   cart_nmi_o              : out std_logic;
+   cart_irq_oe_o           : out std_logic;
+   cart_irq_i              : in  std_logic;
+   cart_irq_o              : out std_logic;
+   cart_roml_oe_o          : out std_logic;
+   cart_roml_i             : in  std_logic;
+   cart_roml_o             : out std_logic;
+   cart_romh_oe_o          : out std_logic;
+   cart_romh_i             : in  std_logic;
+   cart_romh_o             : out std_logic;
+   cart_ctrl_oe_o          : out std_logic; -- 0 : tristate (i.e. input), 1 : output
+   cart_ba_i               : in  std_logic;
+   cart_rw_i               : in  std_logic;
+   cart_io1_i              : in  std_logic;
+   cart_io2_i              : in  std_logic;
+   cart_ba_o               : out std_logic;
+   cart_rw_o               : out std_logic;
+   cart_io1_o              : out std_logic;
+   cart_io2_o              : out std_logic;
+   cart_addr_oe_o          : out std_logic; -- 0 : tristate (i.e. input), 1 : output
+   cart_a_i                : in  unsigned(15 downto 0);
+   cart_a_o                : out unsigned(15 downto 0);
+   cart_data_oe_o          : out std_logic; -- 0 : tristate (i.e. input), 1 : output
+   cart_d_i                : in  unsigned( 7 downto 0);
+   cart_d_o                : out unsigned( 7 downto 0)
+
    --------------------------------------------------------------------------------------------------------
    -- Bypass M2M's SD card handling because the ZX-Uno core does this by itself
    --------------------------------------------------------------------------------------------------------
@@ -156,7 +227,7 @@ port (
    sd_int_mosi_o           : out std_logic;
    sd_int_miso_i           : in  std_logic;
    sd_int_cd_i             : in  std_logic;
-   
+
    -- SD Card (external/back)
    sd_ext_reset_o          : out std_logic;
    sd_ext_clk_o            : out std_logic;
@@ -194,17 +265,67 @@ constant C_MENU_HDMI_5_4_50   : natural := 8;
 
 begin
 
+   hr_core_write_o      <= '0';
+   hr_core_read_o       <= '0';
+   hr_core_address_o    <= (others => '0');
+   hr_core_writedata_o  <= (others => '0');
+   hr_core_byteenable_o <= (others => '0');
+   hr_core_burstcount_o <= (others => '0');
+
+   -- Tristate all expansion port drivers that we can directly control
+   -- @TODO: As soon as we support modules that can act as busmaster, we need to become more flexible here
+   cart_ctrl_oe_o       <= '0';
+   cart_addr_oe_o       <= '0';
+   cart_data_oe_o       <= '0';
+   cart_en_o            <= '0'; -- Disable port
+
+   cart_reset_oe_o      <= '0';
+   cart_game_oe_o       <= '0';
+   cart_exrom_oe_o      <= '0';
+   cart_nmi_oe_o        <= '0';
+   cart_irq_oe_o        <= '0';
+   cart_roml_oe_o       <= '0';
+   cart_romh_oe_o       <= '0';
+
+   -- Default values for all signals
+   cart_phi2_o          <= '0';
+   cart_reset_o         <= '1';
+   cart_dotclock_o      <= '0';
+   cart_game_o          <= '1';
+   cart_exrom_o         <= '1';
+   cart_nmi_o           <= '1';
+   cart_irq_o           <= '1';
+   cart_roml_o          <= '0';
+   cart_romh_o          <= '0';
+   cart_ba_o            <= '0';
+   cart_rw_o            <= '0';
+   cart_io1_o           <= '0';
+   cart_io2_o           <= '0';
+   cart_a_o             <= (others => '0');
+   cart_d_o             <= (others => '0');
+
+   main_joy_1_up_n_o    <= '1';
+   main_joy_1_down_n_o  <= '1';
+   main_joy_1_left_n_o  <= '1';
+   main_joy_1_right_n_o <= '1';
+   main_joy_1_fire_n_o  <= '1';
+   main_joy_2_up_n_o    <= '1';
+   main_joy_2_down_n_o  <= '1';
+   main_joy_2_left_n_o  <= '1';
+   main_joy_2_right_n_o <= '1';
+   main_joy_2_fire_n_o  <= '1';
+
    ---------------------------------------------------------------------------------------------
    -- main_clk: ZX-Uno's core clock running at 28 MHz
    ---------------------------------------------------------------------------------------------
-   
+
    clk_gen : entity work.clk
-      port map (
-         sys_clk_i         => CLK,             -- expects 100 MHz
-         sys_rstn_i        => RESET_M2M_N,     -- Asynchronous, asserted low
-         main_clk_o        => main_clk,        -- ZX-Uno's 28 MHz clock
-         main_rst_o        => main_rst         -- ZX-Uno's reset, synchronized
-      ); -- clk_gen
+   port map (
+      sys_clk_i         => CLK,             -- expects 100 MHz
+      sys_rstn_i        => RESET_M2M_N,     -- Asynchronous, asserted low
+      main_clk_o        => main_clk,        -- ZX-Uno's 28 MHz clock
+      main_rst_o        => main_rst         -- ZX-Uno's reset, synchronized
+   ); -- clk_gen
 
    -- Share core clock and video clock with M2M
    main_clk_o  <= main_clk;
@@ -323,10 +444,13 @@ begin
    -- while in the 4:3 mode we are outputting a 5:4 image. This is kind of odd, but it seemed that our 4/3 aspect ratio
    -- adjusted image looks best on a 5:4 monitor and the other way round.
    -- Not sure if this will stay forever or if we will come up with a better naming convention.
-   qnice_video_mode_o <= 3 when qnice_osm_control_i(C_MENU_HDMI_5_4_50)  = '1' else
-                         2 when qnice_osm_control_i(C_MENU_HDMI_4_3_50)  = '1' else
-                         1 when qnice_osm_control_i(C_MENU_HDMI_16_9_60) = '1' else
-                         0;
+   qnice_video_mode_o <= C_VIDEO_SVGA_800_60   when qnice_osm_control_i(C_MENU_SVGA_800_60)    = '1' else
+                         C_VIDEO_HDMI_720_5994 when qnice_osm_control_i(C_MENU_HDMI_720_5994)  = '1' else
+                         C_VIDEO_HDMI_640_60   when qnice_osm_control_i(C_MENU_HDMI_640_60)    = '1' else
+                         C_VIDEO_HDMI_5_4_50   when qnice_osm_control_i(C_MENU_HDMI_5_4_50)    = '1' else
+                         C_VIDEO_HDMI_4_3_50   when qnice_osm_control_i(C_MENU_HDMI_4_3_50)    = '1' else
+                         C_VIDEO_HDMI_16_9_60  when qnice_osm_control_i(C_MENU_HDMI_16_9_60)   = '1' else
+                         C_VIDEO_HDMI_16_9_50;
 
    -- Use On-Screen-Menu selections to configure several audio and video settings
    -- Video and audio mode control

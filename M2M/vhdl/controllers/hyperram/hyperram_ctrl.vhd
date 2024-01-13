@@ -30,6 +30,10 @@ entity hyperram_ctrl is
       avm_readdatavalid_o : out std_logic;
       avm_waitrequest_o   : out std_logic;
 
+      -- Statistics
+      count_long_o        : out unsigned(31 downto 0);
+      count_short_o       : out unsigned(31 downto 0);
+
       -- HyperBus control signals
       hb_rstn_o           : out std_logic;
       hb_ck_ddr_o         : out std_logic_vector(1 downto 0);
@@ -49,6 +53,7 @@ architecture synthesis of hyperram_ctrl is
    type state_t is (
       INIT_ST,
       COMMAND_ADDRESS_ST,
+      SAMPLE_RWDS_ST,
       LATENCY_ST,
       READ_ST,
       WRITE_ST,
@@ -78,6 +83,10 @@ architecture synthesis of hyperram_ctrl is
    subtype  R_CA_ADDR_MSB is natural range 44 downto 16;
    subtype  R_CA_RESERVED is natural range 15 downto  3;
    subtype  R_CA_ADDR_LSB is natural range  2 downto  0;
+
+   -- Statistics
+   signal count_long  : unsigned(31 downto 0);
+   signal count_short : unsigned(31 downto 0);
 
 begin
 
@@ -124,18 +133,23 @@ begin
                   hb_ck_ddr_o <= "10";
                   ca_count    <= ca_count - 1;
                else
-                  if hb_rwds_in_i = '1' then
-                     latency_count <= 2*G_LATENCY - 2;
-                  else
-                     latency_count <= G_LATENCY - 2;
-                  end if;
                   if config = '1' and read = '0' then
                      recovery_count <= 3;
                      state <= RECOVERY_ST;
                   else
-                     state <= LATENCY_ST;
+                     state <= SAMPLE_RWDS_ST;
                   end if;
                end if;
+
+            when SAMPLE_RWDS_ST =>
+               if hb_rwds_in_i = '1' then
+                  latency_count <= 2*G_LATENCY - 3;
+                  count_long <= count_long + 1;
+               else
+                  latency_count <= G_LATENCY - 3;
+                  count_short <= count_short + 1;
+               end if;
+               state <= LATENCY_ST;
 
             when LATENCY_ST =>
                if latency_count > 0 then
@@ -216,6 +230,8 @@ begin
             hb_csn_o     <= '1';
             hb_dq_oe_o   <= '0';
             hb_rwds_oe_o <= '0';
+            count_long   <= (others => '0');
+            count_short  <= (others => '0');
          end if;
       end if;
    end process p_fsm;
@@ -223,6 +239,10 @@ begin
    hb_dq_ddr_out_o   <= avm_writedata_i when state = WRITE_BURST_ST else
                         command_address(47 downto 32);
    hb_rwds_ddr_out_o <= not byteenable when state = WRITE_ST or state = WRITE_BURST_ST else "00";
+
+   -- Statistics
+   count_long_o  <= count_long;
+   count_short_o <= count_short;
 
 end architecture synthesis;
 
