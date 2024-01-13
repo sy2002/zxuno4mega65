@@ -11,15 +11,15 @@ If your MEGA65 was manufactured before 2024, then choose
 
 ### Details
 
-We are supporting these MEGA65 models: R3/R3A, R4, R5 and R6. Use
+We are supporting these MEGA65 models: R3/R3A, R5 and R6. Use
 the following table to ensure that you select and flash the correct `.cor`
 from the [ZIP file](https://files.mega65.org?id=bdaeb7e0-9fc8-4185-99de-104d01229f27).
 
 | MEGA65 model   |   Years   | File name         | Comment
 |:--------------:|:---------:|:-----------------:|-------------------------
 | R3/R3A         | @TODO     | zxuno-V1.2-R3.cor | R3 is the "DevKit" (100 were built) and R3A are batches 1 and 2. If your MEGA65 was manufactured before 2024 then you have an R3 or R3A machine.
-| R4             | 2023      | zxuno-V1.2-R4.cor | Development board on our way to the R6. Only 10 of them were manufactured (board only, no complete machines).
-| R5             | 2023      | zxuno-V1.2-R5.cor | Upgraded version of R4 that contains new circuits for the expansion port. Only 10 of them were manufactured (board only, no complete machines).
+| R4             | 2023      | <not available>   | Development board on our way to the R6. Only 10 of them were manufactured (board only, no complete machines).
+| R5             | 2023      | zxuno-V1.2-R6.cor | Upgraded version of R4 that contains new circuits for the expansion port. Only 10 of them were manufactured (board only, no complete machines).
 | R6             | 2024+     | zxuno-V1.2-R6.cor | Latest and greatest MEGA65. Manufactured from 2024 on.
 
 Only use `*.bit` files if you know what you are doing.
