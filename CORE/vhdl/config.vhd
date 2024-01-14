@@ -85,7 +85,7 @@ constant HELP : string :=
 
    "\n ZX-Uno for MEGA65 Version 1.2\n\n" &
 
-   " Ported in 2021, 2023, 2024 by sy2002 & MJoergen\n" &
+   " Ported in 2021/23/24 by sy2002 & MJoergen\n" &
    " Powered by MiSTer2MEGA65\n\n" &
 
    " You need to walk through the " & CHR_QUOTE & "Getting\n" &
