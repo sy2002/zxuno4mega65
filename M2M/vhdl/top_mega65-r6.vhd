@@ -596,16 +596,20 @@ begin
       kb_io0_o                => kb_io0_o,
       kb_io1_o                => kb_io1_o,
       kb_io2_i                => kb_io2_i,
-      sd_reset_o              => sd_reset_o,
-      sd_clk_o                => sd_clk_o,
-      sd_mosi_o               => sd_mosi_o,
-      sd_miso_i               => sd_miso_i,
-      sd_cd_i                 => sd_cd_i,
-      sd2_reset_o             => sd2_reset_o,
-      sd2_clk_o               => sd2_clk_o,
-      sd2_mosi_o              => sd2_mosi_o,
-      sd2_miso_i              => sd2_miso_i,
-      sd2_cd_i                => sd2_cd_i,
+      
+      -- ZX-Uno specific change of the M2M framework: ZX-Uno manages the SD card by itself,
+      -- so we are disconnecting it here and routing the signals into the core (see below)
+      sd_reset_o              => open,
+      sd_clk_o                => open,
+      sd_mosi_o               => open,
+      sd_miso_i               => '0',
+      sd_cd_i                 => '0',
+      sd2_reset_o             => open,
+      sd2_clk_o               => open,
+      sd2_mosi_o              => open,
+      sd2_miso_i              => '0',
+      sd2_cd_i                => '0',
+      
       joy_1_up_n_i            => fa_up_n_i,
       joy_1_down_n_i          => fa_down_n_i,
       joy_1_left_n_i          => fa_left_n_i,
@@ -961,7 +965,26 @@ begin
          --
          cart_addr_oe_o          => cart_addr_oe, -- 0 : tristate (i.e. input), 1 : output
          cart_a_i                => cart_a_in,
-         cart_a_o                => cart_a_out
+         cart_a_o          => cart_a_out,
+         
+         --------------------------------------------------------------------------------------------------------
+         -- Bypass M2M's SD card handling because the ZX-Uno core does this by itself
+         --------------------------------------------------------------------------------------------------------
+
+         -- SD Card (internal/bottom)
+         sd_int_reset_o    => sd2_reset_o,
+         sd_int_clk_o      => sd2_clk_o,
+         sd_int_mosi_o     => sd2_mosi_o,
+         sd_int_miso_i     => sd2_miso_i,
+         sd_int_cd_i       => sd2_cd_i,
+
+         -- SD Card (external/back)
+         sd_ext_reset_o    => sd_reset_o,
+         sd_ext_clk_o      => sd_clk_o,
+         sd_ext_mosi_o     => sd_mosi_o,
+         sd_ext_miso_i     => sd_miso_i,
+         sd_ext_cd_i       => sd_cd_i
+
       ); -- CORE
 
 end architecture synthesis;
