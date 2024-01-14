@@ -7,7 +7,7 @@ Choose the right core variant for your hardware
 ### TL;DR
 
 If your MEGA65 was manufactured before 2024, then choose
-`@zxuno-V1.2-R3.cor` otherwise choose `zxuno-V1.2-R6.cor`.
+`zxuno-v1.2-r3.cor` otherwise choose `zxuno-v1.2-r6.cor`.
 
 ### Details
 
