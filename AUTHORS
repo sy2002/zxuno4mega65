@@ -1,7 +1,6 @@
 ZX-Uno @ MEGA65: ZX Spectrum Core aka zxuno4mega65
 
-done in 2020/21 by sy2002
-ported to the MiSTer2MEGA65 framework in 2023 by sy2002 & MJoergen
+done in 2020/21 and 2023/24 by sy2002 & MJoergen
 
 sy2002:   github.com/sy2002   and www.sy2002.de
 MJoergen: github.com/MJoergen
@@ -39,7 +38,7 @@ Other than Miguel's and our own work, zxuno4mega65 uses:
     https://www.digikey.com/eewiki/pages/viewpage.action?pageId=15925278
 
   * VGA to HDMI converter IP core, done by Adam Barnes
-    https://github.com/amb5l/tyto_project
+    https://github.com/amb5l/tyto2
 
   * AVALON SCALER used for scaling to 720p for HDMI, done by temlib.org
     http://temlib.org/site/?page_id=10
