@@ -56,7 +56,7 @@ ULAplus is an enhanced ULA for the ZX Spectrum. It can be implemented as a plug-
 
 * https://sinclair.wiki.zxnet.co.uk/wiki/ULAplus
 
-* https://sites.google.com/site/ulaplus/
+* https://web.archive.org/web/20221120130859/https://sites.google.com/site/ulaplus/
 
 ### Getting games
 

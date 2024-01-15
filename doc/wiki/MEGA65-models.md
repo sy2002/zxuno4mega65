@@ -1,8 +1,4 @@
-ZX-Uno for MEGA65 on different MEGA65 models
-============================================
-
-Choose the right core variant for your hardware
------------------------------------------------
+There are different MEGA65 models out there in the wild, so make sure you choose the right core variant for your hardware.
 
 ### TL;DR
 
