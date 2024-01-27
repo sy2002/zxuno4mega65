@@ -1,5 +1,5 @@
-Version 1.2 - MONTH DAY, 2024
------------------------------
+Version 1.2 - January 27, 2024
+------------------------------
 
 The main purpose of this release is to support the new 2024 batches of the MEGA65 (aka "R6") as well as the development boards R4 and R5.
 
