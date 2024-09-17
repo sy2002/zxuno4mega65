@@ -258,8 +258,8 @@ signal video_mode : video_modes_t;
 ---------------------------------------------------------------------------------------------
 
 signal qnice_clk              : std_logic;               -- QNICE main clock @ 50 MHz
-signal hr_clk_x1              : std_logic;               -- HyperRAM @ 100 MHz
-signal hr_clk_x1_del          : std_logic;               -- HyperRAM @ 100 MHz phase delayed
+signal hr_clk                 : std_logic;               -- HyperRAM @ 100 MHz
+signal hr_clk_del             : std_logic;               -- HyperRAM @ 100 MHz phase delayed
 signal hr_delay_refclk        : std_logic;               -- HyperRAM @ 200 MHz
 signal audio_clk              : std_logic;               -- Audio clock @ 60 MHz
 signal tmds_clk               : std_logic;               -- HDMI pixel clock at 5x speed for TMDS @ 371.25 MHz
@@ -426,7 +426,7 @@ signal hr_rwds_out            : std_logic;
 signal hr_rwds_oe_n           : std_logic;   -- Output enable for RWDS
 signal hr_dq_in               : std_logic_vector(7 downto 0);
 signal hr_dq_out              : std_logic_vector(7 downto 0);
-signal hr_dq_oe_n             : std_logic;   -- Output enable for DQ
+signal hr_dq_oe_n             : std_logic_vector(7 downto 0);   -- Output enable for DQ
 
 signal scl_out                : std_logic_vector(7 downto 0);
 signal sda_out                : std_logic_vector(7 downto 0);
@@ -438,23 +438,19 @@ begin
    ---------------------------------------------------------------------------------------------------------------
 
    i_clk_m2m : entity work.clk_m2m
-      generic map (
-         G_HYPERRAM_FREQ_MHZ => 100,
-         G_HYPERRAM_PHASE    => 90.0
-      )
       port map (
-         sys_clk_i       => clk_i,
-         sys_rstn_i      => reset_m2m_n,        -- reset everything
-         core_rstn_i     => reset_core_n,       -- reset only the core (means the HyperRAM needs to be reset, too)
-         qnice_clk_o     => qnice_clk,
-         qnice_rst_o     => qnice_rst,
-         hr_clk_x1_o     => hr_clk_x1,
-         hr_clk_x1_del_o   => hr_clk_x1_del,
+         sys_clk_i         => clk_i,
+         sys_rstn_i        => reset_m2m_n,        -- reset everything
+         core_rstn_i       => reset_core_n,       -- reset only the core (means the HyperRAM needs to be reset, too)
+         qnice_clk_o       => qnice_clk,
+         qnice_rst_o       => qnice_rst,
+         hr_clk_o          => hr_clk,
+         hr_clk_del_o      => hr_clk_del,
          hr_delay_refclk_o => hr_delay_refclk,
-         hr_rst_o        => hr_rst,
-         audio_clk_o     => audio_clk,
-         audio_rst_o     => audio_rst,
-         sys_pps_o       => sys_pps
+         hr_rst_o          => hr_rst,
+         audio_clk_o       => audio_clk,
+         audio_rst_o       => audio_rst,
+         sys_pps_o         => sys_pps
       ); -- i_clk_m2m
 
    video_mode <= C_SVGA_800_600_60    when qnice_video_mode_i = C_VIDEO_SVGA_800_60   else
@@ -481,7 +477,7 @@ begin
          clko_x5 => tmds_clk
       ); -- i_video_out_clock
 
-   hr_clk_o    <= hr_clk_x1;
+   hr_clk_o    <= hr_clk;
    hr_rst_o    <= hr_rst;
 
    qnice_clk_o <= qnice_clk;
@@ -682,7 +678,7 @@ begin
    );
 
    --------------------------------------------------------
-   -- HyperRAM clock domain: hr_clk_x1
+   -- HyperRAM clock domain: hr_clk
    --------------------------------------------------------
 
    i_avm_arbit_general : entity work.avm_arbit_general
@@ -693,7 +689,7 @@ begin
          G_DATA_SIZE    => 16
       )
       port map (
-         clk_i                 => hr_clk_x1,
+         clk_i                 => hr_clk,
          rst_i                 => hr_rst,
          s_avm_write_i         => hr_dig_write         & hr_core_write_i         & hr_qnice_write,
          s_avm_read_i          => hr_dig_read          & hr_core_read_i          & hr_qnice_read,
@@ -764,7 +760,8 @@ begin
    -- Clock domain crossing: CORE to AUDIO
    i_main2audio: entity work.cdc_stable
       generic map (
-         G_DATA_SIZE => 32
+         G_REGISTER_SRC => true,
+         G_DATA_SIZE    => 32
       )
       port map (
          src_clk_i                => main_clk_i,
@@ -832,7 +829,7 @@ begin
          s_avm_burstcount_i    => qnice_avm_burstcount,
          s_avm_readdata_o      => qnice_avm_readdata,
          s_avm_readdatavalid_o => qnice_avm_readdatavalid,
-         m_clk_i               => hr_clk_x1,
+         m_clk_i               => hr_clk,
          m_rst_i               => hr_rst,
          m_avm_waitrequest_i   => hr_qnice_waitrequest,
          m_avm_write_o         => hr_qnice_write,
@@ -851,7 +848,7 @@ begin
          G_DATA_SIZE => 64
       )
       port map (
-         src_clk_i                => hr_clk_x1,
+         src_clk_i                => hr_clk,
          src_data_i(31 downto  0) => std_logic_vector(hr_count_long),
          src_data_i(63 downto 32) => std_logic_vector(hr_count_short),
          dst_clk_i                => qnice_clk,
@@ -928,7 +925,7 @@ begin
          qnice_q_o               => qnice_vram_data,
          sys_clk_i               => clk_i,
          sys_pps_i               => sys_pps,
-         hr_clk_i                => hr_clk_x1,
+         hr_clk_i                => hr_clk,
          hr_rst_i                => hr_rst,
          hr_write_o              => hr_dig_write,
          hr_read_o               => hr_dig_read,
@@ -970,12 +967,11 @@ begin
 
    i_hyperram : entity work.hyperram
       generic map (
-         G_HYPERRAM_FREQ_MHZ => 100,
          G_ERRATA_ISSI_D_FIX => true
       )
       port map (
-         clk_x1_i            => hr_clk_x1,
-         clk_x1_del_i        => hr_clk_x1_del,
+         clk_i               => hr_clk,
+         clk_del_i           => hr_clk_del,
          delay_refclk_i      => hr_delay_refclk,
          rst_i               => hr_rst,
          avm_write_i         => hr_write,
@@ -1002,7 +998,9 @@ begin
 
    -- Tri-state buffers for HyperRAM
    hr_rwds_io <= hr_rwds_out when hr_rwds_oe_n = '0' else 'Z';
-   hr_d_io    <= hr_dq_out   when hr_dq_oe_n   = '0' else (others => 'Z');
+   hr_d_gen : for i in 0 to 7 generate
+      hr_d_io(i) <= hr_dq_out(i) when hr_dq_oe_n(i) = '0' else 'Z';
+   end generate hr_d_gen;
    hr_rwds_in <= hr_rwds_io;
    hr_dq_in   <= hr_d_io;
 

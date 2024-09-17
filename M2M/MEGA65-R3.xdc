@@ -146,11 +146,11 @@ set_property -dict {PACKAGE_PIN E21  IOSTANDARD LVCMOS33} [get_ports {hr_d_io[6]
 set_property -dict {PACKAGE_PIN E22  IOSTANDARD LVCMOS33} [get_ports {hr_d_io[7]}];             # DQ7
 set_property -dict {PACKAGE_PIN B22  IOSTANDARD LVCMOS33} [get_ports {hr_reset_o}];             # H_RES
 set_property -dict {PACKAGE_PIN B21  IOSTANDARD LVCMOS33} [get_ports {hr_rwds_io}];             # RWDS
-set_property -dict {PULLUP FALSE}                         [get_ports {hr_cs0_o}];
-set_property -dict {PULLUP FALSE}                         [get_ports {hr_reset_o}];
-set_property -dict {PULLUP FALSE  SLEW FAST  DRIVE 16}    [get_ports {hr_clk_p_o}];
-set_property -dict {PULLUP FALSE  SLEW FAST  DRIVE 16}    [get_ports {hr_d_io[*]}];
-set_property -dict {PULLUP FALSE  SLEW FAST  DRIVE 16}    [get_ports {hr_rwds_io}];
+set_property -dict {PULLTYPE {}        SLEW FAST  DRIVE 16} [get_ports {hr_reset_o}];
+set_property -dict {PULLTYPE {}        SLEW FAST  DRIVE 16} [get_ports {hr_cs0_o}];
+set_property -dict {PULLTYPE {}        SLEW FAST  DRIVE 16} [get_ports {hr_clk_p_o}];
+set_property -dict {PULLTYPE {}        SLEW FAST  DRIVE 16} [get_ports {hr_d_io[*]}];
+set_property -dict {PULLTYPE PULLDOWN  SLEW FAST  DRIVE 16} [get_ports {hr_rwds_io}];
 
 # CBM-488/IEC serial port
 set_property -dict {PACKAGE_PIN N17  IOSTANDARD LVCMOS33} [get_ports {iec_atn_n_o}];            # F_SER_ATN
@@ -291,11 +291,6 @@ set_property -dict {PULLUP TRUE}                          [get_ports {qspidb_io[
 ################################
 ## PLACEMENT CONSTRAINTS
 ################################
-
-# Place HyperRAM close to I/O pins
-create_pblock pblock_i_hyperram
-add_cells_to_pblock pblock_i_hyperram [get_cells [list i_framework/i_hyperram]]
-resize_pblock pblock_i_hyperram -add {SLICE_X0Y200:SLICE_X7Y224}
 
 # Place MAX10 close to I/O pins
 create_pblock pblock_MAX10

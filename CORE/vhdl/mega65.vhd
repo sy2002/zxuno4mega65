@@ -102,7 +102,7 @@ port (
    -- Core Clock Domain
    --------------------------------------------------------------------------------------------------------
 
-   CLK                     : in  std_logic;              -- 100 MHz clock
+   clk_i                   : in  std_logic;              -- 100 MHz clock
 
    -- Share clock and reset with the framework
    main_clk_o              : out std_logic;              -- CORE's 54 MHz clock
@@ -320,11 +320,11 @@ begin
    ---------------------------------------------------------------------------------------------
 
    clk_gen : entity work.clk
-   port map (
-      sys_clk_i         => CLK,             -- expects 100 MHz
-      main_clk_o        => main_clk,        -- ZX-Uno's 28 MHz clock
-      main_rst_o        => main_rst         -- ZX-Uno's reset, synchronized
-   ); -- clk_gen
+      port map (
+         sys_clk_i         => clk_i,           -- expects 100 MHz
+         main_clk_o        => main_clk,        -- CORE's 54 MHz clock
+         main_rst_o        => main_rst         -- CORE's reset, synchronized
+      ); -- clk_gen
 
    -- Share core clock and video clock with M2M
    main_clk_o  <= main_clk;

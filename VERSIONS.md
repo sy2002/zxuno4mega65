@@ -1,3 +1,10 @@
+Version 1.3 - September 17, 2024
+==============================
+
+Upgrade to latest M2M release 2.0.0
+
+This fixes a number of minor bugs.
+
 Version 1.2 - January 27, 2024
 ==============================
 

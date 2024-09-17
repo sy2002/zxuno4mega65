@@ -2,6 +2,13 @@
 ##
 ## Done by MJoergen and sy2002 in 2023 and licensed under GPL v3
 
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+## CAUTION MODIFIED FOR THE ZX-Uno core:
+##
+## The ZX-Uno does the SD card handling by itself and therefore we are bypassing M2M's SD card handling.
+## This leads for example to us commenting out M2M's SD controller placement constraints here.
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ################################
 ## Pin to signal mapping
 ################################
@@ -138,11 +145,11 @@ set_property -dict {PACKAGE_PIN E21  IOSTANDARD LVCMOS33} [get_ports {hr_d_io[6]
 set_property -dict {PACKAGE_PIN E22  IOSTANDARD LVCMOS33} [get_ports {hr_d_io[7]}];             # DQ7
 set_property -dict {PACKAGE_PIN B22  IOSTANDARD LVCMOS33} [get_ports {hr_reset_o}];             # H_RES
 set_property -dict {PACKAGE_PIN B21  IOSTANDARD LVCMOS33} [get_ports {hr_rwds_io}];             # RWDS
-set_property -dict {PULLUP FALSE}                         [get_ports {hr_cs0_o}];
-set_property -dict {PULLUP FALSE}                         [get_ports {hr_reset_o}];
-set_property -dict {PULLUP FALSE  SLEW FAST  DRIVE 16}    [get_ports {hr_clk_p_o}];
-set_property -dict {PULLUP FALSE  SLEW FAST  DRIVE 16}    [get_ports {hr_d_io[*]}];
-set_property -dict {PULLUP FALSE  SLEW FAST  DRIVE 16}    [get_ports {hr_rwds_io}];
+set_property -dict {PULLTYPE {}        SLEW FAST  DRIVE 16} [get_ports {hr_reset_o}];
+set_property -dict {PULLTYPE {}        SLEW FAST  DRIVE 16} [get_ports {hr_cs0_o}];
+set_property -dict {PULLTYPE {}        SLEW FAST  DRIVE 16} [get_ports {hr_clk_p_o}];
+set_property -dict {PULLTYPE {}        SLEW FAST  DRIVE 16} [get_ports {hr_d_io[*]}];
+set_property -dict {PULLTYPE PULLDOWN  SLEW FAST  DRIVE 16} [get_ports {hr_rwds_io}];
 
 # CBM-488/IEC serial port
 set_property -dict {PACKAGE_PIN N17  IOSTANDARD LVCMOS33} [get_ports {iec_atn_n_o}];            # F_SER_ATN
@@ -364,20 +371,15 @@ set_property -dict {PULLUP FALSE  SLEW FAST  DRIVE 16}    [get_ports {sdram_*}];
 ## PLACEMENT CONSTRAINTS
 ################################
 
-# Place HyperRAM close to I/O pins
-create_pblock pblock_i_hyperram
-add_cells_to_pblock pblock_i_hyperram [get_cells [list i_framework/i_hyperram]]
-resize_pblock pblock_i_hyperram -add {SLICE_X0Y200:SLICE_X7Y224}
-
 # Place Keyboard close to I/O pins
 create_pblock pblock_m65driver
 add_cells_to_pblock pblock_m65driver [get_cells [list i_framework/i_m2m_keyb/m65driver]]
 resize_pblock pblock_m65driver -add {SLICE_X0Y225:SLICE_X7Y243}
 
 # Place SD card controller in the middle between the left and right FPGA boundary because the output ports are at the opposide edges
-create_pblock pblock_sdcard
-add_cells_to_pblock pblock_sdcard [get_cells [list i_framework/i_qnice_wrapper/QNICE_SOC/sd_card]]
-resize_pblock pblock_sdcard -add {SLICE_X66Y178:SLICE_X99Y193}
+#create_pblock pblock_sdcard
+#add_cells_to_pblock pblock_sdcard [get_cells [list i_framework/i_qnice_wrapper/QNICE_SOC/sd_card]]
+#resize_pblock pblock_sdcard -add {SLICE_X66Y178:SLICE_X99Y193}
 
 # Place phase-shifted VGA output registers near the actual output buffers
 create_pblock pblock_vga

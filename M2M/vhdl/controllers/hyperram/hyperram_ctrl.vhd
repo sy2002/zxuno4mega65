@@ -36,15 +36,16 @@ entity hyperram_ctrl is
 
       -- HyperBus control signals
       hb_rstn_o           : out std_logic;
-      hb_ck_ddr_o         : out std_logic_vector(1 downto 0);
       hb_csn_o            : out std_logic;
+      hb_ck_ddr_o         : out std_logic_vector(1 downto 0);
       hb_dq_ddr_in_i      : in  std_logic_vector(15 downto 0);
       hb_dq_ddr_out_o     : out std_logic_vector(15 downto 0);
       hb_dq_oe_o          : out std_logic;
       hb_dq_ie_i          : in  std_logic;
       hb_rwds_ddr_out_o   : out std_logic_vector(1 downto 0);
       hb_rwds_oe_o        : out std_logic;
-      hb_rwds_in_i        : in  std_logic
+      hb_rwds_in_i        : in  std_logic;
+      hb_read_o           : out std_logic
    );
 end entity hyperram_ctrl;
 
@@ -53,6 +54,8 @@ architecture synthesis of hyperram_ctrl is
    type state_t is (
       INIT_ST,
       COMMAND_ADDRESS_ST,
+      WAIT_ST,
+      WAIT2_ST,
       SAMPLE_RWDS_ST,
       LATENCY_ST,
       READ_ST,
@@ -71,7 +74,7 @@ architecture synthesis of hyperram_ctrl is
    signal command_address   : std_logic_vector(47 downto 0);
    signal ca_count          : integer range 0 to 3;
    signal latency_count     : integer range 0 to 15;
-   signal read_clk_count    : integer range 0 to 255;
+   signal read_clk_count    : integer range 0 to 256;
    signal read_return_count : integer range 0 to 255;
    signal write_clk_count   : integer range 0 to 255;
    signal recovery_count    : integer range 0 to 255;
@@ -93,10 +96,10 @@ begin
    p_fsm : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         avm_readdatavalid_o <= '0';
          hb_rstn_o           <= '1';
          hb_dq_oe_o          <= '0';
          hb_rwds_oe_o        <= '0';
+         hb_read_o           <= '0';
 
          case state is
             when INIT_ST =>
@@ -137,27 +140,49 @@ begin
                      recovery_count <= 3;
                      state <= RECOVERY_ST;
                   else
-                     state <= SAMPLE_RWDS_ST;
+                     state <= WAIT_ST;
                   end if;
                end if;
 
+            when WAIT_ST =>
+               state <= WAIT2_ST;
+
+            when WAIT2_ST =>
+               state <= SAMPLE_RWDS_ST;
+
             when SAMPLE_RWDS_ST =>
                if hb_rwds_in_i = '1' then
-                  latency_count <= 2*G_LATENCY - 3;
-                  count_long <= count_long + 1;
+                  latency_count <= 2*G_LATENCY - 5;
+                  count_long    <= count_long + 1;
+                  state         <= LATENCY_ST;
                else
-                  latency_count <= G_LATENCY - 3;
                   count_short <= count_short + 1;
+                  if G_LATENCY >= 5 then
+                     latency_count <= G_LATENCY - 5;
+                     state         <= LATENCY_ST;
+                  else
+                     if read = '1' then
+                        read_clk_count    <= burst_count+1;
+                        read_return_count <= burst_count;
+                        hb_read_o         <= '1';
+                        state             <= READ_ST;
+                     else
+                        write_clk_count <= burst_count;
+                        hb_dq_oe_o      <= '1';
+                        hb_rwds_oe_o    <= '1';
+                        state           <= WRITE_ST;
+                     end if;
+                  end if;
                end if;
-               state <= LATENCY_ST;
 
             when LATENCY_ST =>
                if latency_count > 0 then
                   latency_count <= latency_count - 1;
                else
                   if read = '1' then
-                     read_clk_count    <= burst_count;
+                     read_clk_count    <= burst_count+1;
                      read_return_count <= burst_count;
+                     hb_read_o         <= '1';
                      state             <= READ_ST;
                   else
                      write_clk_count <= burst_count;
@@ -168,6 +193,7 @@ begin
                end if;
 
             when READ_ST =>
+               hb_read_o <= '1';
                if read_clk_count > 0 then
                   read_clk_count <= read_clk_count - 1;
                else
@@ -175,13 +201,11 @@ begin
                end if;
 
                if hb_dq_ie_i = '1' then
-                  avm_readdata_o      <= hb_dq_ddr_in_i;
-                  avm_readdatavalid_o <= '1';
                   read_return_count <= read_return_count - 1;
                   if read_return_count = 1 then
                      hb_csn_o       <= '1';
                      hb_ck_ddr_o    <= "00";
-                     recovery_count <= 3;
+                     recovery_count <= 1;
                      state          <= RECOVERY_ST;
                   end if;
                end if;
@@ -199,7 +223,7 @@ begin
                   if write_clk_count > 0 then
                      write_clk_count <= write_clk_count - 1;
                      if write_clk_count = 1 then
-                        recovery_count    <= 4;
+                        recovery_count    <= 2;
                         hb_dq_oe_o        <= '0';
                         hb_rwds_oe_o      <= '0';
                         avm_waitrequest_o <= '1';
@@ -223,7 +247,6 @@ begin
 
          if rst_i = '1' then
             avm_waitrequest_o   <= '1';
-            avm_readdatavalid_o <= '0';
             state        <= INIT_ST;
             hb_rstn_o    <= '0';
             hb_ck_ddr_o  <= (others => '0');
@@ -235,6 +258,9 @@ begin
          end if;
       end if;
    end process p_fsm;
+
+   avm_readdata_o      <= hb_dq_ddr_in_i;
+   avm_readdatavalid_o <= hb_dq_ie_i when state = READ_ST else '0';
 
    hb_dq_ddr_out_o   <= avm_writedata_i when state = WRITE_BURST_ST else
                         command_address(47 downto 32);
